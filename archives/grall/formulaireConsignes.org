@@ -1,0 +1,163 @@
+#+SETUPFILE: /home/hgrall/Public/siteWeb/src/css/config.orgcss 
+
+#+HTML_LINK_UP: https://web.emn.fr/x-de/projet-merite/index.php
+
+#+DESCRIPTION: projet Mérite, communication entre machines, consignes de jeu
+#+KEYWORDS: IMTA, informatique, communication entre machines, réseau, routage, Internet, Mérite
+
+#+OPTIONS: H:5 num:t
+
+
+#+TITLE: Projet Mérite - La communication entre machines 
+#+SUBTITLE: Paramétrisation des consignes de jeu
+
+#+DATE: v1: 2017-03-17; v2: 2017-05-15[-maxMessages (jeu 3)]; v3: 2017-06-02[liens]
+
+
+* Jeu 1 : adressage et routage
+
+#+BEGIN_EXPORT html
+<script type="text/javascript">  
+function encode(str, base, prefix) {
+  var encodedStr = '';
+  for(var i = 0, l = str.length; i < l; i++) {
+    var s = parseInt(str.charCodeAt(i)).toString(base);
+    encodedStr += prefix + s;
+  }
+  return encodedStr;
+}
+function convertChars(base, separator, word, context, continuation){
+  continuation(context, encode(word, base, separator));
+}
+
+function ouvrirConsigne1(pays, pseudos, trames, saut) {
+    var chemin = window.location.pathname;
+    var rep = chemin.substring(0, chemin.lastIndexOf('/'));
+    window.open(
+      'file://' + rep + '/consignes_jeu1_adressageRoutage_r4.html?' 
+      + 'nombrePays=' + pays + '&nombrePseudos=' + pseudos
+      + '&tailleTrames=' + trames
+      + '&saut=' + saut
+      , '_blank');
+}
+
+function restaurerValDefaut1(formulaire) {
+  formulaire.nbrePays.value = 6;
+  formulaire.nbrePseudos.value = 3;
+  formulaire.tailleTrames.value = 13;
+  formulaire.saut.value = 4;
+}
+
+</script>
+
+    <form id="consigneJeu1">
+      Nombre de pays (îlots):
+      <input type="number" id="nbrePays" min="4" step="2" value="6">
+      Nombre maximal de pseudos par pays :
+      <input type="number" id="nbrePseudos" min="1" value="3">
+      Taille des trames (en bits) :
+      <input type="number" id="tailleTrames" min="4" value="12"> 
+      Nombre de consignes par page (les consignes allant par paire) :
+      <input type="number" id="saut" min="1" value="4"> <br>
+      
+      <input class="button" type="button" id="generation1" value="Engendrer les consignes."
+             onClick="ouvrirConsigne1(this.form.nbrePays.value, 
+	                this.form.nbrePseudos.value, 
+			this.form.tailleTrames.value,
+			this.form.saut.value)">
+      <input class="button" type="button" id="restaurationDefaut1" value="Restaurer les valeurs par défaut."
+             onClick="restaurerValDefaut1(this.form)">
+    </form>
+#+END_EXPORT
+
+L'impression doit se faire avec les paramètres suivants :
+- Imprimer dans un fichier 
+- Taille : 87%
+- Imprimer les couleurs d'arrière-plan 
+- Orientation : paysage
+- Format A4, sans pied ni tête  
+
+Si dans le pdf obtenu, les sauts de page se font mal, modifier le
+paramètre "Nombre de consignes par page" (les consignes allant par
+paire). Finalement, imprimer le pdf, une page par feuille (option
+"Recto").
+
+
+* Jeu 2 : équipement pour le routage
+
+- Des panneaux simples, vierges ou avec des cases : feuilles A5 pliées en
+  deux, pré-remplies par la liste des pays (chaque pays étant représenté
+  par une séquence de cases blanches ou noires)
+- Des feuilles vierges (format A4) pour représenter les cartes
+- Des trames formées d'une quinzaine de cases (recto et verso, soit une
+  trentaine de cases au total)
+
+* Jeu 3 : découpage en paquets
+
+#+BEGIN_EXPORT html
+<script type="text/javascript">  
+function encode(str, base, prefix) {
+  var encodedStr = '';
+  for(var i = 0, l = str.length; i < l; i++) {
+    var s = parseInt(str.charCodeAt(i)).toString(base);
+    encodedStr += prefix + s;
+  }
+  return encodedStr;
+}
+function convertChars(base, separator, word, context, continuation){
+  continuation(context, encode(word, base, separator));
+}
+
+function ouvrirConsigne3(pays, pseudos, maxPaquets, saut) {
+  var chemin = window.location.pathname;
+  var rep = chemin.substring(0, chemin.lastIndexOf('/'));
+  window.open(
+    'file://' + rep + '/consignes_jeu3_decoupage_r4.html?' 
+    + 'nombrePays=' + pays + '&nombrePseudos=' + pseudos
+    + '&maxPaquets=' + maxPaquets
+    + '&saut=' + saut
+    , '_blank')
+}
+
+function restaurerValDefaut3(formulaire) {
+  formulaire.nbrePays.value = 6;
+  formulaire.nbrePseudos.value = 3;
+  formulaire.maxPaquets.value = 3;
+  formulaire.saut.value = 7;
+}
+
+
+</script>
+
+    <form id="consigneJeu3">
+      Nombre de pays (îlots):
+      <input type="number" id="nbrePays" min="4" step="2" value="6">
+      Nombre maximal de pseudos par pays :
+      <input type="number" id="nbrePseudos" min="1" value="3">
+      Nombre maximal de paquets par message :
+      <input type="number" id="maxPaquets" min="2" value="4">
+      Nombre de consignes par page :
+      <input type="number" id="saut" min="1" value="7"> <br>
+
+      <input class="button" type="button" id="generation3" value="Engendrer les consignes."
+             onClick="ouvrirConsigne3(this.form.nbrePays.value, 
+	                this.form.nbrePseudos.value, 
+			this.form.maxPaquets.value,
+			this.form.saut.value)">
+      <input class="button" type="button" id="restaurerDefaut3" value="Restaurer les valeurs par défaut."
+             onClick="restaurerValDefaut3(this.form)">
+
+
+    </form>
+#+END_EXPORT
+
+L'impression doit se faire avec les paramètres suivants :
+- Imprimer dans un fichier 
+- Taille : 87%
+- Imprimer les couleurs d'arrière-plan 
+- Orientation : paysage
+- Format A4, sans pied ni tête  
+
+Si dans le pdf obtenu, les sauts de page se font mal, modifier le
+paramètre "Nombre de consignes par page". Finalement, imprimer le pdf,
+une page par feuille (option "Recto").
