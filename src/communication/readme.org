@@ -1,0 +1,60 @@
+* Recommandations concernant Javascript
+
+- Utiliser ECMAscript 2015.
+
+* Gestion des modules
+
+- côté serveur : utiliser l'API de Node
+- côté client : utiliser l'API du navigateur
+
+cf. https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
+
+* Format des données : JSON
+
+** Messages
+
+#+BEGIN_SRC js
+{
+ emetteur : String,
+ identifiant : String,
+ destinataire : String
+ type : String,
+ contenu : String,
+} 
+#+END_SRC
+
+* Protocole de communication
+
+Côté client
+- Le client initie une WebSocket avec le serveur.
+- Le client envoie son identité (pseudo).
+- Le client envoie un message au format JSON spécifié.
+- Le client reçoit un message au format JSON spécifié.
+
+Côté serveur
+- Le serveur répond à la requête de création de WebSocket.
+- Le serveur reçoit l'identité d'un client.
+- Le serveur reçoit un message au format JSON spécifié.
+- Le serveur envoie un message au format JSON spécifié.
+
+* Organisation
+
+Trois axes pour organiser le code
+- fonctionnalités
+  - communication
+- serveur / client
+- modèle (données) / vue (html)
+
+
+* Travail à faire
+
+** TODO  Réaliser les fonctions de communication. BB
+   DEADLINE: <2017-06-29 jeu.>
+
+** TODO Définir les messages. HG + BB
+   DEADLINE: <2017-06-29 jeu.>
+   
+** TODO Spécifier le jeu 1. HG
+   DEADLINE: <2017-06-29 jeu.>
+   
+
