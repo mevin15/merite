@@ -31,13 +31,19 @@ wsServer.on('request', function(r){
 	// Loop through all clients
 	for(var i in clients){
             // Send a message to the client with the message
-            clients[i].sendUTF(msgString);
+
+	    if(i == id){
+		
+	    }else{
+		console.log("Diffusion de " + id + " vers " + i);
+		clients[i].sendUTF(msgString);
+	    }
 	}
 	
     });
 
     connection.on('close', function(reasonCode, description) {
 	delete clients[id];
-	console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
+	console.log((new Date()) + ' Peer ' + id + " at " + connection.remoteAddress + ' disconnected.');
     });
 });
