@@ -1,0 +1,16 @@
+* Test d'une communication client-serveur
+
+> node testWebSocket.js 
+
+Dans un navigateur, ouvrir plusieurs clients :
+- testClientWebSocket.html
+
+Entrer des messages puis les envoyer.
+
+* Source 
+
+http://codular.com/node-web-sockets
+
+* Paquets à installer
+
+npm install websocket
