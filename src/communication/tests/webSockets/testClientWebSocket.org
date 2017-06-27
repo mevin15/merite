@@ -18,32 +18,29 @@
 
 #+BEGIN_EXPORT html
 <script type="text/javascript">
-var ws = new WebSocket('ws://localhost:1234', 'echo-protocol');
+var canal = new WebSocket('ws://localhost:1234', 'echo-protocol');
 
-function sendMessage(){
-    var message = document.getElementById('message').value;
-    ws.send(message);
+function envoyerMessage(message){
+    canal.send(message);
 }
 
-ws.addEventListener("message", function(e) {
-    // The data is simply the message that we're sending back
+canal.addEventListener("message", function(e) {
     var msg = e.data;
-
-    // Append the message
+    // Ajouter le message.
     document.getElementById('chatlog').innerHTML += '<br>' + msg;
 });
 
 
 </script>
 
-<div id="chatlog">coucou</div>
+<div id="chatlog">coucou <br></div>
 
 <form id="envoi">
 
   <input type="text" id="message"> 
       
   <input class="button" type="button" id="boutonEnvoi" value="Envoyer un message."
-     onClick="sendMessage(this.form.message.value)">
+     onClick="envoyerMessage(this.form.message.value)">
 </form>
 
 #+END_EXPORT

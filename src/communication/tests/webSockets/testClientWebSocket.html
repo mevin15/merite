@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-06-26 lun. 13:48 -->
+<!-- 2017-06-27 mar. 17:55 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Projet Mérite - La communication entre machines - Test des Web Sockets</title>
@@ -244,42 +244,39 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orge72d279">1. Chat - Client</a></li>
+<li><a href="#org394e7cc">1. Chat - Client</a></li>
 </ul>
 </div>
 </div>
 
 
-<div id="outline-container-orge72d279" class="outline-2">
-<h2 id="orge72d279"><span class="section-number-2">1</span> Chat - Client</h2>
+<div id="outline-container-org394e7cc" class="outline-2">
+<h2 id="org394e7cc"><span class="section-number-2">1</span> Chat - Client</h2>
 <div class="outline-text-2" id="text-1">
 <script type="text/javascript">
-var ws = new WebSocket('ws://localhost:1234', 'echo-protocol');
+var canal = new WebSocket('ws://localhost:1234', 'echo-protocol');
 
-function sendMessage(){
-    var message = document.getElementById('message').value;
-    ws.send(message);
+function envoyerMessage(message){
+    canal.send(message);
 }
 
-ws.addEventListener("message", function(e) {
-    // The data is simply the message that we're sending back
+canal.addEventListener("message", function(e) {
     var msg = e.data;
-
-    // Append the message
+    // Ajouter le message.
     document.getElementById('chatlog').innerHTML += '<br>' + msg;
 });
 
 
 </script>
 
-<div id="chatlog">coucou</div>
+<div id="chatlog">coucou <br></div>
 
 <form id="envoi">
 
   <input type="text" id="message"> 
       
   <input class="button" type="button" id="boutonEnvoi" value="Envoyer un message."
-     onClick="sendMessage(this.form.message.value)">
+     onClick="envoyerMessage(this.form.message.value)">
 </form>
 </div>
 </div>
@@ -287,7 +284,7 @@ ws.addEventListener("message", function(e) {
 <div id="postamble" class="status">
 <p class="date">Date: v1: 2017-06-26</p>
 <p class="author">Author: Hervé Grall</p>
-<p class="date">Created: 2017-06-26 lun. 13:48</p>
+<p class="date">Created: 2017-06-27 mar. 17:55</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
