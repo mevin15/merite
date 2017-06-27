@@ -1,0 +1,31 @@
+* Test d'Express pour la création de pages dynamiques
+
+> node testExpressPagesDynamiques.js 
+../webSockets > node testWebSocket.js
+
+Dans un navigateur, ouvrir plusieurs clients à l'adresse :
+- localhost:3000
+
+Entrer des messages puis les envoyer.
+
+* Références 
+
+Documentation d'Express
+- http://expressjs.com/en/starter/hello-world.html
+- http://expressjs.com/en/advanced/developing-template-engines.html
+
+* Paquets à installer
+
+npm install express
+
+* Contenu du répertoire
+
+- readme.org : ce fichier
+- index.ntl : template de index.html (balises #...# remplacées
+  dynamiquement)    
+- testClientWebSocket.ntl : template inspiré du html
+- testExpressPagesDynamiques.js : code serveur remplaçant la balise par
+  une adresse
+- testExpressPagesDynamiques_v0.js : code pour "Hello World"
+
+
