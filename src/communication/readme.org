@@ -37,6 +37,60 @@ Côté serveur
 - Le serveur reçoit un message au format JSON spécifié.
 - Le serveur envoie un message au format JSON spécifié.
 
+** Formalisation
+
+*** données
+
+- message
+  - emetteur
+  - destinataire
+
+*** Serveur
+
+Canaux
+- initier(rep)
+- serveur_p
+- canal(TYPE, msg) : canal bi-directionnel
+
+Etat du serveur
+- Port(p) : port utilisé pour la prochaine communication
+- C(i) : compteur des clients
+- Nom(i, n) : nom n du client i
+- Description(i, n, canal) : ième client décrit par n et communiquant
+  par canal 
+- Autorisation(i, j) : communication de i vers j autorisée
+
+#+BEGIN_SRC js
+- initier(rep) & Port(p) -> rep(serveur_p) & Port(p+1)
+
+- serveur_p(canal) & C(i) & Nom(i, n) 
+  ->
+  canal(NOM, n) 
+  & C(i+1) & Nom(i, n) & Description(i, n, canal)
+
+- canal(ENVOI, msg) & Description(i, msg.emetteur, canal) 
+  ->  
+  Transit(i, msg, canal)
+- canal(msg) & ¬Description(i, msg.emetteur, canal) 
+  ->  
+  canal(ERREUR, msg.emetteur " non associé à " canal)
+
+- Transit(i, msg, canal) 
+  & Description(j, msg.destinataire, canalDest) & Autorisation(i, j)
+  ->
+  canal(OK, msg) & canalDest(TRANSIT, msg) 
+  & Description(j, msg.destinataire, canalDest) & Autorisation(i, j)
+- Transit(i, msg, canal) 
+  & ¬Description(j, msg.destinataire, canalDest)
+  ->
+  canal(ERREUR, msg.destinataire " inconnu") 
+- Transit(i, msg, canal) 
+  & Description(j, msg.destinataire, canalDest) & ¬Autorisation(i, j)
+  ->
+  canal(ERREUR, "Interdit vers " msg.destinataire) 
+ #+END_SRC
+
+
 * Organisation
 
 Trois axes pour organiser le code
