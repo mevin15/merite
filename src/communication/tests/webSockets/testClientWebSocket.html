@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-06-27 mar. 17:55 -->
+<!-- 2017-06-27 mar. 21:02 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Projet Mérite - La communication entre machines - Test des Web Sockets</title>
+<title>Projet Mérite - La communication entre machines</title>
 <meta name="generator" content="Org mode" />
 <meta name="author" content="Hervé Grall" />
 <meta name="description" content="projet Mérite, communication entre machines, tests des web sockets"
@@ -236,28 +236,39 @@ for the JavaScript code in this tag.
  |
  <a accesskey="H" href="http://www.grall.name"> HOME </a>
 </div><div id="content">
-<h1 class="title">Projet Mérite - La communication entre machines - Test des Web Sockets
+<h1 class="title">Projet Mérite - La communication entre machines
 <br>
-<span class="subtitle">Paramétrisation des consignes de jeu</span>
+<span class="subtitle">Test des Web Sockets</span>
 </h1>
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org394e7cc">1. Chat - Client</a></li>
+<li><a href="#orge3a5f0f">1. Chat - Client</a></li>
 </ul>
 </div>
 </div>
 
 
-<div id="outline-container-org394e7cc" class="outline-2">
-<h2 id="org394e7cc"><span class="section-number-2">1</span> Chat - Client</h2>
+<div id="outline-container-orge3a5f0f" class="outline-2">
+<h2 id="orge3a5f0f"><span class="section-number-2">1</span> Chat - Client</h2>
 <div class="outline-text-2" id="text-1">
 <script type="text/javascript">
 var canal = new WebSocket('ws://localhost:1234', 'echo-protocol');
 
 function envoyerMessage(message){
-    canal.send(message);
+   var msg = {
+    "type": "message",
+    "contenu": message,
+    "date": Date.now()
+    };
+    msg = JSON.stringify(msg);
+    console.log("message json : " + msg);
+    // Send the msg object as a JSON-formatted string.
+    canal.send(msg);
+  
+    // Blank the text input element, ready to receive the next line of text from the user.
+    document.getElementById("message").value = "";
 }
 
 canal.addEventListener("message", function(e) {
@@ -284,7 +295,7 @@ canal.addEventListener("message", function(e) {
 <div id="postamble" class="status">
 <p class="date">Date: v1: 2017-06-26</p>
 <p class="author">Author: Hervé Grall</p>
-<p class="date">Created: 2017-06-27 mar. 17:55</p>
+<p class="date">Created: 2017-06-27 mar. 21:02</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
