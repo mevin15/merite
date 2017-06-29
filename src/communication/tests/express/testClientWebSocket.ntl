@@ -259,7 +259,21 @@ var canal = new WebSocket('ws://localhost:1234', 'echo-protocol');
 function envoyerMessage(message){
     // Ajouter le message.
     document.getElementById('chatlog').innerHTML += '<br> ! ' + message;
-    canal.send(message);
+
+   var msg = {
+    "type": "message",
+    "contenu": message,
+    "date": Date.now()
+    };
+    msg = JSON.stringify(msg);
+    console.log("message json : " + msg);
+    // Send the msg object as a JSON-formatted string.
+    canal.send(msg);
+  
+    // Blank the text input element, ready to receive the next line of text from the user.
+    document.getElementById("message").value = "";
+
+    
 }
 
 canal.addEventListener("message", function(e) {
