@@ -1,3 +1,5 @@
+var fileName = "tessstttttttttttttttttt.js";
+document.write("<script type='text/javascript' src='"+fileName+"'></script>" );
 var maSocket = new Nsocket();
 
 //var socket = io.connect('http://192.168.1.11:8080');

@@ -27,91 +27,96 @@ vm.runInThisContext(content);
 var http_serveur = objet_http.createServer(function(req, res) {
 	var page = objet_url.parse(req.url).pathname;
 	console.log(page);
-	if (page == '/'){
+	switch(page){
+		case '/' : 
 			objet_fs.readFile('../html/index.html', 'utf-8', function(error, content) {
 			res.writeHead(200, {"Content-Type": "text/html"});
-			res.end(content);
-			});
-		}
-
-	if (page == '/admin2017'){
+			res.end(content);})
+			break;
+			
+		case '/admin2017' : 
 			objet_fs.readFile('../html/admin2017.html', 'utf-8', function(error, content) {
 			res.writeHead(200, {"Content-Type": "text/html"});
-			resend(content);
-			});
-		}
+			resend(content);})
+			break;
+			
+		case '/client.js' : 
+			objet_fs.readFile('client.js', function(error, content) {
+			res.writeHead(200, {"Content-Type": "application/javascript"});
+			res.end(content);})
+			break;
 
-	if (page == '/client.js'){
-		objet_fs.readFile('client.js', function(error, content) {
+		case '/Ligne.js' : 
+			objet_fs.readFile('../js/objets/Ligne.js', function(error, content) {
 			res.writeHead(200, {"Content-Type": "application/javascript"});
-			res.end(content);
-			});
-	}
+			res.end(content);})
+			break;
 
-	if (page == '/Ligne.js'){
-		objet_fs.readFile('../js/objets/Ligne.js', function(error, content) {
+		case '/Bouton.js' : 
+			objet_fs.readFile('../js/objets/Bouton.js', function(error, content) {
 			res.writeHead(200, {"Content-Type": "application/javascript"});
-			res.end(content);
-			});
-	}
-	if (page == '/Bouton.js'){
-		objet_fs.readFile('../js/objets/Bouton.js', function(error, content) {
+			res.end(content);})
+			break;
+
+		case '/Tableau.js' : 
+			objet_fs.readFile('../js/objets/Tableau.js', function(error, content) {
 			res.writeHead(200, {"Content-Type": "application/javascript"});
-			res.end(content);
-			});
-	}
-	if (page == '/Tableau.js'){
-		objet_fs.readFile('../js/objets/Tableau.js', function(error, content) {
+			res.end(content);})
+			break;
+			
+		case '/Cadre.js' : 
+			objet_fs.readFile('../js/objets/Cadre.js', function(error, content) {
 			res.writeHead(200, {"Content-Type": "application/javascript"});
-			res.end(content);
-			});
-	}
-	if (page == '/Cadre.js'){
-		objet_fs.readFile('../js/objets/Cadre.js', function(error, content) {
+			res.end(content);})
+			break;
+			
+		case '/Nsocket.js' : 
+			objet_fs.readFile('../js/objets/Nsocket.js', function(error, content) {
 			res.writeHead(200, {"Content-Type": "application/javascript"});
-			res.end(content);
-			});
-	}
-	if (page == '/Nsocket.js'){
-		objet_fs.readFile('../js/objets/Nsocket.js', function(error, content) {
+			res.end(content);})
+			break;
+			
+		case '/socket.io.js' : 
+			objet_fs.readFile('../../node_modules/socket.io-client/dist/socket.io.js', function(error, content) {
 			res.writeHead(200, {"Content-Type": "application/javascript"});
-			res.end(content);
-			});
-	}
-	if (page == '/socket.io.js'){
-		objet_fs.readFile('../../node_modules/socket.io-client/dist/socket.io.js', function(error, content) {
+			res.end(content);})
+			break;
+			
+		case '/Sprite.js' : 
+			objet_fs.readFile('../js/anim/Sprite.js', function(error, content) {
 			res.writeHead(200, {"Content-Type": "application/javascript"});
-			res.end(content);
-			});
-	}
-	
-	if (page == '/cssFunction.js'){
-		objet_fs.readFile('cssFunction.js', function(error, content) {
+			res.end(content);})
+			break;
+			
+		case '/cssFunction.js' : 
+			objet_fs.readFile('cssFunction.js', function(error, content) {
 			res.writeHead(200, {"Content-Type": "application/javascript"});
-			res.end(content);
-			});
-	}
-	
-	if (page == '/mail3.png'){
+			res.end(content);})
+			break;
+			
+		case '/mail3.png' : 
 			objet_fs.readFile('../img/mail3.png', 'binary', function(error, content) {
-
-	 res.writeHead(200, {"Content-Type": "image/png"});
+			res.writeHead(200, {"Content-Type": "image/png"});
 			res.write(content, "binary");
-			res.end();
-			});
-	}
-
-if (page == '/trash5.png'){
+			res.end();})
+			break;
+			
+		case '/trash5.png' : 
 			objet_fs.readFile('../img/trash5.png', 'binary', function(error, content) {
-
-	 res.writeHead(200, {"Content-Type": "image/png"});
+			res.writeHead(200, {"Content-Type": "image/png"});
 			res.write(content, "binary");
-			res.end();
-			});
-	}
-	
-	
-});
+			res.end();})
+			break;
+			
+		case '/sablier_sprite.png' : 
+			objet_fs.readFile('../img/sprites/sablier_sprite.png', 'binary', function(error, content) {
+			res.writeHead(200, {"Content-Type": "image/png"});
+			res.write(content, "binary");
+			res.end();})
+			break;
+			
+		}//end switch
+	});//end function
 				
 //On récupère le module socket pour rester connecté avec la page html
 var objet_socket = require('socket.io').listen(http_serveur);

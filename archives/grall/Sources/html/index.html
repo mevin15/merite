@@ -13,7 +13,7 @@
 	<script src="Cadre.js"></script>
     <script src="Bouton.js"></script>
 	<script src="cssFunction.js"></script>
-
+	<script src="Sprite.js"></script>
 		<!------script src="../js/local_event.js"></script------->
 			<script>
 			document.body.style.backgroundColor = '#D1D12C';
@@ -46,6 +46,10 @@
 			cadre_message_cree.addBouton(creer_bouton_envoyer_s);
 			var creer_bouton_envoyer_p = new Bouton("Envoyer au précédent", "10px", "0px", "bas-gauche", "160px", "27px");
 			cadre_message_cree.addBouton(creer_bouton_envoyer_p);
+			
+// Créer sablier animé
+			var sablier = new Sprite('sablier_sprite.png', 13, 1000, 30, 40, null, 500, 50);
+			sablier.jouer();
 			</script>
 	<script src="client.js"></script>
 </html>
