@@ -99,6 +99,9 @@ Trois axes pour organiser le code
 - serveur / client
 - modèle (données) / vue (html)
 
+Cf. Express qui donne une architecture type.
+- http://expressjs.com/en/starter/generator.html
+
 
 * Travail à faire
 
