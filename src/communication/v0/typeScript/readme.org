@@ -43,7 +43,13 @@ en fournissant un environnement de développement :
   - client
   - commun
   - serveur
-  
+- test
+  - bibliotheque
+  - chat 
+    - client
+    - commun
+    - serveur
+    
 *** exécutables (js)
 
 - répertoire build
@@ -61,6 +67,16 @@ Modules principaux
   - Cf. bibliotheque/serveur.ts  
 - webpack : production du script js embarqué en incorporant les modules utilisés
   - Cf. webpack.config.js
+- mocha et chai pour les tests
+  - Cf. le répertoire test
+  - Cf. le seul exemple dans test/chat/commun
+Installations
+> npm install
+
+Initialement (pour les tests) :
+> npm install mocha chai ts-node --save-dev
+> npm install @types/chai @types/mocha --save-dev
+
 
 ** Fonctionnement
 
@@ -78,6 +94,9 @@ Modules principaux
   - Le nom merite est résolu dans /etc/hosts en l'adresse IP 127.0.0.1.
 
 - Chargement de l'application dans un navigateur : merite:3000
+
+- Lancement des tests
+  - > npm run test
 
 ** Configuration
 

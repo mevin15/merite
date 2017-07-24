@@ -53,8 +53,7 @@ serveurVues.enregistrerVueDynamique("/", (i: Interaction) => {
     let voisinsNoeud = n.voisinsEnJSON();
     let repVoisinsNoeud: string = JSON.stringify(voisinsNoeud);
     let contenuFormulaire = "";
-    let idV;
-    for (idV in voisinsNoeud) {
+    for (let idV in voisinsNoeud) {
         contenuFormulaire = contenuFormulaire + elementSaisieEnvoi("message_" + idV, "boutonEnvoi_" + idV,
             "Envoyer un message à " + n.voisin(idV).enJSON().pseudo + ".");
     }
