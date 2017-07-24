@@ -1,0 +1,7 @@
+* Node et typescript
+
+** Typage
+
+> npm install @types/node --save-dev
+> pm install --save @types/paquetNode
+

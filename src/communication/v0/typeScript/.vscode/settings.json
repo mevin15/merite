@@ -1,0 +1,10 @@
+// Placez vos paramètres dans ce fichier pour remplacer les paramètres par défaut et les paramètres utilisateur.
+{
+    "files.exclude": {
+        "**/.git": true,
+        "bib/**/*.js": true,
+        "client/**/*.js": true,
+        "serveur/**/*.js": true
+    },
+    "typescript.tsdk": "/home/hgrall/Installations/nodeJS/x64/node-v6.11.0-linux-x64/lib/node_modules/typescript/lib/"
+}

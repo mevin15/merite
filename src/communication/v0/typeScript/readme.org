@@ -1,0 +1,91 @@
+* Application de tchat (chat en anglais)
+
+** Règles chimiques
+
+chat dans un réseau
+
+*** Serveur
+
+Etat
+- Noeud(c : Sommet, voisins : Sommet[])
+- NoeudConnecte(c : sommet, vosins : sommet[], canal : LiaisonClientServeur)
+
+Canaux
+- initier(ret : CanalRetour)
+- activer(ret : CanalRetour, c : Sommet, canal : LiaisonClientServeur)
+- communiquer(canal : LiaisonClientServeur, msg : Message)
+
+Règles pour la connexion
+- initier(ret) & Noeud(c, voisins) -> ret(c, voisins, activer) & NoeudConnecte(c, voisins, null)
+- activer(ret, c, k) & NoeudConnecte(c, voisins, null) -> ret(OK) & NoeudConnecte(c, voisins, k)
+- communiquer(k, FIN) & NoeudConnecte(c, voisins, k) -> Noeud(c, voisins)
+
+Règles pour la communication
+- communiquer(k, msg) & NoeudConnecte(msg.emetteur, voisins, k) 
+  & (msg.destination in voisins) & NoeudConnecte(msg.destination, u, l)
+  -> k(AR(msg)) & l(Transit(msg))
+  & NoeudConnecte(msg.emetteur, voisins, k) & NoeudConnecte(msg.destination, u, l)
+
+TODO ajouter les cas d'erreurs.
+
+
+** Architecture
+
+La stratégie générale est de masquer complètement la partie technique 
+en fournissant un environnement de développement : 
+- frameworks et bibliothèques dédiés, avec du code écrit en Français 
+  et des abstractions manipulables aisément.
+
+*** source
+
+- bibliotheque
+- chat 
+  - client
+  - commun
+  - serveur
+  
+*** exécutables (js)
+
+- répertoire build
+  - même structure que les sources
+  - js à embarquer : client.appli.js (cf. webpack.config.js)
+
+*** dépendances
+
+- plateforme node js
+
+Modules principaux
+- Express js : définition des serveurs
+  - Cf. bibliotheque/serveurVuesDynamiques.ts
+- websocket : utilisation du protocole Web Socket côté serveur
+  - Cf. bibliotheque/serveur.ts  
+- webpack : production du script js embarqué en incorporant les modules utilisés
+  - Cf. webpack.config.js
+
+** Fonctionnement
+
+- Engendrer la page de l'application (modèle parmétré) :
+  - clientTchat.org -> clientTchat.html (sous emacs) -> clientTchat.tchat (renommage)
+
+- Produire les exécutables
+  - > npm run build
+  - cf. package.json, partie scripts et tsconfig.json pour les options de compilation
+
+- Lancement des serveurs
+  - > node build/chat/serveur/serveurChat.js
+  - serveur 1 (serveur de l'application) : écoute de l'adresse merite:3000   
+  - serveur 2 (serveur des canaux de communication par Web socket)  : écoute de l'adresse merite:1234
+  - Le nom merite est résolu dans /etc/hosts en l'adresse IP 127.0.0.1.
+
+- Chargement de l'application dans un navigateur : merite:3000
+
+** Configuration
+
+- Le réseau est configurable : il s'agit d'un anneau dont le nombre de noeuds peut varier.
+  - Cf. chat/serveur/serveurChat.ts
+
+** A faire
+
+- Améliorer l'interface graphique.
+- Utiliser Angular 2 pour la partie client en plus d'Express pour la partie serveur à la place du fichier org 
+  et de la paramétrisation des pages (template engine d'Express).

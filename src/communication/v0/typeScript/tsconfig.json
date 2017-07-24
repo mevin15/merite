@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "es3",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "outDir": "./build",
+        "lib" : [ "dom", "es6"] 
+    },
+    "exclude": [
+        "./node_modules"
+    ]
+}

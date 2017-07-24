@@ -1,0 +1,20 @@
+{
+  "name": "demo-chat",
+  "version": "1.0.0",
+  "description": "Communication via web socket avec partage d'une biliotheque.",
+  "main": "webpack.config.js",
+  "scripts": {
+    "tsc": "tsc",
+    "webpack": "webpack",
+    "build": "npm run tsc && npm run webpack"
+  },
+  "devDependencies": {
+    "@types/express": "^4.0.36",
+    "typescript": "^2.4.1",
+    "webpack": "^3.0.0"
+  },
+  "dependencies": {
+    "express": "^4.15.3",
+    "websocket": "^1.0.24"
+  }
+}
