@@ -5,7 +5,7 @@ import {
 import {
     elementParId, recupererEntree, initialiserEntree, contenuBalise, poster, posterNL,
     gererEvenementDocument, gererEvenementElement,
-    elementSaisieEnvoi
+    elementSaisieEnvoi, initialiserDocument
 } from "../../bibliotheque/vueClient";
 import { CanalClient } from "../../bibliotheque/client";
 import {
@@ -13,10 +13,12 @@ import {
     creerMessageCommunication,
     TypeMessageTchat, FormatMessageTchat, MessageTchat,
     FormatConfigurationTchat, ConfigurationTchat,
-    FormatErreurTchat,
+    FormatErreurTchat, ErreurTchat,
     FormatSommetTchat, creerSommetTchat,
     creerNoeudDeConfiguration
 } from '../commun/tchat';
+import {dateFr} from "../../bibliotheque/outils"
+
 
 console.log("* Chargement du script");
 
@@ -58,18 +60,25 @@ function initialisation(): void {
     });
 
     console.log("- du traitement de la configuration");
-    console.log("- du noeud du réseau");
     canal.enregistrerTraitementConfigurationRecue((c: FormatConfigurationTchat) => {
         let config = new ConfigurationTchat(c);
         console.log("* Réception");
         console.log("- de la configuration brute : " + config.brut());
         console.log("- de la configuration nette : " + config.net());
+        console.log("* Initialisation du noeud du réseau");
         noeud = creerNoeudDeConfiguration(config);
         voir();
     });
 
-
-
+    console.log("- du traitement d'une erreur rédhibitoire");
+    canal.enregistrerTraitementErreurRecue((err: FormatErreurTchat) => {
+        let erreur = new ErreurTchat(err);
+        console.log("* Réception");
+        console.log("- de l'erreur rédhibitoire brute : " + erreur.brut());
+        console.log("- de l'erreur rédhibitoire nette : " + erreur.net());
+        console.log("* Initialisation du document");
+        initialiserDocument(dateFr(erreur.enJSON().date) + " : " + erreur.enJSON().messageErreur);
+    });
 
 }
 

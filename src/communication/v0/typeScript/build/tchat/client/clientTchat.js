@@ -3,6 +3,7 @@ exports.__esModule = true;
 var vueClient_1 = require("../../bibliotheque/vueClient");
 var client_1 = require("../../bibliotheque/client");
 var tchat_1 = require("../commun/tchat");
+var outils_1 = require("../../bibliotheque/outils");
 console.log("* Chargement du script");
 /* Test - déclaration d'une variable externe - Possible
 cf. declare
@@ -32,14 +33,23 @@ function initialisation() {
         vueClient_1.posterNL('logChats', msg.net());
     });
     console.log("- du traitement de la configuration");
-    console.log("- du noeud du réseau");
     canal.enregistrerTraitementConfigurationRecue(function (c) {
         var config = new tchat_1.ConfigurationTchat(c);
         console.log("* Réception");
         console.log("- de la configuration brute : " + config.brut());
         console.log("- de la configuration nette : " + config.net());
+        console.log("* Initialisation du noeud du réseau");
         noeud = tchat_1.creerNoeudDeConfiguration(config);
         voir();
+    });
+    console.log("- du traitement d'une erreur rédhibitoire");
+    canal.enregistrerTraitementErreurRecue(function (err) {
+        var erreur = new tchat_1.ErreurTchat(err);
+        console.log("* Réception");
+        console.log("- de l'erreur rédhibitoire brute : " + erreur.brut());
+        console.log("- de l'erreur rédhibitoire nette : " + erreur.net());
+        console.log("* Initialisation du document");
+        vueClient_1.initialiserDocument(outils_1.dateFr(erreur.enJSON().date) + " : " + erreur.enJSON().messageErreur);
     });
 }
 function voir() {

@@ -151,7 +151,7 @@ export interface FormatErreurTchat extends FormatErreurRedhibitoire {
     "date": Date
 }
 
-export class ErreurChat extends ErreurRedhibitoire<FormatErreurTchat> {
+export class ErreurTchat extends ErreurRedhibitoire<FormatErreurTchat> {
     net(): string {
         let erreur = this.enJSON();
         return JSON.stringify({
@@ -161,8 +161,8 @@ export class ErreurChat extends ErreurRedhibitoire<FormatErreurTchat> {
     }
 }
 
-export function creerMessageErreur(msg: string, date: Date): ErreurChat {
-    return new ErreurChat({
+export function creerMessageErreur(msg: string, date: Date): ErreurTchat {
+    return new ErreurTchat({
         "erreurRedhibitoire": Unite.un,
         "messageErreur": msg,
         "date": date

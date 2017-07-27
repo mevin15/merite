@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -70,9 +70,29 @@
 "use strict";
 
 exports.__esModule = true;
-var vueClient_1 = __webpack_require__(1);
-var client_1 = __webpack_require__(2);
-var tchat_1 = __webpack_require__(3);
+function dateFr(d) {
+    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    return (new Date(d)).toLocaleString("fr-FR", options);
+}
+exports.dateFr = dateFr;
+function dateFrLog(d) {
+    var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    return (new Date(d)).toLocaleString("fr-FR", options);
+}
+exports.dateFrLog = dateFrLog;
+//# sourceMappingURL=outils.js.map
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var vueClient_1 = __webpack_require__(2);
+var client_1 = __webpack_require__(3);
+var tchat_1 = __webpack_require__(4);
+var outils_1 = __webpack_require__(0);
 console.log("* Chargement du script");
 /* Test - déclaration d'une variable externe - Possible
 cf. declare
@@ -102,14 +122,23 @@ function initialisation() {
         vueClient_1.posterNL('logChats', msg.net());
     });
     console.log("- du traitement de la configuration");
-    console.log("- du noeud du réseau");
     canal.enregistrerTraitementConfigurationRecue(function (c) {
         var config = new tchat_1.ConfigurationTchat(c);
         console.log("* Réception");
         console.log("- de la configuration brute : " + config.brut());
         console.log("- de la configuration nette : " + config.net());
+        console.log("* Initialisation du noeud du réseau");
         noeud = tchat_1.creerNoeudDeConfiguration(config);
         voir();
+    });
+    console.log("- du traitement d'une erreur rédhibitoire");
+    canal.enregistrerTraitementErreurRecue(function (err) {
+        var erreur = new tchat_1.ErreurTchat(err);
+        console.log("* Réception");
+        console.log("- de l'erreur rédhibitoire brute : " + erreur.brut());
+        console.log("- de l'erreur rédhibitoire nette : " + erreur.net());
+        console.log("* Initialisation du document");
+        vueClient_1.initialiserDocument(outils_1.dateFr(erreur.enJSON().date) + " : " + erreur.enJSON().messageErreur);
     });
 }
 function voir() {
@@ -156,7 +185,7 @@ vueClient_1.gererEvenementDocument('DOMContentLoaded', initialisation);
 //# sourceMappingURL=clientTchat.js.map
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -178,6 +207,10 @@ function initialiserEntree(id, val) {
     entreeParId(id).value = val;
 }
 exports.initialiserEntree = initialiserEntree;
+function initialiserDocument(contenu) {
+    document.write(contenu);
+}
+exports.initialiserDocument = initialiserDocument;
 function contenuBalise(doc, champ) {
     return doc.getElementById(champ).innerHTML;
 }
@@ -207,7 +240,7 @@ exports.elementSaisieEnvoi = elementSaisieEnvoi;
 //# sourceMappingURL=vueClient.js.map
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -267,7 +300,7 @@ exports.CanalClient = CanalClient;
 //# sourceMappingURL=client.js.map
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -283,9 +316,9 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
-var communication_1 = __webpack_require__(4);
-var types_1 = __webpack_require__(5);
-var outils_1 = __webpack_require__(6);
+var communication_1 = __webpack_require__(5);
+var types_1 = __webpack_require__(6);
+var outils_1 = __webpack_require__(0);
 exports.hote = "merite"; // hôte local via TCP/IP - DNS : cf. /etc/hosts - IP : 127.0.0.1
 exports.port1 = 3001; // port de la essource 1 (serveur d'applications)
 exports.port2 = 1111; // port de la ressouce 2 (serveur de connexions)
@@ -399,23 +432,23 @@ function creerNoeudDeConfiguration(c) {
     return communication_1.creerNoeud(centre, voisins, creerSommetTchat);
 }
 exports.creerNoeudDeConfiguration = creerNoeudDeConfiguration;
-var ErreurChat = (function (_super) {
-    __extends(ErreurChat, _super);
-    function ErreurChat() {
+var ErreurTchat = (function (_super) {
+    __extends(ErreurTchat, _super);
+    function ErreurTchat() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    ErreurChat.prototype.net = function () {
+    ErreurTchat.prototype.net = function () {
         var erreur = this.enJSON();
         return JSON.stringify({
             messageErreur: erreur.messageErreur,
             date: outils_1.dateFr(erreur.date)
         });
     };
-    return ErreurChat;
+    return ErreurTchat;
 }(communication_1.ErreurRedhibitoire));
-exports.ErreurChat = ErreurChat;
+exports.ErreurTchat = ErreurTchat;
 function creerMessageErreur(msg, date) {
-    return new ErreurChat({
+    return new ErreurTchat({
         "erreurRedhibitoire": types_1.Unite.un,
         "messageErreur": msg,
         "date": date
@@ -452,7 +485,7 @@ exports.creerAnneauTchat = creerAnneauTchat;
 //# sourceMappingURL=tchat.js.map
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -640,7 +673,7 @@ exports.AssemblageReseauEnAnneau = AssemblageReseauEnAnneau;
 //# sourceMappingURL=communication.js.map
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -651,25 +684,6 @@ var Unite;
     Unite[Unite["un"] = 0] = "un";
 })(Unite = exports.Unite || (exports.Unite = {}));
 //# sourceMappingURL=types.js.map
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-function dateFr(d) {
-    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    return (new Date(d)).toLocaleString("fr-FR", options);
-}
-exports.dateFr = dateFr;
-function dateFrLog(d) {
-    var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    return (new Date(d)).toLocaleString("fr-FR", options);
-}
-exports.dateFrLog = dateFrLog;
-//# sourceMappingURL=outils.js.map
 
 /***/ })
 /******/ ]);

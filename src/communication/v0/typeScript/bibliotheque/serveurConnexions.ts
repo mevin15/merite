@@ -21,13 +21,14 @@ export function adresse(u: url.Url): string {
 }
 
 export class LienWebSocket<E extends FormatErreurRedhibitoire, C extends FormatConfigurationInitiale, T extends FormatMessage> {
+
     private _connexion: websocket.connection;
     private _adresseIPClient: string;
-    private _config : Configuration<C>;
+    private _config: Configuration<C>;
 
-    constructor(r: websocket.request) {
-        this._connexion = r.accept('echo-protocol', r.origin);
-        this._adresseIPClient = r.remoteAddress
+    constructor(requete: websocket.request) {
+        this._connexion = requete.accept('echo-protocol', requete.origin);
+        this._adresseIPClient = requete.remoteAddress
         /* TODO
         console.log("url socket : " + r.resource);
         console.log("url socket : " + r.httpRequest.url);
@@ -53,7 +54,7 @@ export class LienWebSocket<E extends FormatErreurRedhibitoire, C extends FormatC
         console.log("- Enregistrement du traitement des messages.")
     }
     enregistrerTraitementFermeture(
-        traitementFermeture: (l: LienWebSocket<E, C, T>, r : number, desc : string) => void): void {
+        traitementFermeture: (l: LienWebSocket<E, C, T>, r: number, desc: string) => void): void {
         let ceLien = this;
         this._connexion.on('close', (raison: number, description: string) => {
             traitementFermeture(ceLien, raison, description);
@@ -70,38 +71,36 @@ export class LienWebSocket<E extends FormatErreurRedhibitoire, C extends FormatC
         this._config = c;
     }
 
-    estConfigure() : boolean{
+    estConfigure(): boolean {
         return this._config !== undefined;
     }
 
-    configuration() : Configuration<C> {
+    configuration(): Configuration<C> {
         return this._config;
     }
 
     envoyerMessageErreur(e: ErreurRedhibitoire<E>) {
         this._connexion.sendUTF(e.brut());
     }
-
-
 }
 
 export class ServeurLiensWebSocket<E extends FormatErreurRedhibitoire, C extends FormatConfigurationInitiale, T extends FormatMessage> {
     private port: number;
     private hote: string;
     private traiterMessages: (l: LienWebSocket<E, C, T>, m: T) => void;
-    private traiterConnexion: (l: LienWebSocket<E, C, T>) => void;
-    private traiterFermeture: (l: LienWebSocket<E, C, T>, r : number, desc : string) => void;
+    private traiterConnexion: (l: LienWebSocket<E, C, T>) => boolean;
+    private traiterFermeture: (l: LienWebSocket<E, C, T>, r: number, desc: string) => void;
 
     constructor(port: number, hote: string) {
         this.port = port;
         this.hote = hote;
     }
 
-    enregistrerTraitementConnexion(traitementConnexion: (l: LienWebSocket<E, C, T>) => void): void {
+    enregistrerTraitementConnexion(traitementConnexion: (l: LienWebSocket<E, C, T>) => boolean): void {
         this.traiterConnexion = traitementConnexion;
     }
 
-    enregistrerTraitementFermeture(traitementFermeture: (l: LienWebSocket<E, C, T>, r : number, desc : string) => void): void {
+    enregistrerTraitementFermeture(traitementFermeture: (l: LienWebSocket<E, C, T>, r: number, desc: string) => void): void {
         this.traiterFermeture = traitementFermeture;
     }
 
@@ -124,11 +123,14 @@ export class ServeurLiensWebSocket<E extends FormatErreurRedhibitoire, C extends
         serveurWS.on('request', function (r: websocket.request) {
             let l = new LienWebSocket<E, C, T>(r);
 
-            ceServeur.traiterConnexion(l);
-            // Applique le traitement après conversion au bon format de chaque message
+            let estConnecte = ceServeur.traiterConnexion(l);
+            if (!estConnecte) {
+                return;
+            }
+            // Enregistre le traitement des messages
             l.enregistrerTraitementMessages(ceServeur.traiterMessages);
 
-            // Réagit à la fermeture de la connexion
+            // Enregistre le traitement de la fermeture de la connexion
             l.enregistrerTraitementFermeture(ceServeur.traiterFermeture);
         });
 

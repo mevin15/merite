@@ -14,6 +14,9 @@ export function initialiserEntree(id : string, val : string) : void {
     entreeParId(id).value = val;
 }
 
+export function initialiserDocument(contenu : string){
+    document.write(contenu);
+}
 
 export function contenuBalise(doc: Document, champ: string): string {
     return doc.getElementById(champ).innerHTML;

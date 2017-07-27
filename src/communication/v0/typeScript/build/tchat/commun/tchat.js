@@ -126,23 +126,23 @@ function creerNoeudDeConfiguration(c) {
     return communication_1.creerNoeud(centre, voisins, creerSommetTchat);
 }
 exports.creerNoeudDeConfiguration = creerNoeudDeConfiguration;
-var ErreurChat = (function (_super) {
-    __extends(ErreurChat, _super);
-    function ErreurChat() {
+var ErreurTchat = (function (_super) {
+    __extends(ErreurTchat, _super);
+    function ErreurTchat() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    ErreurChat.prototype.net = function () {
+    ErreurTchat.prototype.net = function () {
         var erreur = this.enJSON();
         return JSON.stringify({
             messageErreur: erreur.messageErreur,
             date: outils_1.dateFr(erreur.date)
         });
     };
-    return ErreurChat;
+    return ErreurTchat;
 }(communication_1.ErreurRedhibitoire));
-exports.ErreurChat = ErreurChat;
+exports.ErreurTchat = ErreurTchat;
 function creerMessageErreur(msg, date) {
-    return new ErreurChat({
+    return new ErreurTchat({
         "erreurRedhibitoire": types_1.Unite.un,
         "messageErreur": msg,
         "date": date

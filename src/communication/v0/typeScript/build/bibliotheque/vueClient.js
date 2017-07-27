@@ -16,6 +16,10 @@ function initialiserEntree(id, val) {
     entreeParId(id).value = val;
 }
 exports.initialiserEntree = initialiserEntree;
+function initialiserDocument(contenu) {
+    document.write(contenu);
+}
+exports.initialiserDocument = initialiserDocument;
 function contenuBalise(doc, champ) {
     return doc.getElementById(champ).innerHTML;
 }

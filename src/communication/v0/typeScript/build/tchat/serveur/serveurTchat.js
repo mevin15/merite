@@ -15,7 +15,7 @@ function selectionIdentifiant() {
     for (var id in anneau.noeuds()) {
         return id;
     }
-    return null;
+    return undefined;
 }
 // Vue dynamique (page paramétrée x.tchat -> x.html)
 var serveurAppli = new serveurApplications_1.ServeurApplications(tchat_1.hote, tchat_1.port1);
@@ -37,17 +37,17 @@ serveurCanaux.enregistrerTraitementConnexion(function (l) {
         var d_1 = new Date();
         console.log("* " + outils_1.dateFrLog(d_1) + " - Connexion impossible d'un client : le réseau est complet.");
         l.envoyerMessageErreur(tchat_1.creerMessageErreur("Tchat - Client - Réseau complet ! Il est impossible de se connecter : le réseau est déjà complet.", d_1));
-        return;
+        return false;
     }
     if ((connexions[id] !== undefined) || (reseauConnecte.possedeNoeud(id))) {
         var d_2 = new Date();
         console.log("* " + outils_1.dateFrLog(d_2) + " - Connexion impossible d'un client : le réseau est corrompu.");
         l.envoyerMessageErreur(tchat_1.creerMessageErreur("Tchat - Client - Réseau corrompu ! Il est impossible de se connecter : le réseau est corrompu. Contacter l'administrateur.", d_2));
-        return;
+        return false;
     }
+    // Cas où la sélection d'un noeud a réussi
     var d = new Date();
     console.log("* " + outils_1.dateFrLog(d) + " - Connexion de " + id + " par Web socket.");
-    // Cas où la sélection d'un noeud a réussi
     connexions[id] = l;
     var n = anneau.noeud(id);
     var config = tchat_1.creerConfiguration(n, d);
@@ -57,7 +57,7 @@ serveurCanaux.enregistrerTraitementConnexion(function (l) {
     l.envoyerConfiguration(config);
     anneau.retirerNoeud(n);
     reseauConnecte.ajouterNoeud(n);
-    return;
+    return true;
 });
 serveurCanaux.enregistrerTraitementMessages(function (l, m) {
     var msg = new tchat_1.MessageTchat(m);

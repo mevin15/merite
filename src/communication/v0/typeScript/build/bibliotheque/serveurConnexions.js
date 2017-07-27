@@ -13,9 +13,9 @@ function adresse(u) {
 }
 exports.adresse = adresse;
 var LienWebSocket = (function () {
-    function LienWebSocket(r) {
-        this._connexion = r.accept('echo-protocol', r.origin);
-        this._adresseIPClient = r.remoteAddress;
+    function LienWebSocket(requete) {
+        this._connexion = requete.accept('echo-protocol', requete.origin);
+        this._adresseIPClient = requete.remoteAddress;
         /* TODO
         console.log("url socket : " + r.resource);
         console.log("url socket : " + r.httpRequest.url);
@@ -93,10 +93,13 @@ var ServeurLiensWebSocket = (function () {
         });
         serveurWS.on('request', function (r) {
             var l = new LienWebSocket(r);
-            ceServeur.traiterConnexion(l);
-            // Applique le traitement après conversion au bon format de chaque message
+            var estConnecte = ceServeur.traiterConnexion(l);
+            if (!estConnecte) {
+                return;
+            }
+            // Enregistre le traitement des messages
             l.enregistrerTraitementMessages(ceServeur.traiterMessages);
-            // Réagit à la fermeture de la connexion
+            // Enregistre le traitement de la fermeture de la connexion
             l.enregistrerTraitementFermeture(ceServeur.traiterFermeture);
         });
     };

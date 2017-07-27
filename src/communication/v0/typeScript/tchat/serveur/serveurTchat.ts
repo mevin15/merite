@@ -29,7 +29,7 @@ function selectionIdentifiant(): Identifiant {
     for (let id in anneau.noeuds()) { // une seule itération
         return id;
     }
-    return null;
+    return undefined;
 }
 
 // Vue dynamique (page paramétrée x.tchat -> x.html)
@@ -62,7 +62,7 @@ serveurCanaux.enregistrerTraitementConnexion((l: LienTchat) => {
         l.envoyerMessageErreur(creerMessageErreur(
             "Tchat - Client - Réseau complet ! Il est impossible de se connecter : le réseau est déjà complet.",
             d));
-        return;
+        return false;
     }
 
     if ((connexions[id] !== undefined) || (reseauConnecte.possedeNoeud(id))) {
@@ -71,13 +71,11 @@ serveurCanaux.enregistrerTraitementConnexion((l: LienTchat) => {
         l.envoyerMessageErreur(creerMessageErreur(
             "Tchat - Client - Réseau corrompu ! Il est impossible de se connecter : le réseau est corrompu. Contacter l'administrateur.",
             d));
-        return;
+        return false;
     }
-
+    // Cas où la sélection d'un noeud a réussi
     let d = new Date();
     console.log("* " + dateFrLog(d) + " - Connexion de " + id + " par Web socket.");
-
-    // Cas où la sélection d'un noeud a réussi
 
     connexions[id] = l;
 
@@ -89,7 +87,7 @@ serveurCanaux.enregistrerTraitementConnexion((l: LienTchat) => {
     l.envoyerConfiguration(config);
     anneau.retirerNoeud(n);
     reseauConnecte.ajouterNoeud(n);
-    return;
+    return true;
 });
 
 serveurCanaux.enregistrerTraitementMessages((l: LienTchat, m: FormatMessageTchat) => {
