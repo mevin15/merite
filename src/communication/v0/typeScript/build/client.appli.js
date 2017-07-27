@@ -60,11 +60,214 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var vueClient_1 = __webpack_require__(1);
+var client_1 = __webpack_require__(2);
+var tchat_1 = __webpack_require__(3);
+console.log("* Chargement du script");
+/* Test - déclaration d'une variable externe - Possible
+cf. declare
+*/
+var adresseServeur = tchat_1.hote + ":" + tchat_1.port2;
+// A initialiser
+var canal;
+var noeud;
+function envoyerMessage(texte, destinataire) {
+    var msg = tchat_1.creerMessageCommunication(noeud.centre().enJSON().id, destinataire, texte);
+    console.log("- Envoi du message brut : " + msg.brut());
+    console.log("- Envoi du message net : " + msg.net());
+    canal.envoyerMessage(msg);
+}
+// A exécuter après chargement de la page
+// - pas d'interruption de la fonction
+function initialisation() {
+    console.log("* Initialisation après chargement du DOM");
+    console.log("- du canal de communication avec le serveur d'adresse " + adresseServeur);
+    canal = new client_1.CanalClient(adresseServeur);
+    console.log("- du traitement des messages");
+    canal.enregistrerTraitementMessageRecu(function (m) {
+        var msg = new tchat_1.MessageTchat(m);
+        console.log("* Réception");
+        console.log("- du message brut : " + msg.brut());
+        console.log("- du message net : " + msg.net());
+        vueClient_1.posterNL('logChats', msg.net());
+    });
+    console.log("- du traitement de la configuration");
+    console.log("- du noeud du réseau");
+    canal.enregistrerTraitementConfigurationRecue(function (c) {
+        var config = new tchat_1.ConfigurationTchat(c);
+        console.log("* Réception");
+        console.log("- de la configuration brute : " + config.brut());
+        console.log("- de la configuration nette : " + config.net());
+        noeud = tchat_1.creerNoeudDeConfiguration(config);
+        voir();
+    });
+}
+function voir() {
+    console.log("* Consolidation de la vue");
+    console.log("- adresse, centre, voisins");
+    vueClient_1.poster("adresseServeur", adresseServeur);
+    vueClient_1.poster("centre", noeud.centre().net());
+    vueClient_1.poster("voisins", JSON.stringify(noeud.voisinsEnJSON()));
+    console.log("- formulaire");
+    var voisinsNoeud = noeud.voisinsEnJSON();
+    var repVoisinsNoeud = JSON.stringify(voisinsNoeud);
+    var contenuFormulaire = "";
+    for (var idV in voisinsNoeud) {
+        vueClient_1.poster("formulaire", vueClient_1.elementSaisieEnvoi("message_" + idV, "boutonEnvoi_" + idV, "Envoyer un message à " + noeud.voisin(idV).enJSON().pseudo + "."));
+    }
+    var type = "click";
+    var _loop_1 = function (idV) {
+        console.log("- Element " + idV + " : enregistrement d'un gestionnaire pour l'événement " + type);
+        vueClient_1.gererEvenementElement("boutonEnvoi_" + idV, type, function (e) {
+            var entree = vueClient_1.recupererEntree("message_" + idV);
+            vueClient_1.initialiserEntree("message_" + idV, "");
+            console.log("* Entree : " + entree);
+            envoyerMessage(entree, idV);
+        });
+    };
+    for (var idV in voisinsNoeud) {
+        _loop_1(idV);
+    }
+    /*
+      <input type="text" id="message_id1">
+      <input class="button" type="button" id="boutonEnvoi_id1" value="Envoyer un message à {{nom id1}}."
+         onClick="envoyerMessage(this.form.message.value, "id1")">
+    */
+}
+// Gestion des événements pour le document
+console.log("* Enregistrement de l'initialisation au chargement");
+vueClient_1.gererEvenementDocument('DOMContentLoaded', initialisation);
+/*
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', initialisation());
+</script>
+
+*/
+//# sourceMappingURL=clientTchat.js.map
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+function elementParId(id) {
+    return document.getElementById(id);
+}
+exports.elementParId = elementParId;
+function entreeParId(id) {
+    return document.getElementById(id);
+}
+exports.entreeParId = entreeParId;
+function recupererEntree(id) {
+    return entreeParId(id).value;
+}
+exports.recupererEntree = recupererEntree;
+function initialiserEntree(id, val) {
+    entreeParId(id).value = val;
+}
+exports.initialiserEntree = initialiserEntree;
+function contenuBalise(doc, champ) {
+    return doc.getElementById(champ).innerHTML;
+}
+exports.contenuBalise = contenuBalise;
+function poster(id, val) {
+    document.getElementById(id).innerHTML += val;
+}
+exports.poster = poster;
+function posterNL(id, val) {
+    poster(id, val + "<br>");
+}
+exports.posterNL = posterNL;
+function gererEvenementDocument(type, gestionnaire) {
+    console.log("- Document : enregistrement d'un gestionnaire pour l'événement " + type);
+    document.addEventListener(type, gestionnaire);
+}
+exports.gererEvenementDocument = gererEvenementDocument;
+function gererEvenementElement(id, type, gestionnaire) {
+    document.getElementById(id).addEventListener(type, gestionnaire);
+}
+exports.gererEvenementElement = gererEvenementElement;
+function elementSaisieEnvoi(idSaisie, idBoutonEnvoi, msg) {
+    return '<input type="text" id="' + idSaisie + '">'
+        + '<input class="button" type="button" id="' + idBoutonEnvoi + '" value="' + msg + '" >';
+}
+exports.elementSaisieEnvoi = elementSaisieEnvoi;
+//# sourceMappingURL=vueClient.js.map
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var CanalClient = (function () {
+    function CanalClient(adresse) {
+        this.adresse = adresse;
+        this.lienServeur = new WebSocket('ws://' + this.adresse, 'echo-protocol');
+    }
+    ;
+    // Effet : send(String)
+    CanalClient.prototype.envoyerMessage = function (msg) {
+        this.lienServeur.send(msg.brut());
+    };
+    ;
+    // Effet: enregistrement comme écouteur
+    CanalClient.prototype.enregistrerTraitementMessageRecu = function (traitement) {
+        this.lienServeur.addEventListener("message", function (e) {
+            var msg = JSON.parse(e.data);
+            if (msg.configurationInitiale !== undefined) {
+                return;
+            }
+            if (msg.erreurRedhibitoire !== undefined) {
+                return;
+            }
+            traitement(msg);
+        });
+    };
+    ;
+    // Effet: enregistrement comme écouteur
+    CanalClient.prototype.enregistrerTraitementConfigurationRecue = function (traitement) {
+        this.lienServeur.addEventListener("message", function (e) {
+            var contenuJSON = JSON.parse(e.data);
+            if (contenuJSON.configurationInitiale === undefined) {
+                return;
+            }
+            traitement(contenuJSON);
+        });
+    };
+    ;
+    // Effet: enregistrement comme écouteur
+    CanalClient.prototype.enregistrerTraitementErreurRecue = function (traitement) {
+        this.lienServeur.addEventListener("message", function (e) {
+            var contenuJSON = JSON.parse(e.data);
+            if (contenuJSON.erreurRedhibitoire === undefined) {
+                return;
+            }
+            traitement(contenuJSON);
+        });
+    };
+    ;
+    return CanalClient;
+}());
+exports.CanalClient = CanalClient;
+;
+//# sourceMappingURL=client.js.map
+
+/***/ }),
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -80,6 +283,192 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
+var communication_1 = __webpack_require__(4);
+var types_1 = __webpack_require__(5);
+var outils_1 = __webpack_require__(6);
+exports.hote = "merite"; // hôte local via TCP/IP - DNS : cf. /etc/hosts - IP : 127.0.0.1
+exports.port1 = 3001; // port de la essource 1 (serveur d'applications)
+exports.port2 = 1111; // port de la ressouce 2 (serveur de connexions)
+var TypeMessageTchat;
+(function (TypeMessageTchat) {
+    TypeMessageTchat[TypeMessageTchat["COM"] = 0] = "COM";
+    TypeMessageTchat[TypeMessageTchat["TRANSIT"] = 1] = "TRANSIT";
+    TypeMessageTchat[TypeMessageTchat["AR"] = 2] = "AR";
+    TypeMessageTchat[TypeMessageTchat["ERREUR_CONNEXION"] = 3] = "ERREUR_CONNEXION";
+    TypeMessageTchat[TypeMessageTchat["ERREUR_EMET"] = 4] = "ERREUR_EMET";
+    TypeMessageTchat[TypeMessageTchat["ERREUR_DEST"] = 5] = "ERREUR_DEST";
+    TypeMessageTchat[TypeMessageTchat["ERREUR_TYPE"] = 6] = "ERREUR_TYPE";
+    TypeMessageTchat[TypeMessageTchat["INTERDICTION"] = 7] = "INTERDICTION";
+})(TypeMessageTchat = exports.TypeMessageTchat || (exports.TypeMessageTchat = {}));
+var MessageTchat = (function (_super) {
+    __extends(MessageTchat, _super);
+    function MessageTchat() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    MessageTchat.prototype.net = function () {
+        var msg = this.enJSON();
+        return JSON.stringify({
+            type: TypeMessageTchat[msg.type],
+            date: outils_1.dateFr(msg.date),
+            de: msg.emetteur,
+            à: msg.destinataire,
+            contenu: msg.contenu
+        });
+    };
+    return MessageTchat;
+}(communication_1.Message));
+exports.MessageTchat = MessageTchat;
+function creerMessageErreurConnexion(emetteur, messageErreur) {
+    return new MessageTchat({
+        "emetteur": emetteur,
+        "destinataire": emetteur,
+        "type": TypeMessageTchat.ERREUR_CONNEXION,
+        "contenu": messageErreur,
+        "date": new Date()
+    });
+}
+exports.creerMessageErreurConnexion = creerMessageErreurConnexion;
+function creerMessageCommunication(emetteur, destinataire, texte) {
+    return new MessageTchat({
+        "emetteur": emetteur,
+        "destinataire": destinataire,
+        "type": TypeMessageTchat.COM,
+        "contenu": texte,
+        "date": new Date()
+    });
+}
+exports.creerMessageCommunication = creerMessageCommunication;
+function creerMessageRetourErreur(original, codeErreur, messageErreur) {
+    return new MessageTchat({
+        "emetteur": original.enJSON().emetteur,
+        "destinataire": original.enJSON().destinataire,
+        "type": codeErreur,
+        "contenu": messageErreur,
+        "date": original.enJSON().date
+    });
+}
+exports.creerMessageRetourErreur = creerMessageRetourErreur;
+function creerMessageTransit(msg) {
+    return new MessageTchat({
+        "emetteur": msg.enJSON().emetteur,
+        "destinataire": msg.enJSON().destinataire,
+        "type": TypeMessageTchat.TRANSIT,
+        "contenu": msg.enJSON().contenu,
+        "date": msg.enJSON().date
+    });
+}
+exports.creerMessageTransit = creerMessageTransit;
+function creerMessageAR(msg) {
+    return new MessageTchat({
+        "emetteur": msg.enJSON().emetteur,
+        "destinataire": msg.enJSON().destinataire,
+        "type": TypeMessageTchat.AR,
+        "contenu": msg.enJSON().contenu,
+        "date": msg.enJSON().date
+    });
+}
+exports.creerMessageAR = creerMessageAR;
+var ConfigurationTchat = (function (_super) {
+    __extends(ConfigurationTchat, _super);
+    function ConfigurationTchat() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    ConfigurationTchat.prototype.net = function () {
+        var config = this.enJSON();
+        return JSON.stringify({
+            centre: config.centre,
+            voisins: config.voisins,
+            date: outils_1.dateFr(config.date)
+        });
+    };
+    return ConfigurationTchat;
+}(communication_1.Configuration));
+exports.ConfigurationTchat = ConfigurationTchat;
+function creerConfiguration(n, date) {
+    return new ConfigurationTchat({
+        "configurationInitiale": types_1.Unite.un,
+        "centre": n.centre().enJSON(),
+        voisins: n.voisinsEnJSON(),
+        "date": date
+    });
+}
+exports.creerConfiguration = creerConfiguration;
+function creerNoeudDeConfiguration(c) {
+    var centre = c.enJSON().centre;
+    var voisins = c.enJSON().voisins;
+    return communication_1.creerNoeud(centre, voisins, creerSommetTchat);
+}
+exports.creerNoeudDeConfiguration = creerNoeudDeConfiguration;
+var ErreurChat = (function (_super) {
+    __extends(ErreurChat, _super);
+    function ErreurChat() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    ErreurChat.prototype.net = function () {
+        var erreur = this.enJSON();
+        return JSON.stringify({
+            messageErreur: erreur.messageErreur,
+            date: outils_1.dateFr(erreur.date)
+        });
+    };
+    return ErreurChat;
+}(communication_1.ErreurRedhibitoire));
+exports.ErreurChat = ErreurChat;
+function creerMessageErreur(msg, date) {
+    return new ErreurChat({
+        "erreurRedhibitoire": types_1.Unite.un,
+        "messageErreur": msg,
+        "date": date
+    });
+}
+exports.creerMessageErreur = creerMessageErreur;
+var SommetChat = (function (_super) {
+    __extends(SommetChat, _super);
+    function SommetChat() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SommetChat.prototype.net = function () {
+        var msg = this.enJSON();
+        return JSON.stringify({
+            nom: msg.pseudo + "(" + msg.id + ")"
+        });
+    };
+    return SommetChat;
+}(communication_1.Sommet));
+exports.SommetChat = SommetChat;
+function creerSommetTchat(s) {
+    return new SommetChat(s);
+}
+exports.creerSommetTchat = creerSommetTchat;
+function creerAnneauTchat(noms) {
+    var assembleur = new communication_1.AssemblageReseauEnAnneau(noms.length);
+    noms.forEach(function (nom, i, tab) {
+        var s = new SommetChat({ id: "id-" + i, pseudo: tab[i] });
+        assembleur.ajouterSommet(s);
+    });
+    return assembleur.assembler();
+}
+exports.creerAnneauTchat = creerAnneauTchat;
+//# sourceMappingURL=tchat.js.map
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+exports.__esModule = true;
+;
 ;
 // Modèle générique d'une enveloppe d'un document JSON
 var Enveloppe = (function () {
@@ -108,6 +497,24 @@ var Message = (function (_super) {
     return Message;
 }(Enveloppe));
 exports.Message = Message;
+var Configuration = (function (_super) {
+    __extends(Configuration, _super);
+    function Configuration(enJSON) {
+        return _super.call(this, enJSON) || this;
+    }
+    ;
+    return Configuration;
+}(Enveloppe));
+exports.Configuration = Configuration;
+var ErreurRedhibitoire = (function (_super) {
+    __extends(ErreurRedhibitoire, _super);
+    function ErreurRedhibitoire(enJSON) {
+        return _super.call(this, enJSON) || this;
+    }
+    ;
+    return ErreurRedhibitoire;
+}(Enveloppe));
+exports.ErreurRedhibitoire = ErreurRedhibitoire;
 var Sommet = (function (_super) {
     __extends(Sommet, _super);
     function Sommet(enJSON) {
@@ -189,9 +596,9 @@ var SommetTableSommets = (function () {
 ;
 function creerNoeud(centre, voisins, fabrique) {
     var r = new SommetTableSommets(fabrique(centre));
-    voisins.forEach(function (s, i, tab) {
-        r.ajouterVoisin(fabrique(s));
-    });
+    for (var i in voisins) {
+        r.ajouterVoisin(fabrique(voisins[i]));
+    }
     return r;
 }
 exports.creerNoeud = creerNoeud;
@@ -233,301 +640,36 @@ exports.AssemblageReseauEnAnneau = AssemblageReseauEnAnneau;
 //# sourceMappingURL=communication.js.map
 
 /***/ }),
-/* 1 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 exports.__esModule = true;
-var communication_1 = __webpack_require__(0);
-var vueClient_1 = __webpack_require__(2);
-var client_1 = __webpack_require__(3);
-var chat_1 = __webpack_require__(4);
-console.log("* Chargement du script");
-/* Test - déclaration d'une variable externe - Possible
-cf. declare
-*/
-function centreNoeud() {
-    return JSON.parse(vueClient_1.contenuBalise(document, 'centre'));
-}
-function voisinsNoeud() {
-    var v = JSON.parse(vueClient_1.contenuBalise(document, 'voisins'));
-    var r = [];
-    var id;
-    for (id in v) {
-        r.push(v[id]);
-    }
-    return r;
-}
-function adresseServeur() {
-    return vueClient_1.contenuBalise(document, 'adresseServeur');
-}
-// A initialiser
-var canal;
-var noeud;
-function envoyerMessage(texte, destinataire) {
-    var msg = chat_1.creerMessageCommunication(noeud.centre().enJSON().id, destinataire, texte);
-    console.log("- Envoi du message brut : " + msg.brut());
-    console.log("- Envoi du message net : " + msg.net());
-    canal.envoyerMessage(msg);
-    vueClient_1.initialiserEntree('message_' + destinataire, "");
-}
-// A exécuter après chargement de la page
-function initialisation() {
-    console.log("* Initialisation après chargement du DOM ...");
-    noeud = communication_1.creerNoeud(centreNoeud(), voisinsNoeud(), chat_1.fabriqueSommetChat);
-    canal = new client_1.CanalClient(adresseServeur());
-    canal.enregistrerTraitementAReception(function (m) {
-        var msg = new chat_1.MessageChat(m);
-        console.log("- Réception du message brut : " + msg.brut());
-        console.log("- Réception du message net : " + msg.net());
-        vueClient_1.posterNL('logChats', msg.net());
-    });
-    console.log("* ... du noeud et du canal côté client en liaison avec le serveur : " + adresseServeur());
-    // Gestion des événements pour les éléments du document.
-    //document.getElementById("boutonEnvoi").addEventListener("click", <EventListenerOrEventListenerObject>(e => {alert("click!");}), true);
-    var id;
-    var v = noeud.voisins();
-    var _loop_1 = function () {
-        console.log("id : " + id);
-        var idVal = id;
-        vueClient_1.gererEvenementElement("boutonEnvoi_" + idVal, "click", function (e) {
-            console.log("id message_" + idVal);
-            console.log("entree : " + vueClient_1.recupererEntree("message_" + idVal));
-            envoyerMessage(vueClient_1.recupererEntree("message_" + idVal), idVal);
-        });
-    };
-    for (id in v) {
-        _loop_1();
-    }
-    /*
-    <form id="envoi">
-    
-      <input type="text" id="message_id1">
-          
-      <input class="button" type="button" id="boutonEnvoi_id1" value="Envoyer un message à {{nom id1}}."
-         onClick="envoyerMessage(this.form.message.value, "id1")">
-    </form>
-        
-    */
-    console.log("* ... et des gestionnaires d'événements sur des éléments du document.");
-}
-// Gestion des événements pour le document
-console.log("* Enregistrement de l'initialisation");
-vueClient_1.gererEvenementDocument('DOMContentLoaded', initialisation);
-/*
-<script type="text/javascript">
-  document.addEventListener('DOMContentLoaded', initialisation());
-</script>
-
-*/
-//# sourceMappingURL=clientChat.js.map
+var Unite;
+(function (Unite) {
+    Unite[Unite["un"] = 0] = "un";
+})(Unite = exports.Unite || (exports.Unite = {}));
+//# sourceMappingURL=types.js.map
 
 /***/ }),
-/* 2 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 exports.__esModule = true;
-function elementParId(id) {
-    return document.getElementById(id);
+function dateFr(d) {
+    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    return (new Date(d)).toLocaleString("fr-FR", options);
 }
-exports.elementParId = elementParId;
-function entreeParId(id) {
-    return document.getElementById(id);
+exports.dateFr = dateFr;
+function dateFrLog(d) {
+    var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    return (new Date(d)).toLocaleString("fr-FR", options);
 }
-exports.entreeParId = entreeParId;
-function recupererEntree(id) {
-    return entreeParId(id).value;
-}
-exports.recupererEntree = recupererEntree;
-function initialiserEntree(id, val) {
-    entreeParId(id).value = val;
-}
-exports.initialiserEntree = initialiserEntree;
-function contenuBalise(doc, champ) {
-    return doc.getElementById(champ).innerHTML;
-}
-exports.contenuBalise = contenuBalise;
-function poster(id, val) {
-    document.getElementById(id).innerHTML += val;
-}
-exports.poster = poster;
-function posterNL(id, val) {
-    poster(id, val + "<br>");
-}
-exports.posterNL = posterNL;
-function gererEvenementDocument(type, gestionnaire) {
-    console.log("- Document : enregistrement d'un gestionnaire pour l'événement " + type);
-    document.addEventListener(type, gestionnaire);
-}
-exports.gererEvenementDocument = gererEvenementDocument;
-function gererEvenementElement(id, type, gestionnaire) {
-    console.log("- Element " + id + " : enregistrement d'un gestionnaire pour l'événement " + type);
-    document.getElementById(id).addEventListener(type, gestionnaire);
-}
-exports.gererEvenementElement = gererEvenementElement;
-//# sourceMappingURL=vueClient.js.map
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-var CanalClient = (function () {
-    function CanalClient(adresse) {
-        this.adresse = adresse;
-        this.lienServeur = new WebSocket('ws://' + this.adresse, 'echo-protocol');
-    }
-    ;
-    // Effet : send(String)
-    CanalClient.prototype.envoyerMessage = function (msg) {
-        this.lienServeur.send(msg.brut());
-    };
-    ;
-    // Effet: enregistrement comme écouteur
-    CanalClient.prototype.enregistrerTraitementAReception = function (traitement) {
-        this.lienServeur.addEventListener("message", function (e) {
-            var msg = JSON.parse(e.data);
-            traitement(msg);
-        });
-    };
-    ;
-    return CanalClient;
-}());
-exports.CanalClient = CanalClient;
-;
-//# sourceMappingURL=client.js.map
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-exports.__esModule = true;
-var communication_1 = __webpack_require__(0);
-var TypeMessageChat;
-(function (TypeMessageChat) {
-    TypeMessageChat[TypeMessageChat["COM"] = 0] = "COM";
-    TypeMessageChat[TypeMessageChat["TRANSIT"] = 1] = "TRANSIT";
-    TypeMessageChat[TypeMessageChat["AR"] = 2] = "AR";
-    TypeMessageChat[TypeMessageChat["ERREUR_CONNEXION"] = 3] = "ERREUR_CONNEXION";
-    TypeMessageChat[TypeMessageChat["ERREUR_EMET"] = 4] = "ERREUR_EMET";
-    TypeMessageChat[TypeMessageChat["ERREUR_DEST"] = 5] = "ERREUR_DEST";
-    TypeMessageChat[TypeMessageChat["ERREUR_TYPE"] = 6] = "ERREUR_TYPE";
-    TypeMessageChat[TypeMessageChat["INTERDICTION"] = 7] = "INTERDICTION";
-})(TypeMessageChat = exports.TypeMessageChat || (exports.TypeMessageChat = {}));
-var MessageChat = (function (_super) {
-    __extends(MessageChat, _super);
-    function MessageChat() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    MessageChat.prototype.net = function () {
-        var msg = this.enJSON();
-        var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-        return JSON.stringify({
-            type: TypeMessageChat[msg.type],
-            date: (new Date(msg.date)).toLocaleString("fr-FR", options),
-            de: msg.emetteur,
-            à: msg.destinataire,
-            contenu: msg.contenu
-        });
-    };
-    return MessageChat;
-}(communication_1.Message));
-exports.MessageChat = MessageChat;
-function creerMessageErreurConnexion(emetteur, messageErreur) {
-    return new MessageChat({
-        "emetteur": emetteur,
-        "destinataire": emetteur,
-        "type": TypeMessageChat.ERREUR_CONNEXION,
-        "contenu": messageErreur,
-        "date": new Date()
-    });
-}
-exports.creerMessageErreurConnexion = creerMessageErreurConnexion;
-function creerMessageCommunication(emetteur, destinataire, texte) {
-    return new MessageChat({
-        "emetteur": emetteur,
-        "destinataire": destinataire,
-        "type": TypeMessageChat.COM,
-        "contenu": texte,
-        "date": new Date()
-    });
-}
-exports.creerMessageCommunication = creerMessageCommunication;
-function creerMessageRetourErreur(original, codeErreur, messageErreur) {
-    return new MessageChat({
-        "emetteur": original.enJSON().emetteur,
-        "destinataire": original.enJSON().destinataire,
-        "type": codeErreur,
-        "contenu": messageErreur,
-        "date": original.enJSON().date
-    });
-}
-exports.creerMessageRetourErreur = creerMessageRetourErreur;
-function creerMessageTransit(msg) {
-    return new MessageChat({
-        "emetteur": msg.enJSON().emetteur,
-        "destinataire": msg.enJSON().destinataire,
-        "type": TypeMessageChat.TRANSIT,
-        "contenu": msg.enJSON().contenu,
-        "date": msg.enJSON().date
-    });
-}
-exports.creerMessageTransit = creerMessageTransit;
-function creerMessageAR(msg) {
-    return new MessageChat({
-        "emetteur": msg.enJSON().emetteur,
-        "destinataire": msg.enJSON().destinataire,
-        "type": TypeMessageChat.AR,
-        "contenu": msg.enJSON().contenu,
-        "date": msg.enJSON().date
-    });
-}
-exports.creerMessageAR = creerMessageAR;
-var SommetChat = (function (_super) {
-    __extends(SommetChat, _super);
-    function SommetChat() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    SommetChat.prototype.net = function () {
-        var msg = this.enJSON();
-        return JSON.stringify({
-            nom: msg.pseudo + "(" + msg.id + ")"
-        });
-    };
-    return SommetChat;
-}(communication_1.Sommet));
-exports.SommetChat = SommetChat;
-function fabriqueSommetChat(s) {
-    return new SommetChat(s);
-}
-exports.fabriqueSommetChat = fabriqueSommetChat;
-function creerAnneauChat(noms) {
-    var assembleur = new communication_1.AssemblageReseauEnAnneau(noms.length);
-    noms.forEach(function (nom, i, tab) {
-        var s = new SommetChat({ id: "id-" + i, pseudo: tab[i] });
-        assembleur.ajouterSommet(s);
-    });
-    return assembleur.assembler();
-}
-exports.creerAnneauChat = creerAnneauChat;
-//# sourceMappingURL=chat.js.map
+exports.dateFrLog = dateFrLog;
+//# sourceMappingURL=outils.js.map
 
 /***/ })
 /******/ ]);

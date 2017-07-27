@@ -34,8 +34,12 @@ function gererEvenementDocument(type, gestionnaire) {
 }
 exports.gererEvenementDocument = gererEvenementDocument;
 function gererEvenementElement(id, type, gestionnaire) {
-    console.log("- Element " + id + " : enregistrement d'un gestionnaire pour l'événement " + type);
     document.getElementById(id).addEventListener(type, gestionnaire);
 }
 exports.gererEvenementElement = gererEvenementElement;
+function elementSaisieEnvoi(idSaisie, idBoutonEnvoi, msg) {
+    return '<input type="text" id="' + idSaisie + '">'
+        + '<input class="button" type="button" id="' + idBoutonEnvoi + '" value="' + msg + '" >';
+}
+exports.elementSaisieEnvoi = elementSaisieEnvoi;
 //# sourceMappingURL=vueClient.js.map

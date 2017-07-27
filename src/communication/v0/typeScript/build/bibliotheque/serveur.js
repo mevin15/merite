@@ -1,4 +1,5 @@
 "use strict";
+// obsolète - cf. serveurConnexions
 exports.__esModule = true;
 // Un module commençant par un import
 var http = require("http");

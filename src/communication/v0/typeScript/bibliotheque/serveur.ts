@@ -1,3 +1,5 @@
+// obsolète - cf. serveurConnexions
+
 // Un module commençant par un import
 import * as http from 'http';
 import * as websocket from 'websocket';

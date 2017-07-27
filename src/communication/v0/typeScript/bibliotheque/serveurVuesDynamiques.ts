@@ -66,7 +66,7 @@ export class ServeurVuesDynamiques {
     }
 
     specifierRepertoireScriptsEmbarques(rep: string): void {
-        this.appli.use(express.static('build')); // répertoire local visible
+        this.appli.use(express.static(rep)); // répertoire local visible
     }
 
     enregistrerVueDynamique(chemin: string, calculDynamique: (i : Interaction) => void): void {

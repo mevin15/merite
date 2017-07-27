@@ -4,17 +4,16 @@ import * as mocha from 'mocha';
 import { Identifiant, FormatMessage, Message, TableNoeuds } from "../../../bibliotheque/communication";
 import {
     creerMessageErreurConnexion, creerMessageRetourErreur, creerMessageTransit, creerMessageAR,
-    TypeMessageChat, FormatMessageChat, MessageChat, creerAnneauChat, FormatSommetChat
-} from '../../../chat/commun/chat';
+    TypeMessageTchat, FormatMessageTchat, MessageTchat, creerAnneauTchat, FormatSommetTchat
+} from '../../../tchat/commun/tchat';
 
 
 
-const anneau: TableNoeuds<FormatSommetChat> = creerAnneauChat(["titi", "toto", "coco", "sissi"]);
+const anneau: TableNoeuds<FormatSommetTchat> = creerAnneauTchat(["titi", "toto", "coco", "sissi"]);
 
 let noeuds = anneau.noeuds();
 
 for (let cle in noeuds) {
-    const cleC = cle;
     describe('fonction creerAnneauChat', () => {
         describe('méthode TableNoeuds.possedeNoeud ', () => {
             it('renvoie true', () => {
@@ -36,12 +35,11 @@ describe('fonction creerAnneauChat', () => {
 });
 
 for (let cle in noeuds) {
-    const cleC = cle;
     describe('fonction creerAnneauChat', () => {
         describe('méthode TableNoeuds.noeuds ', () => {
-            let result = noeuds[cleC].centre().enJSON().id;
+            let result = noeuds[cle].centre().enJSON().id;
             it('renvoie true', () => {
-                chai.expect(result).to.equal(cleC);
+                chai.expect(result).to.equal(cle);
             });
         })
     });

@@ -1,11 +1,11 @@
 "use strict";
+// Obsolète
 exports.__esModule = true;
 var communication_1 = require("../../bibliotheque/communication");
-var chat_1 = require("../commun/chat");
+var tchat_1 = require("../commun/tchat");
 var serveur_1 = require("../../bibliotheque/serveur");
 var serveurVuesDynamiques_1 = require("../../bibliotheque/serveurVuesDynamiques");
-var vueDynamique_1 = require("../../bibliotheque/vueDynamique");
-var anneau = chat_1.creerAnneauChat(["titi", "toto", "coco", "sissi"]);
+var anneau = tchat_1.creerAnneauTchat(["titi", "toto", "coco", "sissi"]);
 var reseauConnecte = new communication_1.TableNoeuds();
 var connexions = {};
 var hote = "merite"; // hôte local via TCP/IP - DNS : cf. /etc/hosts - IP : 127.0.0.1
@@ -39,10 +39,12 @@ serveurVues.enregistrerVueDynamique("/", function (i) {
     var voisinsNoeud = n.voisinsEnJSON();
     var repVoisinsNoeud = JSON.stringify(voisinsNoeud);
     var contenuFormulaire = "";
-    var idV;
-    for (idV in voisinsNoeud) {
-        contenuFormulaire = contenuFormulaire + vueDynamique_1.elementSaisieEnvoi("message_" + idV, "boutonEnvoi_" + idV, "Envoyer un message à " + n.voisin(idV).enJSON().pseudo + ".");
+    /*
+    for (let idV in voisinsNoeud) {
+        contenuFormulaire = contenuFormulaire + elementSaisieEnvoi("message_" + idV, "boutonEnvoi_" + idV,
+            "Envoyer un message à " + n.voisin(idV).enJSON().pseudo + ".");
     }
+    */
     var r = {
         adresse: adresseConnexion(hote, port2, id),
         centreNoeud: repCentreNoeud,
@@ -68,15 +70,15 @@ serveurCanaux.enregistrerTraitementConnexion(function (l) {
     }
     var msgErreur = "Connexion par Web socket impossible pour " + id + " : soit le noeud est déjà connecté soit il est inconnu.";
     console.log("* " + msgErreur);
-    l.envoyerAuClientDestinataire(chat_1.creerMessageErreurConnexion(id, msgErreur));
+    l.envoyerAuClientDestinataire(tchat_1.creerMessageErreurConnexion(id, msgErreur));
 });
 serveurCanaux.enregistrerTraitementMessages(function (l, m) {
-    var msg = new chat_1.MessageChat(m);
+    var msg = new tchat_1.MessageTchat(m);
     console.log("* Traitement d'un message");
     console.log("- brut : " + msg.brut());
     console.log("- net : " + msg.net());
     switch (m.type) {
-        case chat_1.TypeMessageChat.COM:
+        case tchat_1.TypeMessageTchat.COM:
             var emetteurUrl = identifiantDansAdresse(l.url());
             var emetteurMsg = m.emetteur;
             var destinataireMsg = m.destinataire;
@@ -86,19 +88,19 @@ serveurCanaux.enregistrerTraitementMessages(function (l, m) {
                     + serveur_1.adresse(l.url())
                     + " devrait signer ses messages " + emetteurUrl + " et non " + emetteurMsg + ".";
                 console.log("- " + msgErreur_1);
-                l.envoyerAuClientDestinataire(chat_1.creerMessageRetourErreur(msg, chat_1.TypeMessageChat.ERREUR_EMET, msgErreur_1));
+                l.envoyerAuClientDestinataire(tchat_1.creerMessageRetourErreur(msg, tchat_1.TypeMessageTchat.ERREUR_EMET, msgErreur_1));
                 break;
             }
             if (connexions[emetteurMsg] === undefined) {
                 var msgErreur_2 = "problème de Web socket : la connexion n'est plus active. Fermer l'onglet et se reconnecter.";
                 console.log("- " + msgErreur_2);
-                l.envoyerAuClientDestinataire(chat_1.creerMessageRetourErreur(msg, chat_1.TypeMessageChat.ERREUR_EMET, msgErreur_2));
+                l.envoyerAuClientDestinataire(tchat_1.creerMessageRetourErreur(msg, tchat_1.TypeMessageTchat.ERREUR_EMET, msgErreur_2));
                 break;
             }
             if (connexions[destinataireMsg] === undefined) {
                 var msgErreur_3 = "destinataire inconnu ou non connecté. Attendre sa connexion ou essayer un autre destinataire.";
                 console.log("- " + msgErreur_3);
-                l.envoyerAuClientDestinataire(chat_1.creerMessageRetourErreur(msg, chat_1.TypeMessageChat.ERREUR_DEST, msgErreur_3));
+                l.envoyerAuClientDestinataire(tchat_1.creerMessageRetourErreur(msg, tchat_1.TypeMessageTchat.ERREUR_DEST, msgErreur_3));
                 break;
             }
             // Contrôle des communications 
@@ -106,18 +108,18 @@ serveurCanaux.enregistrerTraitementMessages(function (l, m) {
                 var msgErreur_4 = "communication interdite : le noeud émetteur "
                     + emetteurMsg + " n'est pas vosin du noeud destinataire " + destinataireMsg + ".";
                 console.log("- " + msgErreur_4);
-                l.envoyerAuClientDestinataire(chat_1.creerMessageRetourErreur(msg, chat_1.TypeMessageChat.INTERDICTION, msgErreur_4));
+                l.envoyerAuClientDestinataire(tchat_1.creerMessageRetourErreur(msg, tchat_1.TypeMessageTchat.INTERDICTION, msgErreur_4));
             }
             // Fonctionnement normal
             var lienDestinaire = connexions[destinataireMsg];
             var lienEmetteur = connexions[emetteurMsg];
-            lienDestinaire.envoyerAuClientDestinataire(chat_1.creerMessageTransit(msg));
-            lienEmetteur.envoyerAuClientDestinataire(chat_1.creerMessageAR(msg));
+            lienDestinaire.envoyerAuClientDestinataire(tchat_1.creerMessageTransit(msg));
+            lienEmetteur.envoyerAuClientDestinataire(tchat_1.creerMessageAR(msg));
             break;
         default:
-            var msgErreur = "type de message non reconnu : le type doit être " + chat_1.TypeMessageChat.COM.toString() + " et non " + m.type + ".";
+            var msgErreur = "type de message non reconnu : le type doit être " + tchat_1.TypeMessageTchat.COM.toString() + " et non " + m.type + ".";
             console.log("- " + msgErreur);
-            l.envoyerAuClientDestinataire(chat_1.creerMessageRetourErreur(msg, chat_1.TypeMessageChat.ERREUR_TYPE, msgErreur));
+            l.envoyerAuClientDestinataire(tchat_1.creerMessageRetourErreur(msg, tchat_1.TypeMessageTchat.ERREUR_TYPE, msgErreur));
             break;
     }
 });

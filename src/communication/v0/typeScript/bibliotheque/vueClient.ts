@@ -34,7 +34,10 @@ export function gererEvenementDocument(type: string, gestionnaire: (e: Event) =>
 
 
 export function gererEvenementElement(id: string, type: string, gestionnaire: (e: Event) => void) {
-    console.log("- Element " + id + " : enregistrement d'un gestionnaire pour l'événement " + type);    
     document.getElementById(id).addEventListener(type, <EventListenerOrEventListenerObject>gestionnaire);
 }
 
+export function elementSaisieEnvoi(idSaisie : string, idBoutonEnvoi: string, msg : string) : string {
+    return '<input type="text" id="' + idSaisie + '">' 
+        + '<input class="button" type="button" id="' + idBoutonEnvoi + '" value="' + msg +'" >';
+}

@@ -1,7 +1,7 @@
 import { Identifiant, FormatMessage, Message, creerNoeud, Noeud } from "../../bibliotheque/communication";
 import { elementParId, recupererEntree, initialiserEntree, contenuBalise, poster, posterNL, gererEvenementDocument, gererEvenementElement } from "../../bibliotheque/vueClient";
 import { CanalClient } from "../../bibliotheque/client";
-import { creerMessageCommunication, TypeMessageChat, FormatMessageChat, MessageChat, FormatSommetChat, fabriqueSommetChat } from '../commun/chat';
+import { creerMessageCommunication, TypeMessageTchat, FormatMessageTchat, MessageTchat, FormatSommetTchat, creerSommetTchat } from '../commun/tchat';
 
 console.log("* Chargement du script");
 
@@ -9,12 +9,12 @@ console.log("* Chargement du script");
 cf. declare
 */
 
-function centreNoeud(): FormatSommetChat {
+function centreNoeud(): FormatSommetTchat {
     return JSON.parse(contenuBalise(document, 'centre'));
 
 }
 
-function voisinsNoeud(): FormatSommetChat[] {
+function voisinsNoeud(): FormatSommetTchat[] {
     let v = JSON.parse(contenuBalise(document, 'voisins'));
     let r = [];
     let id;
@@ -29,16 +29,16 @@ function voisinsNoeud(): FormatSommetChat[] {
 function adresseServeur(): string {
     return contenuBalise(document, 'adresseServeur');
 }
-
-type CanalChat = CanalClient<FormatMessageChat>;
+/*
+type CanalChat = CanalClient<FormatMessageTchat>;
 
 // A initialiser
 var canal: CanalChat;
-var noeud: Noeud<FormatSommetChat>;
+var noeud: Noeud<FormatSommetTchat>;
 
 
 function envoyerMessage(texte: string, destinataire: Identifiant) {
-    let msg: MessageChat = creerMessageCommunication(noeud.centre().enJSON().id, destinataire, texte);
+    let msg: MessageTchat = creerMessageCommunication(noeud.centre().enJSON().id, destinataire, texte);
     console.log("- Envoi du message brut : " + msg.brut());
     console.log("- Envoi du message net : " + msg.net());
     canal.envoyerMessage(msg);
@@ -48,11 +48,11 @@ function envoyerMessage(texte: string, destinataire: Identifiant) {
 // A exécuter après chargement de la page
 function initialisation(): void {
     console.log("* Initialisation après chargement du DOM ...")
-    noeud = creerNoeud<FormatSommetChat>(centreNoeud(), voisinsNoeud(), fabriqueSommetChat);
-    canal = new CanalClient<FormatMessageChat>(adresseServeur());
+    noeud = creerNoeud<FormatSommetTchat>(centreNoeud(), voisinsNoeud(), creerSommetTchat);
+    canal = new CanalClient<FormatMessageTchat>(adresseServeur());
 
-    canal.enregistrerTraitementAReception((m: FormatMessageChat) => {
-        let msg = new MessageChat(m);
+    canal.enregistrerTraitementAReception((m: FormatMessageTchat) => {
+        let msg = new MessageTchat(m);
         console.log("- Réception du message brut : " + msg.brut());
         console.log("- Réception du message net : " + msg.net());
         posterNL('logChats', msg.net());
@@ -74,7 +74,7 @@ function initialisation(): void {
         });
     }
 
-    /*
+    
     <form id="envoi">
     
       <input type="text" id="message_id1"> 
@@ -83,7 +83,7 @@ function initialisation(): void {
          onClick="envoyerMessage(this.form.message.value, "id1")">
     </form>
         
-    */
+    
     console.log("* ... et des gestionnaires d'événements sur des éléments du document.");
 
 
@@ -92,11 +92,11 @@ function initialisation(): void {
 // Gestion des événements pour le document
 console.log("* Enregistrement de l'initialisation");
 gererEvenementDocument('DOMContentLoaded', initialisation);
-/*
+
 <script type="text/javascript">
   document.addEventListener('DOMContentLoaded', initialisation());
 </script>
 
+
+
 */
-
-

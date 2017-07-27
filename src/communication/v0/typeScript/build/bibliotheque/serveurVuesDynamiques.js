@@ -57,7 +57,7 @@ var ServeurVuesDynamiques = (function () {
         this.appli.set('views', rep); // spécifie le répertoire des vues dynamiques
     };
     ServeurVuesDynamiques.prototype.specifierRepertoireScriptsEmbarques = function (rep) {
-        this.appli.use(express.static('build')); // répertoire local visible
+        this.appli.use(express.static(rep)); // répertoire local visible
     };
     ServeurVuesDynamiques.prototype.enregistrerVueDynamique = function (chemin, calculDynamique) {
         this.appli.get(chemin, function (requete, reponse, suite) {

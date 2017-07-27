@@ -1,6 +1,6 @@
 var config = {
     entry: {
-        client : "./build/chat/client/clientChat.js"
+        client : "./build/tchat/client/clientTchat.js"
     }, // Les clés remplacent name ci-dessous.
     output: {
         path: __dirname + "/build",

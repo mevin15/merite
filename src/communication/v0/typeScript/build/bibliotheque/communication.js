@@ -11,6 +11,7 @@ var __extends = (this && this.__extends) || (function () {
 })();
 exports.__esModule = true;
 ;
+;
 // Modèle générique d'une enveloppe d'un document JSON
 var Enveloppe = (function () {
     function Enveloppe(enJSON) {
@@ -38,6 +39,24 @@ var Message = (function (_super) {
     return Message;
 }(Enveloppe));
 exports.Message = Message;
+var Configuration = (function (_super) {
+    __extends(Configuration, _super);
+    function Configuration(enJSON) {
+        return _super.call(this, enJSON) || this;
+    }
+    ;
+    return Configuration;
+}(Enveloppe));
+exports.Configuration = Configuration;
+var ErreurRedhibitoire = (function (_super) {
+    __extends(ErreurRedhibitoire, _super);
+    function ErreurRedhibitoire(enJSON) {
+        return _super.call(this, enJSON) || this;
+    }
+    ;
+    return ErreurRedhibitoire;
+}(Enveloppe));
+exports.ErreurRedhibitoire = ErreurRedhibitoire;
 var Sommet = (function (_super) {
     __extends(Sommet, _super);
     function Sommet(enJSON) {
@@ -119,9 +138,9 @@ var SommetTableSommets = (function () {
 ;
 function creerNoeud(centre, voisins, fabrique) {
     var r = new SommetTableSommets(fabrique(centre));
-    voisins.forEach(function (s, i, tab) {
-        r.ajouterVoisin(fabrique(s));
-    });
+    for (var i in voisins) {
+        r.ajouterVoisin(fabrique(voisins[i]));
+    }
     return r;
 }
 exports.creerNoeud = creerNoeud;

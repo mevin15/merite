@@ -1,4 +1,14 @@
+import { Unite } from "./types"
+
+// Clés "configurationInitiale" et "erreurRedhibitoire" interdites dans les messages
 export interface FormatMessage { };
+export interface FormatConfigurationInitiale {
+    "configurationInitiale": Unite
+};
+export interface FormatErreurRedhibitoire {
+    "erreurRedhibitoire": Unite
+}
+
 
 // Modèle générique d'une enveloppe d'un document JSON
 export abstract class Enveloppe<F, S extends F> {
@@ -23,6 +33,22 @@ export abstract class Message<T extends FormatMessage> extends Enveloppe<FormatM
         super(enJSON); // JSON
     };
 }
+
+export abstract class Configuration<C extends FormatConfigurationInitiale> extends Enveloppe<FormatConfigurationInitiale, C> {
+
+    constructor(enJSON: C) {
+        super(enJSON); // JSON
+    };
+}
+
+export abstract class ErreurRedhibitoire<E extends FormatErreurRedhibitoire> extends Enveloppe<FormatErreurRedhibitoire, E> {
+
+    constructor(enJSON: E) {
+        super(enJSON); // JSON
+    };
+}
+
+
 /*
 - réseau ::= noeud*
 - noeud ::= (sommet, sommet*)
@@ -145,11 +171,12 @@ class SommetTableSommets<S extends FormatSommet> implements Noeud<S> {
     }
 };
 
-export function creerNoeud<S extends FormatSommet>(centre: S, voisins: S[], fabrique: (s: S) => Sommet<S>): Noeud<S> {
+export function creerNoeud<S extends FormatSommet>(
+    centre: S, voisins: { [cle : string] : S}, fabrique: (s: S) => Sommet<S>): Noeud<S> {
     let r = new SommetTableSommets<S>(fabrique(centre));
-    voisins.forEach((s: S, i: number, tab: S[]) => {
-        r.ajouterVoisin(fabrique(s));
-    });
+    for(let i in voisins){
+        r.ajouterVoisin(fabrique(voisins[i]));
+    }
     return r;
 }
 
