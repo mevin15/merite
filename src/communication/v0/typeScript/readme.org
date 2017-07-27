@@ -16,8 +16,9 @@ Canaux
 - communiquer(canal : LiaisonClientServeur, msg : Message)
 
 Règles pour la connexion
-- initier(ret) & Noeud(c, voisins) -> ret(c, voisins, activer) & NoeudConnecte(c, voisins, null)
-- activer(ret, c, k) & NoeudConnecte(c, voisins, null) -> ret(OK) & NoeudConnecte(c, voisins, k)
+- initier(ret) & Appli(page) -> ret(page) & Appli(page)
+- activer(ret, k) & Noeud(c, voisins) -> ret(c, voisins) & NoeudConnecte(c, voisins, k)
+- activer(ret, k) & non(Noeud(_, _)) -> ret(RESEAU_COMPLET)
 - communiquer(k, FIN) & NoeudConnecte(c, voisins, k) -> Noeud(c, voisins)
 
 Règles pour la communication
@@ -35,6 +36,13 @@ La stratégie générale est de masquer complètement la partie technique
 en fournissant un environnement de développement : 
 - frameworks et bibliothèques dédiés, avec du code écrit en Français 
   et des abstractions manipulables aisément.
+
+- L'application est définie dans une seule page, build/clientTchat1.html.
+- Au chargement, une connexion est établie avec le serveur.
+- Le serveur répond en envoyant une configuration, normale ou erronée.
+- Le client se configure.
+- Le client communique.
+- Le client se déconnecte. 
 
 *** source
 
