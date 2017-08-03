@@ -4,7 +4,11 @@ import {
     FormatConfigurationInitiale, Configuration
 } from "./communication";
 
-export class CanalClient<E extends FormatErreurRedhibitoire, C extends FormatConfigurationInitiale, T extends FormatMessage> {
+export class CanalClient<
+    FE extends FormatErreurRedhibitoire, FC extends FormatConfigurationInitiale, // Format d'entrée
+    FMIN extends FMOUT, FMOUT extends FormatMessage, // Formats d'entrée et de sortie
+    EM extends string
+    > {
     adresse: string;
     lienServeur: WebSocket;
     constructor(adresse: string) {
@@ -13,45 +17,51 @@ export class CanalClient<E extends FormatErreurRedhibitoire, C extends FormatCon
     };
 
     // Effet : send(String)
-    envoyerMessage(msg: Message<T>): void {
+    envoyerMessage(msg: Message<FMIN, FMOUT, EM>): void {
         this.lienServeur.send(msg.brut());
     };
 
     // Effet: enregistrement comme écouteur
-    enregistrerTraitementMessageRecu(traitement: (m: T) => void): void {
+    enregistrerTraitementMessageRecu(traitement: (m: FMIN) => void): void {
         this.lienServeur.addEventListener("message", function (e: MessageEvent) {
             let msg = JSON.parse(e.data);
-            if(msg.configurationInitiale !== undefined){
+            if (msg.configurationInitiale !== undefined) {
                 return;
             }
-            if(msg.erreurRedhibitoire !== undefined){
+            if (msg.erreurRedhibitoire !== undefined) {
                 return;
             }
-            traitement(<T>msg);
+            traitement(<FMIN>msg);
         });
     };
     // Effet: enregistrement comme écouteur
-    enregistrerTraitementConfigurationRecue(traitement: (c: C) => void): void {
+    enregistrerTraitementConfigurationRecue(traitement: (c: FC) => void): void {
         this.lienServeur.addEventListener("message", function (e: MessageEvent) {
-            let contenuJSON = JSON.parse(e.data); 
-            if(contenuJSON.configurationInitiale === undefined){
+            let contenuJSON = JSON.parse(e.data);
+            if (contenuJSON.configurationInitiale === undefined) {
                 return;
             }
-            traitement(<C>contenuJSON);
+            traitement(<FC>contenuJSON);
         });
     };
     // Effet: enregistrement comme écouteur
-    enregistrerTraitementErreurRecue(traitement: (e: E) => void): void {
+    enregistrerTraitementErreurRecue(traitement: (e: FE) => void): void {
         this.lienServeur.addEventListener("message", function (e: MessageEvent) {
-            let contenuJSON = JSON.parse(e.data); 
-            if(contenuJSON.erreurRedhibitoire === undefined){
+            let contenuJSON = JSON.parse(e.data);
+            if (contenuJSON.erreurRedhibitoire === undefined) {
                 return;
             }
-            traitement(<E>contenuJSON);
+            traitement(<FE>contenuJSON);
         });
     };
 
 };
 
-
+export function creerCanalClient<
+    FE extends FormatErreurRedhibitoire, FC extends FormatConfigurationInitiale,
+    FMIN extends FMOUT,
+    FMOUT extends FormatMessage, EM extends string
+    >(adresse: string) {
+    return new CanalClient<FE, FC, FMIN, FMOUT, EM>(adresse);
+}
 

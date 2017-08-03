@@ -1,51 +1,50 @@
-import { Unite } from "./types"
+import {
+    Unite,
+    FormatIdentifiableIN, FormatIdentifiableEX, Identifiant,
+    Enveloppe,
+    TableIdentification, FormatTableIN,
+    FormatTableEX, conversionFormatTable
+} from "./types"
 
-// Clés "configurationInitiale" et "erreurRedhibitoire" interdites dans les messages
-export interface FormatMessage { };
+
+
+// Cette interface pourrait être complétée à l'avenir.
 export interface FormatConfigurationInitiale {
-    "configurationInitiale": Unite
+    readonly "configurationInitiale": Unite
 };
+// Cette interface pourrait être complétée à l'avenir.
 export interface FormatErreurRedhibitoire {
-    "erreurRedhibitoire": Unite
+    readonly "erreurRedhibitoire": Unite
+}
+// Cette interface pourrait être complétée à l'avenir.
+// Clés "configurationInitiale" et "erreurRedhibitoire" interdites dans les messages
+export interface FormatMessage { }
+
+export abstract class Message<
+    FMIN extends FormatMessage,
+    FMEX extends FormatMessage,
+    EM extends string
+    >
+    extends Enveloppe<FMIN, FMEX, EM> {
+
 }
 
+export abstract class Configuration<
+    FCIN extends FormatConfigurationInitiale,
+    FCEX extends FormatConfigurationInitiale,
+    EC extends string
+    >
+    extends Enveloppe<FCIN, FCEX, EC> {
 
-// Modèle générique d'une enveloppe d'un document JSON
-export abstract class Enveloppe<F, S extends F> {
-    _enJSON: S;
-    constructor(enJSON: S) {
-        this._enJSON = enJSON; // JSON
-    };
-    enJSON(): S {
-        return this._enJSON;
-    };
-
-    brut(): string {
-        return JSON.stringify(this.enJSON());
-    };
-
-    abstract net(): string;
-};
-
-export abstract class Message<T extends FormatMessage> extends Enveloppe<FormatMessage, T> {
-
-    constructor(enJSON: T) {
-        super(enJSON); // JSON
-    };
 }
 
-export abstract class Configuration<C extends FormatConfigurationInitiale> extends Enveloppe<FormatConfigurationInitiale, C> {
+export abstract class ErreurRedhibitoire<
+    FEIN extends FormatErreurRedhibitoire,
+    FEEX extends FormatErreurRedhibitoire,
+    EE extends string
+    >
+    extends Enveloppe<FEIN, FEEX, EE> {
 
-    constructor(enJSON: C) {
-        super(enJSON); // JSON
-    };
-}
-
-export abstract class ErreurRedhibitoire<E extends FormatErreurRedhibitoire> extends Enveloppe<FormatErreurRedhibitoire, E> {
-
-    constructor(enJSON: E) {
-        super(enJSON); // JSON
-    };
 }
 
 
@@ -60,139 +59,131 @@ export abstract class ErreurRedhibitoire<E extends FormatErreurRedhibitoire> ext
 - Remarque : compatibilité ES3 pour les objets.
 */
 
-export type Identifiant = string;
 
 // - sommet ::= {identifiant, ...}
-export interface FormatSommet {
-    id: Identifiant;
-}
 
-export abstract class Sommet<S extends FormatSommet> extends Enveloppe<FormatSommet, S> {
+// La sorte pour les identifiants de sommets est 'sommet'. 
+export abstract class Sommet<
+    SIN extends FormatIdentifiableEX<'sommet'>,
+    SEX extends FormatIdentifiableEX<'sommet'>,
+    E extends string
+    >
+    extends Enveloppe<SIN, SEX, E> {
 
-    constructor(enJSON: S) {
-        super(enJSON); // JSON
-    };
 }
 
 
 // - réseau ::= noeud*
-export interface Reseau<S extends FormatSommet> {
-    noeuds(): { [cle: string]: Noeud<S> };
-    noeud(id: Identifiant): Noeud<S>;
-    possedeNoeud(id: Identifiant): boolean;
-    sontVoisins(id1: Identifiant, id2: Identifiant): boolean;
-}
 
-// - réseau ::= noeud*
-export class TableNoeuds<S extends FormatSommet> implements Reseau<S> {
-    private _noeuds: { [cle: string]: Noeud<S>; };
+// Hypothèse : le réseau ne modifie ni les sommets ni les neouds. 
+//   Conséquence : un seul format est utilisé, pour les sommets et pour les noeuds respectivement.
+export class Reseau<SEX extends FormatIdentifiableEX<'sommet'>>
+    extends TableIdentification<'sommet', FormatNoeudEX<SEX>, FormatNoeudEX<SEX>>{
 
     constructor() {
-        this._noeuds = {};
-    }
-    noeuds(): { [cle: string]: Noeud<S> } {
-        let r: { [cle: string]: Noeud<S>; } = {};
-        let id;
-        for (id in this._noeuds) {
-            r[id] = this._noeuds[id];
-        }
-        return r;
+        super((x) => x);
     }
 
-    noeud(id: Identifiant): Noeud<S> {
-        return this._noeuds[id];
+    representer(): string {
+        return "réseau de " + this.net('taille') + " noeuds : "
+            + this.net('graphe');
     }
 
-    possedeNoeud(id: Identifiant): boolean {
-        return this._noeuds[id] !== undefined;
+    possedeNoeud(id: Identifiant<'sommet'>): boolean {
+        return this._domaine.table[id.sommet] !== undefined;
     }
     // Précondition : id1 et id2 sont deux noeuds du réseau.
-    sontVoisins(id1: Identifiant, id2: Identifiant): boolean {
-        return this._noeuds[id1].aPourVoisin(id2);
+    sontVoisins(id1: Identifiant<'sommet'>, id2: Identifiant<'sommet'>): boolean {
+        return this.etat.table[id1.sommet].voisins.table[id2.sommet] !== undefined;
     }
-    ajouterNoeud(n: Noeud<S>): void {
-        this._noeuds[n.centre().enJSON().id] = n;
+    ajouterNoeud(n: FormatNoeudEX<SEX>): void {
+        this.ajouter(n.centre.ID, n);
     }
+    retirerNoeud(n: FormatNoeudEX<SEX>): void {
+        this.retirer(n.centre.ID);
+    }
+}
 
-    retirerNoeud(n: Noeud<S>): void {
-        delete this._noeuds[n.centre().enJSON().id];
-    }
+export function creerReseauVide<
+    S extends FormatIdentifiableEX<'sommet'>
+    >(): Reseau<S> {
+    return new Reseau();
 }
 
 // - noeud ::= (sommet, sommet*)
-export interface Noeud<S extends FormatSommet> {
-    centre(): Sommet<S>;
-    voisins(): { [cle: string]: Sommet<S> };
-    voisinsEnJSON(): { [cle: string]: S };
-    aPourVoisin(id: Identifiant): boolean;
-    voisin(id: Identifiant): Sommet<S>;
+// Hypothèse : un noeud ne modifie pas les sommets.
+//    Conséquence : un seul format (sortie) est utilisé pour les sommets.
+export interface FormatNoeudIN<S extends FormatIdentifiableEX<'sommet'>> {
+    readonly centre: S;
+    readonly voisins: FormatTableIN<S>
 }
 
-class SommetTableSommets<S extends FormatSommet> implements Noeud<S> {
-    private _centre: Sommet<S>;
-    private _voisins: { [cle: string]: Sommet<S> };
+export interface FormatNoeudEX<S extends FormatIdentifiableEX<'sommet'>> {
+    readonly centre: S;
+    readonly voisins: FormatTableEX<S>
+}
 
-    constructor(c: Sommet<S>) {
-        this._centre = c;
-        this._voisins = {};
-    };
+function conversionFormatNoeud<S extends FormatIdentifiableEX<'sommet'>>(
+    n: FormatNoeudIN<S>): FormatNoeudEX<S> {
+    return { centre: n.centre, voisins: conversionFormatTable<S, S>((s) => s)(n.voisins) };
+}
 
-    centre(): Sommet<S> {
-        return this._centre;
+export type EtiquetteNoeud = 'centre' | 'voisins';
+
+export abstract class NoeudIN<SO extends FormatIdentifiableEX<'sommet'>>
+    extends Enveloppe<FormatNoeudIN<SO>, FormatNoeudEX<SO>, EtiquetteNoeud> {
+
+    constructor(etat: FormatNoeudIN<SO>) {
+        super(conversionFormatNoeud, etat);
     }
 
-    voisins(): { [cle: string]: Sommet<S> } {
-        let r: { [cle: string]: Sommet<S> } = {};
-        let id;
-        for (id in this._voisins) {
-            r[id] = this._voisins[id];
+    aPourVoisin(id: Identifiant<'sommet'>): boolean {
+        return this.etat.voisins.table[id.sommet] !== undefined;
+    }
+    ajouterVoisin(v: SO): void {
+        this.etat.voisins.table[v.ID.sommet] = v;
+    }
+    foncteurProceduralSurVoisins(proc: (v: SO) => void) {
+        for (let c in this.etat.voisins.table) {
+            proc(this.etat.voisins.table[c]);
         }
-        return r;
+    }
+}
+
+export abstract class NoeudEX<SO extends FormatIdentifiableEX<'sommet'>>
+    extends Enveloppe<FormatNoeudEX<SO>, FormatNoeudEX<SO>, EtiquetteNoeud> {
+
+    constructor(etat: FormatNoeudEX<SO>) {
+        super(conversionFormatNoeud, etat);
     }
 
-    voisinsEnJSON(): { [cle: string]: S } {
-        let r: { [cle: string]: S } = {};
-        let id;
-        for (id in this._voisins) {
-            r[id] = this._voisins[id].enJSON();
+    aPourVoisin(id: Identifiant<'sommet'>): boolean {
+        return this.etat.voisins.table[id.sommet] !== undefined;
+    }
+    foncteurProceduralSurVoisins(proc: (v: SO) => void) {
+        for (let c in this.etat.voisins.table) {
+            proc(this.etat.voisins.table[c]);
         }
-        return r;
     }
-    aPourVoisin(id: Identifiant): boolean {
-        return this._voisins[id] !== undefined;
-    }
-
-    voisin(id: Identifiant): Sommet<S> {
-        return this._voisins[id];
-    };
-
-    ajouterVoisin(v: Sommet<S>): void {
-        this._voisins[v.enJSON().id] = v;
-    }
-};
-
-export function creerNoeud<S extends FormatSommet>(
-    centre: S, voisins: { [cle : string] : S}, fabrique: (s: S) => Sommet<S>): Noeud<S> {
-    let r = new SommetTableSommets<S>(fabrique(centre));
-    for(let i in voisins){
-        r.ajouterVoisin(fabrique(voisins[i]));
-    }
-    return r;
 }
 
 
-export class AssemblageReseauEnAnneau<S extends FormatSommet> {
+export class AssemblageReseauEnAnneau<S extends FormatIdentifiableEX<'sommet'>> {
     // Les sommetts doivent avoir des identifiants deux à deux distincts.
-    private sommets: Sommet<S>[];
+    private sommets: S[];
     private taille: number;
 
-    constructor(taille: number) {
+
+    constructor(
+        taille: number,
+        private fabriqueNoeud: (n: FormatNoeudIN<S>) => NoeudIN<S>
+    ) {
         console.log("* Construction d'un réseau en anneau de " + taille + " éléments.");
         this.sommets = [];
         this.taille = taille;
     }
 
-    ajouterSommet(s: Sommet<S>): void {
+    ajouterSommet(s: S): void {
         if (this.sommets.length < this.taille) {
             this.sommets.push(s);
         } else {
@@ -200,21 +191,27 @@ export class AssemblageReseauEnAnneau<S extends FormatSommet> {
         }
     }
 
-    assembler(): TableNoeuds<S> {
+    assembler(): Reseau<S> {
         let restant = this.taille - this.sommets.length;
         if (restant > 0) {
-            console.log("- Impossible d'assembler un réseau en anneau : ajouter " + restant + " sommets.");
-            return null;
+            console.log("- Impossible d'assembler un réseau en anneau de la taille donnée : ajouter " + restant + " sommets.");
+            return undefined;
         }
         // Définition du réseau
-        let r = new TableNoeuds<S>();
-        let ns: Noeud<S>[] = [];
-        this.sommets.forEach((s: Sommet<S>, i: number, tab: Sommet<S>[]) => {
-            let n = new SommetTableSommets(s);
+        let reseau: Reseau<S> = creerReseauVide();
+        this.sommets.forEach((s: S, i: number, tab: S[]) => {
+            let n: NoeudIN<S> = this.fabriqueNoeud({ centre: s, voisins: { table : {}, mutable : Unite.un} });
             n.ajouterVoisin(tab[(i + 1) % this.taille]);
             n.ajouterVoisin(tab[(i + (this.taille - 1)) % this.taille]);
-            r.ajouterNoeud(n);
+            reseau.ajouterNoeud(n.ex());
         });
-        return r;
+        return reseau;
     }
-} 
+}
+
+export function creerAssemblageReseauEnAnneau<SO extends FormatIdentifiableEX<'sommet'>>(
+    taille: number,
+    fabriqueNoeud: (n: FormatNoeudEX<SO>) => NoeudIN<SO>)
+    : AssemblageReseauEnAnneau<SO> {
+    return new AssemblageReseauEnAnneau<SO>(taille, fabriqueNoeud);
+}
