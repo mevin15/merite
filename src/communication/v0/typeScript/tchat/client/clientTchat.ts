@@ -1,44 +1,46 @@
+import { creerTableImmutable, Identifiant } from "../../bibliotheque/types";
 import {
-    Identifiant,
-    creerNoeud, Noeud
 } from "../../bibliotheque/communication";
 import {
     elementParId, recupererEntree, initialiserEntree, contenuBalise, poster, posterNL,
     gererEvenementDocument, gererEvenementElement,
     elementSaisieEnvoi, initialiserDocument
 } from "../../bibliotheque/vueClient";
-import { CanalClient } from "../../bibliotheque/client";
+import { CanalClient, creerCanalClient } from "../../bibliotheque/client";
 import {
     hote, port2,
+    NoeudTchatEX, creerNoeudTchatEX,
+    SommetTchat, FormatSommetTchatIN, creerSommetTchat,
     creerMessageCommunication,
-    TypeMessageTchat, FormatMessageTchat, MessageTchat,
-    FormatConfigurationTchat, ConfigurationTchat,
-    FormatErreurTchat, ErreurTchat,
-    FormatSommetTchat, creerSommetTchat,
-    creerNoeudDeConfiguration
+    TypeMessageTchat, FormatMessageTchatEX, EtiquetteMessageTchat, MessageTchat,
+    FormatConfigurationTchatEX, EtiquetteConfigurationTchat,
+    ConfigurationTchat, creerConfigurationTchat,
+    FormatErreurTchatEX, EtiquetteErreurTchat,
+    ErreurTchat, creerErreurTchat,
+    decomposerConfiguration
 } from '../commun/tchat';
-import {dateFr} from "../../bibliotheque/outils"
+import { dateFr } from "../../bibliotheque/outils"
 
 
 console.log("* Chargement du script");
 
-/* Test - déclaration d'une variable externe - Possible
-cf. declare
-*/
-
 const adresseServeur: string = hote + ":" + port2;
 
-type CanalTchat = CanalClient<FormatErreurTchat, FormatConfigurationTchat, FormatMessageTchat>;
+type CanalTchat
+    = CanalClient<
+    FormatErreurTchatEX,
+    FormatConfigurationTchatEX,
+    FormatMessageTchatEX, FormatMessageTchatEX, EtiquetteMessageTchat>;
 
 // A initialiser
 var canal: CanalTchat;
-var noeud: Noeud<FormatSommetTchat>;
+var noeud: NoeudTchatEX;
 
 
-function envoyerMessage(texte: string, destinataire: Identifiant) {
-    let msg: MessageTchat = creerMessageCommunication(noeud.centre().enJSON().id, destinataire, texte);
+function envoyerMessage(texte: string, ID_destinataire: Identifiant<'sommet'>) {
+    let msg: MessageTchat = creerMessageCommunication(noeud.ex().centre.ID, ID_destinataire, texte);
     console.log("- Envoi du message brut : " + msg.brut());
-    console.log("- Envoi du message net : " + msg.net());
+    console.log("- Envoi du message net : " + msg.representer());
     canal.envoyerMessage(msg);
 }
 
@@ -48,36 +50,37 @@ function initialisation(): void {
     console.log("* Initialisation après chargement du DOM");
 
     console.log("- du canal de communication avec le serveur d'adresse " + adresseServeur);
-    canal = new CanalClient<FormatErreurTchat, FormatConfigurationTchat, FormatMessageTchat>(adresseServeur);
+    canal = creerCanalClient(adresseServeur);
 
     console.log("- du traitement des messages");
-    canal.enregistrerTraitementMessageRecu((m: FormatMessageTchat) => {
+    canal.enregistrerTraitementMessageRecu((m: FormatMessageTchatEX) => {
         let msg = new MessageTchat(m);
         console.log("* Réception");
         console.log("- du message brut : " + msg.brut());
-        console.log("- du message net : " + msg.net());
-        posterNL('logChats', msg.net());
+        console.log("- du message net : " + msg.representer());
+        posterNL('logChats', msg.representer());
     });
 
     console.log("- du traitement de la configuration");
-    canal.enregistrerTraitementConfigurationRecue((c: FormatConfigurationTchat) => {
-        let config = new ConfigurationTchat(c);
+    canal.enregistrerTraitementConfigurationRecue((c: FormatConfigurationTchatEX) => {
+        let config = creerConfigurationTchat(c);
         console.log("* Réception");
         console.log("- de la configuration brute : " + config.brut());
-        console.log("- de la configuration nette : " + config.net());
+        console.log("- de la configuration nette : " + config.representer());
         console.log("* Initialisation du noeud du réseau");
-        noeud = creerNoeudDeConfiguration(config);
+        noeud = creerNoeudTchatEX(decomposerConfiguration(config));
         voir();
+
     });
 
     console.log("- du traitement d'une erreur rédhibitoire");
-    canal.enregistrerTraitementErreurRecue((err: FormatErreurTchat) => {
-        let erreur = new ErreurTchat(err);
+    canal.enregistrerTraitementErreurRecue((err: FormatErreurTchatEX) => {
+        let erreur = creerErreurTchat(err);
         console.log("* Réception");
         console.log("- de l'erreur rédhibitoire brute : " + erreur.brut());
-        console.log("- de l'erreur rédhibitoire nette : " + erreur.net());
+        console.log("- de l'erreur rédhibitoire nette : " + erreur.representer());
         console.log("* Initialisation du document");
-        initialiserDocument(dateFr(erreur.enJSON().date) + " : " + erreur.enJSON().messageErreur);
+        initialiserDocument(erreur.representer());
     });
 
 }
@@ -86,27 +89,28 @@ function voir(): void {
     console.log("* Consolidation de la vue");
     console.log("- adresse, centre, voisins");
     poster("adresseServeur", adresseServeur);
-    poster("centre", noeud.centre().net());
-    poster("voisins", JSON.stringify(noeud.voisinsEnJSON()));
+    poster("centre", creerSommetTchat(noeud.ex().centre).representer());
+    poster("voisins", creerTableImmutable(noeud.ex().voisins).representer());
 
     console.log("- formulaire");
-    let voisinsNoeud = noeud.voisinsEnJSON();
-    let repVoisinsNoeud: string = JSON.stringify(voisinsNoeud);
     let contenuFormulaire = "";
-    for (let idV in voisinsNoeud) {
-        poster("formulaire", elementSaisieEnvoi("message_" + idV, "boutonEnvoi_" + idV,
-            "Envoyer un message à " + noeud.voisin(idV).enJSON().pseudo + "."));
+    noeud.foncteurProceduralSurVoisins(v => {
+        let ID_v = v.ID;
+        poster("formulaire", elementSaisieEnvoi("message_" + ID_v.sommet, "boutonEnvoi_" + ID_v.sommet,
+            "Envoyer un message à " + creerSommetTchat(v).representer() + "."));
     }
+    );
     let type = "click";
-    for (const idV in voisinsNoeud) {
-        console.log("- Element " + idV + " : enregistrement d'un gestionnaire pour l'événement " + type);
-        gererEvenementElement("boutonEnvoi_" + idV, type, e => {
-            let entree = recupererEntree("message_" + idV);
-            initialiserEntree("message_" + idV, "");
+    noeud.foncteurProceduralSurVoisins(v => {
+        let ID_v = v.ID;
+        console.log("- Element " + ID_v.sommet + " : enregistrement d'un gestionnaire pour l'événement " + type);
+        gererEvenementElement("boutonEnvoi_" + ID_v.sommet, type, e => {
+            let entree = recupererEntree("message_" + ID_v.sommet);
+            initialiserEntree("message_" + ID_v.sommet, "");
             console.log("* Entree : " + entree);
-            envoyerMessage(entree, idV);
+            envoyerMessage(entree, ID_v);
         });
-    }
+    });
     /*
       <input type="text" id="message_id1"> 
       <input class="button" type="button" id="boutonEnvoi_id1" value="Envoyer un message à {{nom id1}}."
