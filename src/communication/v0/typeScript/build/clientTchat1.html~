@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2017-07-26 mer. 19:01 -->
+<!-- 2017-07-26 mer. 19:12 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Projet Mérite - La communication entre machines</title>
@@ -245,10 +245,10 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#org55eb68c">Tchat - Client</a>
+<li><a href="#orgba4f4c4">Tchat - Client</a>
 <ul>
-<li><a href="#orgec8befc">Historique des messages</a></li>
-<li><a href="#org78287a8">Communication</a></li>
+<li><a href="#org61a841c">Historique des messages</a></li>
+<li><a href="#orge848f56">Communication</a></li>
 </ul>
 </li>
 </ul>
@@ -256,9 +256,9 @@ for the JavaScript code in this tag.
 </div>
 
 
-<div id="outline-container-org55eb68c" class="outline-2">
-<h2 id="org55eb68c">Tchat - Client</h2>
-<div class="outline-text-2" id="text-org55eb68c">
+<div id="outline-container-orgba4f4c4" class="outline-2">
+<h2 id="orgba4f4c4">Tchat - Client</h2>
+<div class="outline-text-2" id="text-orgba4f4c4">
 <ul class="org-ul">
 <li><p>
 Connexion avec le serveur à l'adresse :
@@ -282,16 +282,16 @@ Voisins du noeud:
 </div>
 
 
-<div id="outline-container-orgec8befc" class="outline-3">
-<h3 id="orgec8befc">Historique des messages</h3>
-<div class="outline-text-3" id="text-orgec8befc">
+<div id="outline-container-org61a841c" class="outline-3">
+<h3 id="org61a841c">Historique des messages</h3>
+<div class="outline-text-3" id="text-org61a841c">
 <div id="logChats"> </div>
 </div>
 </div>
 
-<div id="outline-container-org78287a8" class="outline-3">
-<h3 id="org78287a8">Communication</h3>
-<div class="outline-text-3" id="text-org78287a8">
+<div id="outline-container-orge848f56" class="outline-3">
+<h3 id="orge848f56">Communication</h3>
+<div class="outline-text-3" id="text-orge848f56">
 <div id="formulaire"></div>
 
 <hr  />
@@ -302,7 +302,7 @@ Voisins du noeud:
 <div id="postamble" class="status">
 <p class="date">Date: v0.0: 2017-06-30; v0.1: 2017-07-21; v1.0:2017-07-24</p>
 <p class="author">Author: Hervé Grall</p>
-<p class="date">Created: 2017-07-26 mer. 19:01</p>
+<p class="date">Created: 2017-07-26 mer. 19:12</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

@@ -14,8 +14,91 @@ var communication_1 = require("../../bibliotheque/communication");
 var types_1 = require("../../bibliotheque/types");
 var outils_1 = require("../../bibliotheque/outils");
 exports.hote = "merite"; // hôte local via TCP/IP - DNS : cf. /etc/hosts - IP : 127.0.0.1
-exports.port1 = 3001; // port de la essource 1 (serveur d'applications)
-exports.port2 = 1111; // port de la ressouce 2 (serveur de connexions)
+exports.port1 = 3000; // port de la essource 1 (serveur d'applications)
+exports.port2 = 1110; // port de la ressouce 2 (serveur de connexions)
+function conversionFormatSommet(s) {
+    return { ID: s.ID, pseudo: s.pseudo };
+}
+// La structure JSON décrivant le sommet est en lecture seulement. 
+var SommetTchat = (function (_super) {
+    __extends(SommetTchat, _super);
+    function SommetTchat(etat) {
+        return _super.call(this, function (x) { return x; }, etat) || this;
+    }
+    SommetTchat.prototype.net = function (e) {
+        var s = this.ex();
+        switch (e) {
+            case 'nom': return s.pseudo;
+            case 'ID': return s.ID.sommet;
+        }
+        return undefined; // impossible
+    };
+    SommetTchat.prototype.representer = function () {
+        return this.net('nom') + " (" + this.net('ID') + ")";
+    };
+    return SommetTchat;
+}(communication_1.Sommet));
+exports.SommetTchat = SommetTchat;
+function creerSommetTchat(s) {
+    return new SommetTchat(s);
+}
+exports.creerSommetTchat = creerSommetTchat;
+var NoeudTchatIN = (function (_super) {
+    __extends(NoeudTchatIN, _super);
+    function NoeudTchatIN() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    NoeudTchatIN.prototype.net = function (e) {
+        var s = this.ex();
+        switch (e) {
+            case 'centre': return creerSommetTchat(s.centre).representer();
+            case 'voisins':
+                return types_1.creerTableImmutable(s.voisins).representer();
+        }
+        return undefined; // impossible
+    };
+    NoeudTchatIN.prototype.representer = function () {
+        return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
+    };
+    return NoeudTchatIN;
+}(communication_1.NoeudIN));
+exports.NoeudTchatIN = NoeudTchatIN;
+function creerNoeudTchatIN(n) {
+    return new NoeudTchatIN(n);
+}
+exports.creerNoeudTchatIN = creerNoeudTchatIN;
+var NoeudTchatEX = (function (_super) {
+    __extends(NoeudTchatEX, _super);
+    function NoeudTchatEX() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    NoeudTchatEX.prototype.net = function (e) {
+        var s = this.ex();
+        switch (e) {
+            case 'centre': return creerSommetTchat(s.centre).representer();
+            case 'voisins':
+                return types_1.creerTableImmutable(s.voisins).representer();
+        }
+        return undefined; // impossible
+    };
+    NoeudTchatEX.prototype.representer = function () {
+        return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
+    };
+    return NoeudTchatEX;
+}(communication_1.NoeudEX));
+exports.NoeudTchatEX = NoeudTchatEX;
+function creerNoeudTchatEX(n) {
+    return new NoeudTchatEX(n);
+}
+exports.creerNoeudTchatEX = creerNoeudTchatEX;
+var ReseauTchat = (function (_super) {
+    __extends(ReseauTchat, _super);
+    function ReseauTchat() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    return ReseauTchat;
+}(communication_1.Reseau));
+exports.ReseauTchat = ReseauTchat;
 var TypeMessageTchat;
 (function (TypeMessageTchat) {
     TypeMessageTchat[TypeMessageTchat["COM"] = 0] = "COM";
@@ -27,38 +110,68 @@ var TypeMessageTchat;
     TypeMessageTchat[TypeMessageTchat["ERREUR_TYPE"] = 6] = "ERREUR_TYPE";
     TypeMessageTchat[TypeMessageTchat["INTERDICTION"] = 7] = "INTERDICTION";
 })(TypeMessageTchat = exports.TypeMessageTchat || (exports.TypeMessageTchat = {}));
+// Structure immutable
 var MessageTchat = (function (_super) {
     __extends(MessageTchat, _super);
-    function MessageTchat() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function MessageTchat(etat) {
+        return _super.call(this, function (x) { return x; }, etat) || this;
     }
-    MessageTchat.prototype.net = function () {
-        var msg = this.enJSON();
-        return JSON.stringify({
-            type: TypeMessageTchat[msg.type],
-            date: outils_1.dateFr(msg.date),
-            de: msg.emetteur,
-            à: msg.destinataire,
-            contenu: msg.contenu
+    MessageTchat.prototype.net = function (e) {
+        var msg = this.ex();
+        switch (e) {
+            case 'type': return TypeMessageTchat[msg.type];
+            case 'date': return outils_1.dateFr(msg.date);
+            case 'ID_de': return msg.ID_emetteur.sommet;
+            case 'ID_à': return msg.ID_destinataire.sommet;
+            case 'contenu': return msg.contenu;
+        }
+        return undefined; // impossible
+    };
+    MessageTchat.prototype.representer = function () {
+        var dem = this.net('ID_de');
+        var am = this.net('ID_à');
+        var typem = this.net('type');
+        var datem = this.net('date');
+        var cm = this.net('contenu');
+        return datem + ", de " + dem + " à " + am + " (" + typem + ") - " + cm;
+    };
+    MessageTchat.prototype.transit = function () {
+        var msg = this.ex();
+        return new MessageTchat({
+            "ID_emetteur": msg.ID_emetteur,
+            "ID_destinataire": msg.ID_destinataire,
+            "type": TypeMessageTchat.TRANSIT,
+            "contenu": msg.contenu,
+            "date": msg.date
+        });
+    };
+    MessageTchat.prototype.avecAccuseReception = function () {
+        var msg = this.ex();
+        return new MessageTchat({
+            "ID_emetteur": msg.ID_emetteur,
+            "ID_destinataire": msg.ID_destinataire,
+            "type": TypeMessageTchat.AR,
+            "contenu": msg.contenu,
+            "date": msg.date
         });
     };
     return MessageTchat;
 }(communication_1.Message));
 exports.MessageTchat = MessageTchat;
-function creerMessageErreurConnexion(emetteur, messageErreur) {
+function creerMessageErreurConnexion(idEmetteur, messageErreur) {
     return new MessageTchat({
-        "emetteur": emetteur,
-        "destinataire": emetteur,
+        "ID_emetteur": idEmetteur,
+        "ID_destinataire": idEmetteur,
         "type": TypeMessageTchat.ERREUR_CONNEXION,
         "contenu": messageErreur,
         "date": new Date()
     });
 }
 exports.creerMessageErreurConnexion = creerMessageErreurConnexion;
-function creerMessageCommunication(emetteur, destinataire, texte) {
+function creerMessageCommunication(idEmetteur, idDestinataire, texte) {
     return new MessageTchat({
-        "emetteur": emetteur,
-        "destinataire": destinataire,
+        "ID_emetteur": idEmetteur,
+        "ID_destinataire": idDestinataire,
         "type": TypeMessageTchat.COM,
         "contenu": texte,
         "date": new Date()
@@ -67,110 +180,93 @@ function creerMessageCommunication(emetteur, destinataire, texte) {
 exports.creerMessageCommunication = creerMessageCommunication;
 function creerMessageRetourErreur(original, codeErreur, messageErreur) {
     return new MessageTchat({
-        "emetteur": original.enJSON().emetteur,
-        "destinataire": original.enJSON().destinataire,
+        "ID_emetteur": original.ex().ID_emetteur,
+        "ID_destinataire": original.ex().ID_destinataire,
         "type": codeErreur,
         "contenu": messageErreur,
-        "date": original.enJSON().date
+        "date": original.ex().date
     });
 }
 exports.creerMessageRetourErreur = creerMessageRetourErreur;
-function creerMessageTransit(msg) {
-    return new MessageTchat({
-        "emetteur": msg.enJSON().emetteur,
-        "destinataire": msg.enJSON().destinataire,
-        "type": TypeMessageTchat.TRANSIT,
-        "contenu": msg.enJSON().contenu,
-        "date": msg.enJSON().date
-    });
-}
-exports.creerMessageTransit = creerMessageTransit;
-function creerMessageAR(msg) {
-    return new MessageTchat({
-        "emetteur": msg.enJSON().emetteur,
-        "destinataire": msg.enJSON().destinataire,
-        "type": TypeMessageTchat.AR,
-        "contenu": msg.enJSON().contenu,
-        "date": msg.enJSON().date
-    });
-}
-exports.creerMessageAR = creerMessageAR;
 var ConfigurationTchat = (function (_super) {
     __extends(ConfigurationTchat, _super);
-    function ConfigurationTchat() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function ConfigurationTchat(c) {
+        return _super.call(this, function (x) { return x; }, c) || this;
     }
-    ConfigurationTchat.prototype.net = function () {
-        var config = this.enJSON();
-        return JSON.stringify({
-            centre: config.centre,
-            voisins: config.voisins,
-            date: outils_1.dateFr(config.date)
-        });
+    ConfigurationTchat.prototype.net = function (e) {
+        var config = this.ex();
+        switch (e) {
+            case 'centre': return creerSommetTchat(config.centre).representer();
+            case 'voisins': return types_1.creerTableImmutable(config.voisins).representer();
+            case 'date': return outils_1.dateFr(config.date);
+        }
+        return undefined; // impossible
+    };
+    ConfigurationTchat.prototype.representer = function () {
+        var cc = this.net('centre');
+        var vc = this.net('voisins');
+        var dc = this.net('date');
+        return "(centre : " + cc + " ; voisins : " + vc + ") créée " + dc;
     };
     return ConfigurationTchat;
 }(communication_1.Configuration));
 exports.ConfigurationTchat = ConfigurationTchat;
-function creerConfiguration(n, date) {
+function creerConfigurationTchat(c) {
+    return new ConfigurationTchat(c);
+}
+exports.creerConfigurationTchat = creerConfigurationTchat;
+function composerConfigurationJeu1(n, date) {
     return new ConfigurationTchat({
         "configurationInitiale": types_1.Unite.un,
-        "centre": n.centre().enJSON(),
-        voisins: n.voisinsEnJSON(),
+        "centre": n.centre,
+        "voisins": n.voisins,
         "date": date
     });
 }
-exports.creerConfiguration = creerConfiguration;
-function creerNoeudDeConfiguration(c) {
-    var centre = c.enJSON().centre;
-    var voisins = c.enJSON().voisins;
-    return communication_1.creerNoeud(centre, voisins, creerSommetTchat);
+exports.composerConfigurationJeu1 = composerConfigurationJeu1;
+function decomposerConfiguration(c) {
+    var centre = c.ex().centre;
+    var voisins = c.ex().voisins;
+    return { "centre": centre, "voisins": voisins };
 }
-exports.creerNoeudDeConfiguration = creerNoeudDeConfiguration;
+exports.decomposerConfiguration = decomposerConfiguration;
 var ErreurTchat = (function (_super) {
     __extends(ErreurTchat, _super);
-    function ErreurTchat() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function ErreurTchat(err) {
+        return _super.call(this, function (x) { return x; }, err) || this;
     }
-    ErreurTchat.prototype.net = function () {
-        var erreur = this.enJSON();
-        return JSON.stringify({
-            messageErreur: erreur.messageErreur,
-            date: outils_1.dateFr(erreur.date)
-        });
+    ErreurTchat.prototype.net = function (e) {
+        var erreur = this.ex();
+        switch (e) {
+            case 'messageErreur': return erreur.messageErreur;
+            case 'date': return outils_1.dateFr(erreur.date);
+        }
+        return undefined; // impossible
+    };
+    ErreurTchat.prototype.representer = function () {
+        return "[" + this.net('date') + " : " + this.net('messageErreur') + "]";
     };
     return ErreurTchat;
 }(communication_1.ErreurRedhibitoire));
 exports.ErreurTchat = ErreurTchat;
-function creerMessageErreur(msg, date) {
+function creerErreurTchat(err) {
+    return new ErreurTchat(err);
+}
+exports.creerErreurTchat = creerErreurTchat;
+function composerErreurTchat(msg, date) {
     return new ErreurTchat({
         "erreurRedhibitoire": types_1.Unite.un,
         "messageErreur": msg,
         "date": date
     });
 }
-exports.creerMessageErreur = creerMessageErreur;
-var SommetChat = (function (_super) {
-    __extends(SommetChat, _super);
-    function SommetChat() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    SommetChat.prototype.net = function () {
-        var msg = this.enJSON();
-        return JSON.stringify({
-            nom: msg.pseudo + "(" + msg.id + ")"
-        });
-    };
-    return SommetChat;
-}(communication_1.Sommet));
-exports.SommetChat = SommetChat;
-function creerSommetTchat(s) {
-    return new SommetChat(s);
-}
-exports.creerSommetTchat = creerSommetTchat;
+exports.composerErreurTchat = composerErreurTchat;
 function creerAnneauTchat(noms) {
-    var assembleur = new communication_1.AssemblageReseauEnAnneau(noms.length);
+    var assembleur = communication_1.creerAssemblageReseauEnAnneau(noms.length, creerNoeudTchatIN);
+    var identification = types_1.creerIdentificationParCompteur("S-");
     noms.forEach(function (nom, i, tab) {
-        var s = new SommetChat({ id: "id-" + i, pseudo: tab[i] });
+        var s = { ID: undefined, pseudo: tab[i], mutable: undefined };
+        identification.identifier(s, function (i) { return { sommet: i }; });
         assembleur.ajouterSommet(s);
     });
     return assembleur.assembler();

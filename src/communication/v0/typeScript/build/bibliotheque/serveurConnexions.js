@@ -63,6 +63,7 @@ var LienWebSocket = (function () {
     LienWebSocket.prototype.envoyerMessageErreur = function (e) {
         this._connexion.sendUTF(e.brut());
     };
+    LienWebSocket.creer = function () { };
     return LienWebSocket;
 }());
 exports.LienWebSocket = LienWebSocket;

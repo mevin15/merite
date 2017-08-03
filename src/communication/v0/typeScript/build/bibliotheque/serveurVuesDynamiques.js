@@ -1,4 +1,5 @@
 "use strict";
+// obsolète
 exports.__esModule = true;
 var express = require("express");
 var sysFichier = require("fs");

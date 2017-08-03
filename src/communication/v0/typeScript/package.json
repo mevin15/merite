@@ -23,6 +23,7 @@
   "dependencies": {
     "express": "^4.15.3",
     "intl": "^1.2.5",
+    "rxjs": "^5.4.2",
     "shelljs": "^0.7.8",
     "websocket": "^1.0.24"
   }

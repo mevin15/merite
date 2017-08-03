@@ -113,8 +113,8 @@ serveurCanaux.enregistrerTraitementMessages(function (l, m) {
             // Fonctionnement normal
             var lienDestinaire = connexions[destinataireMsg];
             var lienEmetteur = connexions[emetteurMsg];
-            lienDestinaire.envoyerAuClientDestinataire(tchat_1.creerMessageTransit(msg));
-            lienEmetteur.envoyerAuClientDestinataire(tchat_1.creerMessageAR(msg));
+            lienDestinaire.envoyerAuClientDestinataire(msg.transit());
+            lienEmetteur.envoyerAuClientDestinataire(msg.avecAccuseReception());
             break;
         default:
             var msgErreur = "type de message non reconnu : le type doit être " + tchat_1.TypeMessageTchat.COM.toString() + " et non " + m.type + ".";

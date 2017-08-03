@@ -51,4 +51,8 @@ var CanalClient = (function () {
 }());
 exports.CanalClient = CanalClient;
 ;
+function creerCanalClient(adresse) {
+    return new CanalClient(adresse);
+}
+exports.creerCanalClient = creerCanalClient;
 //# sourceMappingURL=client.js.map

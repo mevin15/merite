@@ -60,11 +60,90 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+exports.__esModule = true;
+var outils_1 = __webpack_require__(1);
+// Modèle générique d'une enveloppe d'un document JSON
+// F : format commun à un ensemble de formats
+// S : format spécifique étendant le format commun F
+// E : étiquettes utiles pour une représentation (cf. méthode net)
+var Enveloppe = (function () {
+    function Enveloppe(enJSON) {
+        this._enJSON = enJSON; // JSON
+    }
+    ;
+    Enveloppe.prototype.enJSON = function () {
+        return this._enJSON;
+    };
+    ;
+    // transformation brute du json en string
+    Enveloppe.prototype.brut = function () {
+        return JSON.stringify(this.enJSON());
+    };
+    ;
+    return Enveloppe;
+}());
+exports.Enveloppe = Enveloppe;
+;
+var Unite;
+(function (Unite) {
+    Unite[Unite["un"] = 0] = "un";
+})(Unite = exports.Unite || (exports.Unite = {}));
+// Identifiant
+// à utiliser avec K = 'chaine' (chaine singleton)
+// Usage : 
+// - let id :Identifiant<'deSommet'>
+// - lecture : id.deSommet
+// - création :  { deSommet : "identite"} 
+/*export type Identifiant<K extends string> = {
+    readonly [P in K]: string
+};
+*/
+var Id = (function () {
+    function Id(id) {
+        this.ID = id;
+    }
+    Id.prototype.estEgal = function (x) {
+        return (this.ID === x.ID);
+    };
+    return Id;
+}());
+exports.Id = Id;
+function ID(x) {
+    return new Id(x);
+}
+exports.ID = ID;
+var IdentificationParCompteur = (function () {
+    function IdentificationParCompteur(prefixe) {
+        this.prefixe = prefixe;
+        this._table = {};
+        this.compteur = 0;
+    }
+    IdentificationParCompteur.prototype.ajouter = function (val) {
+        var id = this.prefixe + this.compteur;
+        var r = val.identifier(ID(id));
+        this._table[id] = val;
+        this.compteur++;
+        return r;
+    };
+    IdentificationParCompteur.prototype.identifiants = function () {
+        return outils_1.domaineTableJSON(this._table).map(function (v, i, t) { return ID(v); });
+    };
+    return IdentificationParCompteur;
+}());
+exports.IdentificationParCompteur = IdentificationParCompteur;
+//# sourceMappingURL=types.js.map
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -80,23 +159,61 @@ function dateFrLog(d) {
     return (new Date(d)).toLocaleString("fr-FR", options);
 }
 exports.dateFrLog = dateFrLog;
+function imageTableJSON(table) {
+    var tab = [];
+    for (var c_1 in table) {
+        tab.push(table[c_1]);
+    }
+    return tab;
+}
+exports.imageTableJSON = imageTableJSON;
+function domaineTableJSON(table) {
+    var tab = [];
+    for (var c_2 in table) {
+        tab.push(c_2);
+    }
+    return tab;
+}
+exports.domaineTableJSON = domaineTableJSON;
+function selectionCleTable(table) {
+    // sélection d'une clé
+    for (var c_3 in table) {
+        return c_3;
+    }
+    return undefined;
+}
+exports.selectionCleTable = selectionCleTable;
+function tailleTable(table) {
+    var n = 0;
+    for (var c_4 in table) {
+        n++;
+    }
+    return n;
+}
+exports.tailleTable = tailleTable;
+function foncteurTable(table, f) {
+    var r = {};
+    for (var c_5 in table) {
+        r[c_5] = f(table[c_5]);
+    }
+    return r;
+}
+exports.foncteurTable = foncteurTable;
 //# sourceMappingURL=outils.js.map
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 exports.__esModule = true;
-var vueClient_1 = __webpack_require__(2);
-var client_1 = __webpack_require__(3);
-var tchat_1 = __webpack_require__(4);
-var outils_1 = __webpack_require__(0);
+var types_1 = __webpack_require__(0);
+var vueClient_1 = __webpack_require__(3);
+var client_1 = __webpack_require__(4);
+var tchat_1 = __webpack_require__(5);
+var outils_1 = __webpack_require__(1);
 console.log("* Chargement du script");
-/* Test - déclaration d'une variable externe - Possible
-cf. declare
-*/
 var adresseServeur = tchat_1.hote + ":" + tchat_1.port2;
 // A initialiser
 var canal;
@@ -104,7 +221,7 @@ var noeud;
 function envoyerMessage(texte, destinataire) {
     var msg = tchat_1.creerMessageCommunication(noeud.centre().enJSON().id, destinataire, texte);
     console.log("- Envoi du message brut : " + msg.brut());
-    console.log("- Envoi du message net : " + msg.net());
+    console.log("- Envoi du message net : " + tchat_1.representerMessage(msg));
     canal.envoyerMessage(msg);
 }
 // A exécuter après chargement de la page
@@ -118,17 +235,17 @@ function initialisation() {
         var msg = new tchat_1.MessageTchat(m);
         console.log("* Réception");
         console.log("- du message brut : " + msg.brut());
-        console.log("- du message net : " + msg.net());
-        vueClient_1.posterNL('logChats', msg.net());
+        console.log("- du message net : " + tchat_1.representerMessage(msg));
+        vueClient_1.posterNL('logChats', tchat_1.representerMessage(msg));
     });
     console.log("- du traitement de la configuration");
     canal.enregistrerTraitementConfigurationRecue(function (c) {
         var config = new tchat_1.ConfigurationTchat(c);
         console.log("* Réception");
         console.log("- de la configuration brute : " + config.brut());
-        console.log("- de la configuration nette : " + config.net());
+        console.log("- de la configuration nette : " + tchat_1.representerConfiguration(config));
         console.log("* Initialisation du noeud du réseau");
-        noeud = tchat_1.creerNoeudDeConfiguration(config);
+        noeud = tchat_1.decomposerConfiguration(config);
         voir();
     });
     console.log("- du traitement d'une erreur rédhibitoire");
@@ -136,7 +253,7 @@ function initialisation() {
         var erreur = new tchat_1.ErreurTchat(err);
         console.log("* Réception");
         console.log("- de l'erreur rédhibitoire brute : " + erreur.brut());
-        console.log("- de l'erreur rédhibitoire nette : " + erreur.net());
+        console.log("- de l'erreur rédhibitoire nette : " + tchat_1.representerErreur(erreur));
         console.log("* Initialisation du document");
         vueClient_1.initialiserDocument(outils_1.dateFr(erreur.enJSON().date) + " : " + erreur.enJSON().messageErreur);
     });
@@ -145,14 +262,13 @@ function voir() {
     console.log("* Consolidation de la vue");
     console.log("- adresse, centre, voisins");
     vueClient_1.poster("adresseServeur", adresseServeur);
-    vueClient_1.poster("centre", noeud.centre().net());
-    vueClient_1.poster("voisins", JSON.stringify(noeud.voisinsEnJSON()));
+    vueClient_1.poster("centre", tchat_1.representerSommet(noeud.centre()));
+    vueClient_1.poster("voisins", outils_1.imageTableJSON(noeud.voisins()).map(function (v, i, t) { return tchat_1.representerSommet(v); }).toString());
     console.log("- formulaire");
-    var voisinsNoeud = noeud.voisinsEnJSON();
-    var repVoisinsNoeud = JSON.stringify(voisinsNoeud);
+    var voisinsNoeud = noeud.voisins();
     var contenuFormulaire = "";
     for (var idV in voisinsNoeud) {
-        vueClient_1.poster("formulaire", vueClient_1.elementSaisieEnvoi("message_" + idV, "boutonEnvoi_" + idV, "Envoyer un message à " + noeud.voisin(idV).enJSON().pseudo + "."));
+        vueClient_1.poster("formulaire", vueClient_1.elementSaisieEnvoi("message_" + idV, "boutonEnvoi_" + idV, "Envoyer un message à " + tchat_1.representerSommet(voisinsNoeud[idV]) + "."));
     }
     var type = "click";
     var _loop_1 = function (idV) {
@@ -161,7 +277,7 @@ function voir() {
             var entree = vueClient_1.recupererEntree("message_" + idV);
             vueClient_1.initialiserEntree("message_" + idV, "");
             console.log("* Entree : " + entree);
-            envoyerMessage(entree, idV);
+            envoyerMessage(entree, types_1.ID(idV));
         });
     };
     for (var idV in voisinsNoeud) {
@@ -185,7 +301,7 @@ vueClient_1.gererEvenementDocument('DOMContentLoaded', initialisation);
 //# sourceMappingURL=clientTchat.js.map
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -240,7 +356,7 @@ exports.elementSaisieEnvoi = elementSaisieEnvoi;
 //# sourceMappingURL=vueClient.js.map
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -300,7 +416,7 @@ exports.CanalClient = CanalClient;
 //# sourceMappingURL=client.js.map
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -316,12 +432,42 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
-var communication_1 = __webpack_require__(5);
-var types_1 = __webpack_require__(6);
-var outils_1 = __webpack_require__(0);
+var communication_1 = __webpack_require__(6);
+var types_1 = __webpack_require__(0);
+var outils_1 = __webpack_require__(1);
 exports.hote = "merite"; // hôte local via TCP/IP - DNS : cf. /etc/hosts - IP : 127.0.0.1
-exports.port1 = 3001; // port de la essource 1 (serveur d'applications)
-exports.port2 = 1111; // port de la ressouce 2 (serveur de connexions)
+exports.port1 = 1000; // port de la essource 1 (serveur d'applications)
+exports.port2 = 2000; // port de la ressouce 2 (serveur de connexions)
+var SommetTchatConcret = (function (_super) {
+    __extends(SommetTchatConcret, _super);
+    function SommetTchatConcret() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SommetTchatConcret.prototype.net = function (e) {
+        var s = this.enJSON();
+        switch (e) {
+            case 'nom': return s.pseudo;
+            case 'identifiant': return s.id.ID;
+        }
+        return undefined; // impossible
+    };
+    SommetTchatConcret.prototype.identifier = function (id) {
+        return new SommetTchatConcret({
+            id: id,
+            pseudo: this.enJSON().pseudo
+        });
+    };
+    return SommetTchatConcret;
+}(communication_1.Sommet));
+exports.SommetTchatConcret = SommetTchatConcret;
+function representerSommet(s) {
+    return s.net('nom') + " (" + s.net('identifiant') + ")";
+}
+exports.representerSommet = representerSommet;
+function creerSommetTchat(s) {
+    return new SommetTchatConcret(s);
+}
+exports.creerSommetTchat = creerSommetTchat;
 var TypeMessageTchat;
 (function (TypeMessageTchat) {
     TypeMessageTchat[TypeMessageTchat["COM"] = 0] = "COM";
@@ -338,19 +484,49 @@ var MessageTchat = (function (_super) {
     function MessageTchat() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    MessageTchat.prototype.net = function () {
+    MessageTchat.prototype.net = function (e) {
         var msg = this.enJSON();
-        return JSON.stringify({
-            type: TypeMessageTchat[msg.type],
-            date: outils_1.dateFr(msg.date),
-            de: msg.emetteur,
-            à: msg.destinataire,
-            contenu: msg.contenu
+        switch (e) {
+            case 'type': return TypeMessageTchat[msg.type];
+            case 'date': return outils_1.dateFr(msg.date);
+            case 'de': return msg.emetteur.ID;
+            case 'à': return msg.destinataire.ID;
+            case 'contenu': return msg.contenu;
+        }
+        return undefined; // impossible
+    };
+    MessageTchat.prototype.transit = function () {
+        var msg = this.enJSON();
+        return new MessageTchat({
+            "emetteur": msg.emetteur,
+            "destinataire": msg.destinataire,
+            "type": TypeMessageTchat.TRANSIT,
+            "contenu": msg.contenu,
+            "date": msg.date
+        });
+    };
+    MessageTchat.prototype.avecAccuseReception = function () {
+        var msg = this.enJSON();
+        return new MessageTchat({
+            "emetteur": msg.emetteur,
+            "destinataire": msg.destinataire,
+            "type": TypeMessageTchat.AR,
+            "contenu": msg.contenu,
+            "date": msg.date
         });
     };
     return MessageTchat;
 }(communication_1.Message));
 exports.MessageTchat = MessageTchat;
+function representerMessage(msg) {
+    var dem = msg.net('de');
+    var am = msg.net('à');
+    var typem = msg.net('type');
+    var datem = msg.net('date');
+    var cm = msg.net('contenu');
+    return datem + ", de " + dem + " à " + am + " (" + typem + ") - " + cm;
+}
+exports.representerMessage = representerMessage;
 function creerMessageErreurConnexion(emetteur, messageErreur) {
     return new MessageTchat({
         "emetteur": emetteur,
@@ -381,42 +557,32 @@ function creerMessageRetourErreur(original, codeErreur, messageErreur) {
     });
 }
 exports.creerMessageRetourErreur = creerMessageRetourErreur;
-function creerMessageTransit(msg) {
-    return new MessageTchat({
-        "emetteur": msg.enJSON().emetteur,
-        "destinataire": msg.enJSON().destinataire,
-        "type": TypeMessageTchat.TRANSIT,
-        "contenu": msg.enJSON().contenu,
-        "date": msg.enJSON().date
-    });
-}
-exports.creerMessageTransit = creerMessageTransit;
-function creerMessageAR(msg) {
-    return new MessageTchat({
-        "emetteur": msg.enJSON().emetteur,
-        "destinataire": msg.enJSON().destinataire,
-        "type": TypeMessageTchat.AR,
-        "contenu": msg.enJSON().contenu,
-        "date": msg.enJSON().date
-    });
-}
-exports.creerMessageAR = creerMessageAR;
 var ConfigurationTchat = (function (_super) {
     __extends(ConfigurationTchat, _super);
     function ConfigurationTchat() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    ConfigurationTchat.prototype.net = function () {
+    ConfigurationTchat.prototype.net = function (e) {
         var config = this.enJSON();
-        return JSON.stringify({
-            centre: config.centre,
-            voisins: config.voisins,
-            date: outils_1.dateFr(config.date)
-        });
+        switch (e) {
+            case 'centre': return representerSommet(new SommetTchatConcret(config.centre));
+            case 'voisins':
+                var tab_1 = outils_1.imageTableJSON(config.voisins);
+                return tab_1.map(function (v, i, t) { return representerSommet(new SommetTchatConcret(v)); }).toString();
+            case 'date': return outils_1.dateFr(config.date);
+        }
+        return undefined; // impossible
     };
     return ConfigurationTchat;
 }(communication_1.Configuration));
 exports.ConfigurationTchat = ConfigurationTchat;
+function representerConfiguration(config) {
+    var cc = config.net('centre');
+    var vc = config.net('voisins');
+    var dc = config.net('date');
+    return "(centre : " + cc + " ; voisins : " + vc + ") créée " + dc;
+}
+exports.representerConfiguration = representerConfiguration;
 function creerConfiguration(n, date) {
     return new ConfigurationTchat({
         "configurationInitiale": types_1.Unite.un,
@@ -426,27 +592,32 @@ function creerConfiguration(n, date) {
     });
 }
 exports.creerConfiguration = creerConfiguration;
-function creerNoeudDeConfiguration(c) {
+function decomposerConfiguration(c) {
     var centre = c.enJSON().centre;
     var voisins = c.enJSON().voisins;
     return communication_1.creerNoeud(centre, voisins, creerSommetTchat);
 }
-exports.creerNoeudDeConfiguration = creerNoeudDeConfiguration;
+exports.decomposerConfiguration = decomposerConfiguration;
 var ErreurTchat = (function (_super) {
     __extends(ErreurTchat, _super);
     function ErreurTchat() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    ErreurTchat.prototype.net = function () {
+    ErreurTchat.prototype.net = function (e) {
         var erreur = this.enJSON();
-        return JSON.stringify({
-            messageErreur: erreur.messageErreur,
-            date: outils_1.dateFr(erreur.date)
-        });
+        switch (e) {
+            case 'messageErreur': return erreur.messageErreur;
+            case 'date': return outils_1.dateFr(erreur.date);
+        }
+        return undefined; // impossible
     };
     return ErreurTchat;
 }(communication_1.ErreurRedhibitoire));
 exports.ErreurTchat = ErreurTchat;
+function representerErreur(err) {
+    return "[" + err.net('date') + " : " + err.net('messageErreur') + "]";
+}
+exports.representerErreur = representerErreur;
 function creerMessageErreur(msg, date) {
     return new ErreurTchat({
         "erreurRedhibitoire": types_1.Unite.un,
@@ -455,28 +626,11 @@ function creerMessageErreur(msg, date) {
     });
 }
 exports.creerMessageErreur = creerMessageErreur;
-var SommetChat = (function (_super) {
-    __extends(SommetChat, _super);
-    function SommetChat() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    SommetChat.prototype.net = function () {
-        var msg = this.enJSON();
-        return JSON.stringify({
-            nom: msg.pseudo + "(" + msg.id + ")"
-        });
-    };
-    return SommetChat;
-}(communication_1.Sommet));
-exports.SommetChat = SommetChat;
-function creerSommetTchat(s) {
-    return new SommetChat(s);
-}
-exports.creerSommetTchat = creerSommetTchat;
 function creerAnneauTchat(noms) {
-    var assembleur = new communication_1.AssemblageReseauEnAnneau(noms.length);
+    var assembleur = communication_1.creerAssemblageReseauEnAnneau(noms.length);
+    var identification = new types_1.IdentificationParCompteur("S-");
     noms.forEach(function (nom, i, tab) {
-        var s = new SommetChat({ id: "id-" + i, pseudo: tab[i] });
+        var s = identification.ajouter(creerSommetTchat({ id: undefined, pseudo: tab[i] }));
         assembleur.ajouterSommet(s);
     });
     return assembleur.assembler();
@@ -485,7 +639,7 @@ exports.creerAnneauTchat = creerAnneauTchat;
 //# sourceMappingURL=tchat.js.map
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -501,25 +655,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
-;
-;
-// Modèle générique d'une enveloppe d'un document JSON
-var Enveloppe = (function () {
-    function Enveloppe(enJSON) {
-        this._enJSON = enJSON; // JSON
-    }
-    ;
-    Enveloppe.prototype.enJSON = function () {
-        return this._enJSON;
-    };
-    ;
-    Enveloppe.prototype.brut = function () {
-        return JSON.stringify(this.enJSON());
-    };
-    ;
-    return Enveloppe;
-}());
-exports.Enveloppe = Enveloppe;
+var types_1 = __webpack_require__(0);
 ;
 var Message = (function (_super) {
     __extends(Message, _super);
@@ -528,7 +664,7 @@ var Message = (function (_super) {
     }
     ;
     return Message;
-}(Enveloppe));
+}(types_1.Enveloppe));
 exports.Message = Message;
 var Configuration = (function (_super) {
     __extends(Configuration, _super);
@@ -537,7 +673,7 @@ var Configuration = (function (_super) {
     }
     ;
     return Configuration;
-}(Enveloppe));
+}(types_1.Enveloppe));
 exports.Configuration = Configuration;
 var ErreurRedhibitoire = (function (_super) {
     __extends(ErreurRedhibitoire, _super);
@@ -546,8 +682,19 @@ var ErreurRedhibitoire = (function (_super) {
     }
     ;
     return ErreurRedhibitoire;
-}(Enveloppe));
+}(types_1.Enveloppe));
 exports.ErreurRedhibitoire = ErreurRedhibitoire;
+/*
+- réseau ::= noeud*
+- noeud ::= (sommet, sommet*)
+- sommet ::= {identifiant, ...}
+
+- Serveur : agrégation d'un réseau
+- Client : agrégation d'un noeud du réseau
+
+- Remarque : compatibilité ES3 pour les objets.
+*/
+// - sommet ::= {identifiant, ...}
 var Sommet = (function (_super) {
     __extends(Sommet, _super);
     function Sommet(enJSON) {
@@ -555,7 +702,7 @@ var Sommet = (function (_super) {
     }
     ;
     return Sommet;
-}(Enveloppe));
+}(types_1.Enveloppe));
 exports.Sommet = Sommet;
 // - réseau ::= noeud*
 var TableNoeuds = (function () {
@@ -571,24 +718,28 @@ var TableNoeuds = (function () {
         return r;
     };
     TableNoeuds.prototype.noeud = function (id) {
-        return this._noeuds[id];
+        return this._noeuds[id.ID];
     };
     TableNoeuds.prototype.possedeNoeud = function (id) {
-        return this._noeuds[id] !== undefined;
+        return this._noeuds[id.ID] !== undefined;
     };
     // Précondition : id1 et id2 sont deux noeuds du réseau.
     TableNoeuds.prototype.sontVoisins = function (id1, id2) {
-        return this._noeuds[id1].aPourVoisin(id2);
+        return this._noeuds[id1.ID].aPourVoisin(id2);
     };
     TableNoeuds.prototype.ajouterNoeud = function (n) {
-        this._noeuds[n.centre().enJSON().id] = n;
+        this._noeuds[n.centre().enJSON().id.ID] = n;
     };
     TableNoeuds.prototype.retirerNoeud = function (n) {
-        delete this._noeuds[n.centre().enJSON().id];
+        delete this._noeuds[n.centre().enJSON().id.ID];
     };
     return TableNoeuds;
 }());
 exports.TableNoeuds = TableNoeuds;
+function creerTableVideNoeuds() {
+    return new TableNoeuds();
+}
+exports.creerTableVideNoeuds = creerTableVideNoeuds;
 var SommetTableSommets = (function () {
     function SommetTableSommets(c) {
         this._centre = c;
@@ -615,14 +766,14 @@ var SommetTableSommets = (function () {
         return r;
     };
     SommetTableSommets.prototype.aPourVoisin = function (id) {
-        return this._voisins[id] !== undefined;
+        return this._voisins[id.ID] !== undefined;
     };
     SommetTableSommets.prototype.voisin = function (id) {
-        return this._voisins[id];
+        return this._voisins[id.ID];
     };
     ;
     SommetTableSommets.prototype.ajouterVoisin = function (v) {
-        this._voisins[v.enJSON().id] = v;
+        this._voisins[v.enJSON().id.ID] = v;
     };
     return SommetTableSommets;
 }());
@@ -670,20 +821,19 @@ var AssemblageReseauEnAnneau = (function () {
     return AssemblageReseauEnAnneau;
 }());
 exports.AssemblageReseauEnAnneau = AssemblageReseauEnAnneau;
+function creerAssemblageReseauEnAnneau(taille) {
+    return new AssemblageReseauEnAnneau(taille);
+}
+exports.creerAssemblageReseauEnAnneau = creerAssemblageReseauEnAnneau;
+function selectionIdentifiantPoub(reseau) {
+    // sélection d'un noeud
+    for (var id in reseau.noeuds()) {
+        return types_1.ID(id);
+    }
+    return undefined;
+}
+exports.selectionIdentifiantPoub = selectionIdentifiantPoub;
 //# sourceMappingURL=communication.js.map
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-exports.__esModule = true;
-var Unite;
-(function (Unite) {
-    Unite[Unite["un"] = 0] = "un";
-})(Unite = exports.Unite || (exports.Unite = {}));
-//# sourceMappingURL=types.js.map
 
 /***/ })
 /******/ ]);
