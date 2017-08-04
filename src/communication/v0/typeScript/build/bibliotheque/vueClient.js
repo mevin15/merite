@@ -1,11 +1,18 @@
 "use strict";
 exports.__esModule = true;
+function recupererElementHTML(id) {
+    var r = document.getElementById(id);
+    if (typeof r === "undefined") {
+        throw new Error("[Erreur : elementParId(" + id + ") non d\u00E9fini.]");
+    }
+    return r;
+}
 function elementParId(id) {
-    return document.getElementById(id);
+    return recupererElementHTML(id);
 }
 exports.elementParId = elementParId;
 function entreeParId(id) {
-    return document.getElementById(id);
+    return recupererElementHTML(id);
 }
 exports.entreeParId = entreeParId;
 function recupererEntree(id) {
@@ -20,12 +27,14 @@ function initialiserDocument(contenu) {
     document.write(contenu);
 }
 exports.initialiserDocument = initialiserDocument;
-function contenuBalise(doc, champ) {
-    return doc.getElementById(champ).innerHTML;
+function contenuBalise(champ) {
+    var r = recupererElementHTML(champ);
+    return r.innerHTML;
 }
 exports.contenuBalise = contenuBalise;
 function poster(id, val) {
-    document.getElementById(id).innerHTML += val;
+    var r = recupererElementHTML(id);
+    r.innerHTML += val;
 }
 exports.poster = poster;
 function posterNL(id, val) {
@@ -38,7 +47,8 @@ function gererEvenementDocument(type, gestionnaire) {
 }
 exports.gererEvenementDocument = gererEvenementDocument;
 function gererEvenementElement(id, type, gestionnaire) {
-    document.getElementById(id).addEventListener(type, gestionnaire);
+    var r = recupererElementHTML(id);
+    r.addEventListener(type, gestionnaire);
 }
 exports.gererEvenementElement = gererEvenementElement;
 function elementSaisieEnvoi(idSaisie, idBoutonEnvoi, msg) {

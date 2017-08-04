@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as sysFichier from 'fs';
 
-import {dateFrLog } from "./outils";
+import { dateFrLog } from "./outils";
 
 /*
 Serveur utilisant Express
@@ -25,7 +25,7 @@ export class Interaction {
         this._reponse.render(prefixe, remplacement);
     }
 
-    servirFichier(chemin : string, fichier: string): void {
+    servirFichier(chemin: string, fichier: string): void {
         let options = {
             root: chemin,
         };
@@ -60,7 +60,8 @@ export class ServeurApplications {
     */
     definirParametrisationVuesDynamique(suffixe: string, rep: string, cles: string[]): void {
         this.appli.engine(suffixe,
-            (chemin: string, remplacement: { [cle: string]: string },
+            (chemin: string,
+                remplacement: { [cle: string]: string },
                 continuation: (err: NodeJS.ErrnoException, rendu?: string) => string) => {
                 sysFichier.readFile(chemin, (err: NodeJS.ErrnoException, contenu: Buffer) => {
                     if (err) return continuation(err);
@@ -68,7 +69,7 @@ export class ServeurApplications {
                     cles.forEach((c: string, i: number, tab: string[]) => {
                         rendu = rendu.replace("#" + c + "#", remplacement[c]);
                     });
-                    return continuation(null, rendu)
+                    return continuation(err, rendu);
                 });
             });
         this.appli.set('view engine', suffixe); // enregistre la paramétrisation

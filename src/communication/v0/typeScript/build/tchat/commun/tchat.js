@@ -16,9 +16,6 @@ var outils_1 = require("../../bibliotheque/outils");
 exports.hote = "merite"; // hôte local via TCP/IP - DNS : cf. /etc/hosts - IP : 127.0.0.1
 exports.port1 = 3000; // port de la essource 1 (serveur d'applications)
 exports.port2 = 1110; // port de la ressouce 2 (serveur de connexions)
-function conversionFormatSommet(s) {
-    return { ID: s.ID, pseudo: s.pseudo };
-}
 // La structure JSON décrivant le sommet est en lecture seulement. 
 var SommetTchat = (function (_super) {
     __extends(SommetTchat, _super);
@@ -29,9 +26,9 @@ var SommetTchat = (function (_super) {
         var s = this.ex();
         switch (e) {
             case 'nom': return s.pseudo;
-            case 'ID': return s.ID.sommet;
+            case 'ID': return s.ID.val;
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     SommetTchat.prototype.representer = function () {
         return this.net('nom') + " (" + this.net('ID') + ")";
@@ -55,7 +52,7 @@ var NoeudTchatIN = (function (_super) {
             case 'voisins':
                 return types_1.creerTableImmutable(s.voisins).representer();
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     NoeudTchatIN.prototype.representer = function () {
         return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
@@ -79,7 +76,7 @@ var NoeudTchatEX = (function (_super) {
             case 'voisins':
                 return types_1.creerTableImmutable(s.voisins).representer();
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     NoeudTchatEX.prototype.representer = function () {
         return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
@@ -121,11 +118,11 @@ var MessageTchat = (function (_super) {
         switch (e) {
             case 'type': return TypeMessageTchat[msg.type];
             case 'date': return outils_1.dateFr(msg.date);
-            case 'ID_de': return msg.ID_emetteur.sommet;
-            case 'ID_à': return msg.ID_destinataire.sommet;
+            case 'ID_de': return msg.ID_emetteur.val;
+            case 'ID_à': return msg.ID_destinataire.val;
             case 'contenu': return msg.contenu;
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     MessageTchat.prototype.representer = function () {
         var dem = this.net('ID_de');
@@ -200,7 +197,7 @@ var ConfigurationTchat = (function (_super) {
             case 'voisins': return types_1.creerTableImmutable(config.voisins).representer();
             case 'date': return outils_1.dateFr(config.date);
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     ConfigurationTchat.prototype.representer = function () {
         var cc = this.net('centre');
@@ -215,7 +212,7 @@ function creerConfigurationTchat(c) {
     return new ConfigurationTchat(c);
 }
 exports.creerConfigurationTchat = creerConfigurationTchat;
-function composerConfigurationJeu1(n, date) {
+function composerConfigurationTchat(n, date) {
     return new ConfigurationTchat({
         "configurationInitiale": types_1.Unite.un,
         "centre": n.centre,
@@ -223,7 +220,7 @@ function composerConfigurationJeu1(n, date) {
         "date": date
     });
 }
-exports.composerConfigurationJeu1 = composerConfigurationJeu1;
+exports.composerConfigurationTchat = composerConfigurationTchat;
 function decomposerConfiguration(c) {
     var centre = c.ex().centre;
     var voisins = c.ex().voisins;
@@ -241,7 +238,7 @@ var ErreurTchat = (function (_super) {
             case 'messageErreur': return erreur.messageErreur;
             case 'date': return outils_1.dateFr(erreur.date);
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     ErreurTchat.prototype.representer = function () {
         return "[" + this.net('date') + " : " + this.net('messageErreur') + "]";
@@ -265,8 +262,7 @@ function creerAnneauTchat(noms) {
     var assembleur = communication_1.creerAssemblageReseauEnAnneau(noms.length, creerNoeudTchatIN);
     var identification = types_1.creerIdentificationParCompteur("S-");
     noms.forEach(function (nom, i, tab) {
-        var s = { ID: undefined, pseudo: tab[i], mutable: undefined };
-        identification.identifier(s, function (i) { return { sommet: i }; });
+        var s = { ID: identification.identifier('sommet'), pseudo: tab[i] };
         assembleur.ajouterSommet(s);
     });
     return assembleur.assembler();

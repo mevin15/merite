@@ -57,7 +57,7 @@ var ServeurApplications = (function () {
                 cles.forEach(function (c, i, tab) {
                     rendu = rendu.replace("#" + c + "#", remplacement[c]);
                 });
-                return continuation(null, rendu);
+                return continuation(err, rendu);
             });
         });
         this.appli.set('view engine', suffixe); // enregistre la paramétrisation

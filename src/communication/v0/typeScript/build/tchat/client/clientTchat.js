@@ -59,15 +59,15 @@ function voir() {
     var contenuFormulaire = "";
     noeud.foncteurProceduralSurVoisins(function (v) {
         var ID_v = v.ID;
-        vueClient_1.poster("formulaire", vueClient_1.elementSaisieEnvoi("message_" + ID_v.sommet, "boutonEnvoi_" + ID_v.sommet, "Envoyer un message à " + tchat_1.creerSommetTchat(v).representer() + "."));
+        vueClient_1.poster("formulaire", vueClient_1.elementSaisieEnvoi("message_" + ID_v.val, "boutonEnvoi_" + ID_v.val, "Envoyer un message à " + tchat_1.creerSommetTchat(v).representer() + "."));
     });
     var type = "click";
     noeud.foncteurProceduralSurVoisins(function (v) {
         var ID_v = v.ID;
-        console.log("- Element " + ID_v.sommet + " : enregistrement d'un gestionnaire pour l'événement " + type);
-        vueClient_1.gererEvenementElement("boutonEnvoi_" + ID_v.sommet, type, function (e) {
-            var entree = vueClient_1.recupererEntree("message_" + ID_v.sommet);
-            vueClient_1.initialiserEntree("message_" + ID_v.sommet, "");
+        console.log("- Element " + ID_v.val + " : enregistrement d'un gestionnaire pour l'événement " + type);
+        vueClient_1.gererEvenementElement("boutonEnvoi_" + ID_v.val, type, function (e) {
+            var entree = vueClient_1.recupererEntree("message_" + ID_v.val);
+            vueClient_1.initialiserEntree("message_" + ID_v.val, "");
             console.log("* Entree : " + entree);
             envoyerMessage(entree, ID_v);
         });

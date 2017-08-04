@@ -10,7 +10,7 @@ import { CanalClient, creerCanalClient } from "../../bibliotheque/client";
 import {
     hote, port2,
     NoeudTchatEX, creerNoeudTchatEX,
-    SommetTchat, FormatSommetTchatIN, creerSommetTchat,
+    SommetTchat, creerSommetTchat,
     creerMessageCommunication,
     TypeMessageTchat, FormatMessageTchatEX, EtiquetteMessageTchat, MessageTchat,
     FormatConfigurationTchatEX, EtiquetteConfigurationTchat,
@@ -96,17 +96,17 @@ function voir(): void {
     let contenuFormulaire = "";
     noeud.foncteurProceduralSurVoisins(v => {
         let ID_v = v.ID;
-        poster("formulaire", elementSaisieEnvoi("message_" + ID_v.sommet, "boutonEnvoi_" + ID_v.sommet,
+        poster("formulaire", elementSaisieEnvoi("message_" + ID_v.val, "boutonEnvoi_" + ID_v.val,
             "Envoyer un message à " + creerSommetTchat(v).representer() + "."));
     }
     );
     let type = "click";
     noeud.foncteurProceduralSurVoisins(v => {
         let ID_v = v.ID;
-        console.log("- Element " + ID_v.sommet + " : enregistrement d'un gestionnaire pour l'événement " + type);
-        gererEvenementElement("boutonEnvoi_" + ID_v.sommet, type, e => {
-            let entree = recupererEntree("message_" + ID_v.sommet);
-            initialiserEntree("message_" + ID_v.sommet, "");
+        console.log("- Element " + ID_v.val + " : enregistrement d'un gestionnaire pour l'événement " + type);
+        gererEvenementElement("boutonEnvoi_" + ID_v.val, type, e => {
+            let entree = recupererEntree("message_" + ID_v.val);
+            initialiserEntree("message_" + ID_v.val, "");
             console.log("* Entree : " + entree);
             envoyerMessage(entree, ID_v);
         });

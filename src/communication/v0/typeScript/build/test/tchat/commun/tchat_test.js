@@ -15,7 +15,7 @@ for (var j in IDs_noeuds) {
     });
 }
 describe('fonction creerAnneauChat', function () {
-    var ID_n = { sommet: "mauvaise" };
+    var ID_n = { val: "mauvaise", sorte: 'sommet' };
     describe('méthode TableIdentification.possedeNoeud ', function () {
         it('renvoie false', function () {
             var res = anneau.possedeNoeud(ID_n);
@@ -29,8 +29,8 @@ var _loop_1 = function (j) {
             console.log(j);
             console.log(JSON.stringify(anneau.valeur(IDs_noeuds[j])));
             var ID_res = anneau.valeur(IDs_noeuds[j]).centre.ID;
-            it('renvoie ' + ID_res.sommet, function () {
-                chai.expect(ID_res.sommet).to.equal(IDs_noeuds[j].sommet);
+            it('renvoie ' + ID_res.val, function () {
+                chai.expect(ID_res.val).to.equal(IDs_noeuds[j].val);
             });
         });
     });

@@ -8,3 +8,6 @@ export function dateFrLog(d: Date): string {
     return (new Date(d)).toLocaleString("fr-FR", options);
 }
 
+export function jamais(x: never): never {
+    throw new Error("* Erreur impossible : " + x);
+}

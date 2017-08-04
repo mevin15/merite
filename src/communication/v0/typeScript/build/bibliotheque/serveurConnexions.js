@@ -8,10 +8,6 @@ exports.__esModule = true;
 var http = require("http");
 var websocket = require("websocket");
 var outils_1 = require("./outils");
-function adresse(u) {
-    return u.href; // TODO incomplet avec 127.0.0.1 réolu en merite graĉe à /etc/hosts
-}
-exports.adresse = adresse;
 var LienWebSocket = (function () {
     function LienWebSocket(requete) {
         this._connexion = requete.accept('echo-protocol', requete.origin);
@@ -35,7 +31,11 @@ var LienWebSocket = (function () {
     LienWebSocket.prototype.enregistrerTraitementMessages = function (traitementMessages) {
         var ceLien = this;
         this._connexion.on('message', function (message) {
-            var msg = JSON.parse(message.utf8Data.toString());
+            var m = message.utf8Data;
+            if (typeof m === "undefined") {
+                throw new Error("[Erreur : contenu du message non défini.]");
+            }
+            var msg = JSON.parse(m.toString());
             traitementMessages(ceLien, msg);
         });
         console.log("- Enregistrement du traitement des messages.");

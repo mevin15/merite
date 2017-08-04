@@ -31,15 +31,9 @@ var LienTchat = (function (_super) {
     }
     return LienTchat;
 }(serveurConnexions_1.LienWebSocket));
-/*class TableConnexions extends TableIdentification<'sommet', LienTchat, LienTchat> {
-    constructor(etat : FormatTableIN<LienTchat>){
-        super((x) => x, etat);
-    }
-}
-*/
 var anneau = tchat_1.creerAnneauTchat(["titi", "toto", "coco", "sissi"]);
 var reseauConnecte = communication_1.creerReseauVide();
-var connexions = types_1.creerTableIdentificationVide(function (x) { return x; });
+var connexions = types_1.creerTableIdentificationVide('sommet', function (x) { return x; });
 var repertoireHtml = shell.pwd() + "/build";
 var serveurAppli = new serveurApplications_1.ServeurApplications(tchat_1.hote, tchat_1.port1);
 serveurAppli.specifierRepertoireScriptsEmbarques("build");
@@ -55,14 +49,18 @@ serveurAppli.specifierRepertoireScriptsEmbarques("build");
 serveurAppli.demarrer();
 var serveurCanaux = new ServeurTchat(tchat_1.port2, tchat_1.hote);
 serveurCanaux.enregistrerTraitementConnexion(function (l) {
-    var ID_sommet = anneau.selectionCle();
-    if (ID_sommet === undefined) {
+    var ID_sommet;
+    try {
+        ID_sommet = anneau.selectionCle();
+    }
+    catch (e) {
         var d_1 = new Date();
+        console.log("* " + outils_1.dateFrLog(d_1) + " - " + e.message);
         console.log("* " + outils_1.dateFrLog(d_1) + " - Connexion impossible d'un client : le réseau est complet.");
         l.envoyerMessageErreur(tchat_1.composerErreurTchat("Tchat - Réseau complet ! Il est impossible de se connecter : le réseau est complet.", d_1));
         return false;
     }
-    if ((connexions.valeur(ID_sommet) !== undefined) || (reseauConnecte.possedeNoeud(ID_sommet))) {
+    if (connexions.contient(ID_sommet) || reseauConnecte.possedeNoeud(ID_sommet)) {
         var d_2 = new Date();
         console.log("* " + outils_1.dateFrLog(d_2) + " - Connexion impossible d'un client : le réseau est corrompu.");
         l.envoyerMessageErreur(tchat_1.composerErreurTchat("Tchat - Réseau corrompu ! Il est impossible de se connecter : le réseau est corrompu. Contacter l'administrateur.", d_2));
@@ -70,10 +68,10 @@ serveurCanaux.enregistrerTraitementConnexion(function (l) {
     }
     // Cas où la sélection d'un noeud a réussi
     var d = new Date();
-    console.log("* " + outils_1.dateFrLog(d) + " - Connexion de " + ID_sommet.sommet + " par Web socket.");
+    console.log("* " + outils_1.dateFrLog(d) + " - Connexion de " + ID_sommet.val + " par Web socket.");
     connexions.ajouter(ID_sommet, l);
     var n = anneau.valeur(ID_sommet);
-    var config = tchat_1.composerConfigurationJeu1(n, d);
+    var config = tchat_1.composerConfigurationTchat(n, d);
     console.log("- envoi au client d'adresse " + l.adresseClient());
     console.log("  - de la configuration brute " + config.brut());
     console.log("  - de la configuration nette " + config.representer());
@@ -93,7 +91,7 @@ serveurCanaux.enregistrerTraitementMessages(function (l, m) {
             var ID_emetteurMsg = m.ID_emetteur;
             var ID_destinataireMsg = m.ID_destinataire;
             // Contrôle de l'émetteur et du destinataire
-            if (!(ID_emetteurUrl.sommet === ID_emetteurMsg.sommet)) {
+            if (!(ID_emetteurUrl.val === ID_emetteurMsg.val)) {
                 var msgErreur_1 = "problème d'identité pour l'émetteur : le client utilisant l'adresse "
                     + l.adresseClient()
                     + " devrait signer ses messages " + ID_emetteurUrl + " et non " + ID_emetteurMsg + ".";
@@ -116,8 +114,8 @@ serveurCanaux.enregistrerTraitementMessages(function (l, m) {
             // Contrôle des communications 
             if (!reseauConnecte.sontVoisins(ID_emetteurMsg, ID_destinataireMsg)) {
                 var msgErreur_4 = "communication interdite : le noeud émetteur "
-                    + ID_emetteurMsg.sommet
-                    + " n'est pas vosin du noeud destinataire " + ID_destinataireMsg.sommet + ".";
+                    + ID_emetteurMsg.val
+                    + " n'est pas vosin du noeud destinataire " + ID_destinataireMsg.val + ".";
                 console.log("- " + msgErreur_4);
                 l.envoyerAuClientDestinataire(tchat_1.creerMessageRetourErreur(msg, tchat_1.TypeMessageTchat.INTERDICTION, msgErreur_4));
             }
@@ -145,12 +143,12 @@ serveurCanaux.enregistrerTraitementMessages(function (l, m) {
 serveurCanaux.enregistrerTraitementFermeture(function (l, r, desc) {
     var ID_centre = l.configuration().ex().centre.ID;
     if ((connexions.valeur(ID_centre) === undefined) || (!reseauConnecte.possedeNoeud(ID_centre))) {
-        console.log("* Impossibilité de fermer la connexion par Web socket : " + ID_centre.sommet + " est déjà déconnecté.");
+        console.log("* Impossibilité de fermer la connexion par Web socket : " + ID_centre.val + " est déjà déconnecté.");
         connexions.ajouter(ID_centre, l);
         return;
     }
     console.log(" * " + outils_1.dateFrLog(new Date())
-        + " - Déconnexion du client " + ID_centre.sommet
+        + " - Déconnexion du client " + ID_centre.val
         + " utilisant l'adresse " + l.adresseClient() + ".");
     console.log("- identité : " + l.configuration().ex().centre.ID);
     console.log("- raison : " + r + " ; description : " + desc);

@@ -15,9 +15,6 @@ import {
     FormatErreurRedhibitoire, ErreurRedhibitoire,
 } from "./communication";
 
-export function adresse(u: url.Url): string {
-    return u.href; // TODO incomplet avec 127.0.0.1 réolu en merite graĉe à /etc/hosts
-}
 
 export class LienWebSocket<
     FEIN extends FEOUT,
@@ -54,7 +51,11 @@ export class LienWebSocket<
         traitementMessages: (l: LienWebSocket<FEIN, FEOUT, EE, FCIN, FCOUT, EC, FMIN, FMOUT, EM>, m: FMIN) => void): void {
         let ceLien = this;
         this._connexion.on('message', (message: websocket.IMessage) => {
-            let msg: FMIN = JSON.parse(message.utf8Data.toString());
+            let m = message.utf8Data;
+            if (typeof m === "undefined") {
+                throw new Error("[Erreur : contenu du message non défini.]");
+            }
+            let msg: FMIN = JSON.parse(<string>m.toString());
             traitementMessages(ceLien, msg);
         });
         console.log("- Enregistrement du traitement des messages.")

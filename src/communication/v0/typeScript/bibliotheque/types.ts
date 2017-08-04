@@ -1,5 +1,7 @@
 // Revue 02/08 - Testé.
 
+import { jamais } from "./outils";
+
 export enum Unite { un }
 
 // Problème / readonly properties
@@ -57,11 +59,11 @@ export function conversionFormatTable<TIN, TEX>(conv: (x: TIN) => TEX)
     : (t: FormatTableIN<TIN>) => FormatTableEX<TEX> {
     return (
         (t: FormatTableIN<TIN>) => {
-            let r: {[cle : string]: TEX} = {};
+            let r: { [cle: string]: TEX } = {};
             for (let c in t.table) {
-                    r[c] = conv(t.table[c]);
+                r[c] = conv(t.table[c]);
             }
-            return { table : r};
+            return { table: r };
         });
 }
 export type EtiquetteTable = 'taille' | 'graphe' | 'domaine' | 'image';
@@ -78,7 +80,7 @@ export class TableImmutable<TEX>
             case 'image': return this.image().map((v, i, t) => JSON.stringify(v)).toString();
             case 'graphe': return this.brut();
         }
-        return undefined;
+        return jamais(e);
     }
     representer(): string {
         return this.net('graphe');
@@ -105,9 +107,19 @@ export class TableImmutable<TEX>
         }
         return n;
     }
+
+     foncteur<SEX>(f: (x: TEX) => SEX): TableImmutable<SEX> {
+        let r: {table: { [cle: string]: SEX }} 
+            = { table : {}};
+        for (let c in this.etat.table) {
+            r.table[c] = f(this.etat.table[c]);
+        }
+        return creerTableImmutable(r);
+    }
 }
 
-export function creerTableImmutable<TEX>(t: FormatTableEX<TEX>): TableImmutable<TEX> {
+export function creerTableImmutable<TEX>(t: FormatTableEX<TEX>)
+    : TableImmutable<TEX> {
     return new TableImmutable(t);
 }
 
@@ -125,7 +137,7 @@ export class Table<TIN, TEX>
             case 'image': return this.image().map((v, i, t) => JSON.stringify(v)).toString();
             case 'graphe': return this.brut();
         }
-        return undefined;
+        return jamais(e);
     }
     representer(): string {
         return this.net('graphe');
@@ -149,7 +161,7 @@ export class Table<TIN, TEX>
         for (let c in this.ex().table) { // une seule itération
             return c;
         }
-        return undefined;
+        throw new Error("[Exception : selectionCle() non défini.]");
     }
     taille(): number {
         let n: number = 0;
@@ -171,7 +183,7 @@ export class Table<TIN, TEX>
 }
 
 export function creerTableVide<TIN, TEX>(valInVersEx: (x: TIN) => TEX) {
-    return new Table(valInVersEx, { table : {}, mutable: Unite.un });
+    return new Table(valInVersEx, { table: {}, mutable: Unite.un });
 }
 // Identifiant
 // à utiliser avec Sorte = 'sorte à identifier' (chaine singleton)
@@ -183,7 +195,8 @@ export function creerTableVide<TIN, TEX>(valInVersEx: (x: TIN) => TEX) {
 // Les identifiants sont toujours accéder via un champ nommé ID ou ID_x.
 
 export type Identifiant<Sorte extends string> = {
-    readonly [id in Sorte]: string;
+    readonly val: string;
+    readonly sorte: Sorte;
 }
 
 export interface FormatIdentifiableIN<Sorte extends string> extends Mutable {
@@ -195,7 +208,7 @@ export interface FormatIdentifiableEX<Sorte extends string> {
 }
 
 export interface Identification<Sorte extends string> {
-    identifier(val: FormatIdentifiableIN<Sorte>, fab: (i: string) => Identifiant<Sorte>): void;
+    identifier(s: Sorte): Identifiant<Sorte>;
 }
 
 export class IdentificationParCompteur<Sorte extends string>
@@ -204,10 +217,10 @@ export class IdentificationParCompteur<Sorte extends string>
     constructor(private prefixe: string) {
         this.compteur = 0;
     }
-    identifier(val: FormatIdentifiableIN<Sorte>, fab: (i: string) => Identifiant<Sorte>): void {
+    identifier(s: Sorte): Identifiant<Sorte> {
         let id: string = this.prefixe + this.compteur;
-        val.ID = fab(id);
         this.compteur++;
+        return { val: id, sorte: s };
     }
 
 }
@@ -225,11 +238,14 @@ export function creerIdentificationParCompteur<
 */
 export class TableIdentification<Sorte extends string, TIN, TEX>
     extends Enveloppe<FormatTableIN<TIN>, FormatTableEX<TEX>, EtiquetteTable> {
-    protected _domaine: FormatTableIN<Identifiant<Sorte>>;
+    protected sorte : Sorte;
 
-    constructor(valInVersEx: (x: TIN) => TEX) {
-        super(conversionFormatTable(valInVersEx),  { table : {}, mutable: Unite.un });
-        this._domaine =  { table : {}, mutable: Unite.un };
+    constructor(
+        sorte : Sorte, 
+        valInVersEx: (x: TIN) => TEX,
+        pop : FormatTableEX<TIN> = { table: {} } ) {
+        super(conversionFormatTable(valInVersEx), { table: pop.table, mutable: Unite.un });
+        this.sorte = sorte;
     }
 
     net(e: EtiquetteTable): string {
@@ -239,18 +255,20 @@ export class TableIdentification<Sorte extends string, TIN, TEX>
             case 'image': return this.image().map((v, i, t) => JSON.stringify(v)).toString();
             case 'graphe': return JSON.stringify(this.ex().table);
         }
-        return undefined;
+        return jamais(e);
     }
     representer(): string {
         return this.net('graphe');
     }
 
-    valeur(id: Identifiant<Sorte>): TEX {
-        let cle: string = undefined;
-        for (let c in id) {
-            cle = id[c];
+    valeur(ID_sorte: Identifiant<Sorte>): TEX {
+        return this.ex().table[ID_sorte.val];
+    }
+    contient(ID_sorte: Identifiant<Sorte>): boolean {
+        if (this.ex().table[ID_sorte.val]) {
+            return true;
         }
-        return this.ex().table[cle];
+        return false;;
     }
 
     image(): TEX[] {
@@ -261,14 +279,15 @@ export class TableIdentification<Sorte extends string, TIN, TEX>
         return tab;
     }
     domaine(): Identifiant<Sorte>[] {
-        return creerTableImmutable<Identifiant<Sorte>>(this._domaine).image();
+        return creerTableImmutable<TEX>(this.ex()).domaine().
+        map((s) => { return {val : s, sorte : this.sorte}} );
     }
     selectionCle(): Identifiant<Sorte> {
         // sélection d'une clé
         for (let c in this.ex().table) { // une seule itération
-            return this._domaine.table[c];
+            return {val : c, sorte : this.sorte};
         }
-        return undefined;
+        throw new Error("[Exception : selectionCle() non défini.]");
     }
     taille(): number {
         let n: number = 0;
@@ -281,20 +300,28 @@ export class TableIdentification<Sorte extends string, TIN, TEX>
         return this.taille() === 0;
     }
     ajouter(ID_sorte: Identifiant<Sorte>, x: TIN): void {
-        for (let i in ID_sorte) {
-            this._domaine.table[ID_sorte[i]] = ID_sorte;
-            this.etat.table[ID_sorte[i]] = x;
-        }
+        this.etat.table[ID_sorte.val] = x;
     }
+
     retirer(ID_sorte: Identifiant<Sorte>): void {
-        for (let i in ID_sorte) {
-            delete this._domaine.table[ID_sorte[i]];
-            delete this.etat.table[ID_sorte[i]];
-        }
+        delete this.etat.table[ID_sorte.val];
     }
 }
+export function creerTableIdentificationVide<
+    Sorte extends string, TIN, TEX>(
+        sorte : Sorte,
+        valInVersEx: (x: TIN) => TEX) {
+    return new TableIdentification<Sorte, TIN, TEX>(
+        sorte, valInVersEx);
+}
 
-export function creerTableIdentificationVide<Sorte extends string, TIN, TEX>(valInVersEx: (x: TIN) => TEX) {
-    return new TableIdentification<Sorte, TIN, TEX>(valInVersEx);
+export function creerTableIdentification<
+    Sorte extends string, TIN, TEX>(
+        sorte : Sorte,
+        valInVersEx: (x: TIN) => TEX,
+        pop : FormatTableEX<TIN>
+    ) {
+    return new TableIdentification<Sorte, TIN, TEX>(
+        sorte, valInVersEx, pop);
 }
 

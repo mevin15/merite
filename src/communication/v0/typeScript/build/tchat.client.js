@@ -81,6 +81,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
+var outils_1 = __webpack_require__(1);
 var Unite;
 (function (Unite) {
     Unite[Unite["un"] = 0] = "un";
@@ -133,7 +134,7 @@ var TableImmutable = (function (_super) {
             case 'image': return this.image().map(function (v, i, t) { return JSON.stringify(v); }).toString();
             case 'graphe': return this.brut();
         }
-        return undefined;
+        return outils_1.jamais(e);
     };
     TableImmutable.prototype.representer = function () {
         return this.net('graphe');
@@ -159,6 +160,13 @@ var TableImmutable = (function (_super) {
         }
         return n;
     };
+    TableImmutable.prototype.foncteur = function (f) {
+        var r = { table: {} };
+        for (var c_5 in this.etat.table) {
+            r.table[c_5] = f(this.etat.table[c_5]);
+        }
+        return creerTableImmutable(r);
+    };
     return TableImmutable;
 }(Enveloppe));
 exports.TableImmutable = TableImmutable;
@@ -178,35 +186,35 @@ var Table = (function (_super) {
             case 'image': return this.image().map(function (v, i, t) { return JSON.stringify(v); }).toString();
             case 'graphe': return this.brut();
         }
-        return undefined;
+        return outils_1.jamais(e);
     };
     Table.prototype.representer = function () {
         return this.net('graphe');
     };
     Table.prototype.image = function () {
         var tab = [];
-        for (var c_5 in this.ex().table) {
-            tab.push(this.ex().table[c_5]);
+        for (var c_6 in this.ex().table) {
+            tab.push(this.ex().table[c_6]);
         }
         return tab;
     };
     Table.prototype.domaine = function () {
         var tab = [];
-        for (var c_6 in this.ex().table) {
-            tab.push(c_6);
+        for (var c_7 in this.ex().table) {
+            tab.push(c_7);
         }
         return tab;
     };
     Table.prototype.selectionCle = function () {
         // sélection d'une clé
-        for (var c_7 in this.ex().table) {
-            return c_7;
+        for (var c_8 in this.ex().table) {
+            return c_8;
         }
-        return undefined;
+        throw new Error("[Exception : selectionCle() non défini.]");
     };
     Table.prototype.taille = function () {
         var n = 0;
-        for (var c_8 in this.ex().table) {
+        for (var c_9 in this.ex().table) {
             n++;
         }
         return n;
@@ -232,10 +240,10 @@ var IdentificationParCompteur = (function () {
         this.prefixe = prefixe;
         this.compteur = 0;
     }
-    IdentificationParCompteur.prototype.identifier = function (val, fab) {
+    IdentificationParCompteur.prototype.identifier = function (s) {
         var id = this.prefixe + this.compteur;
-        val.ID = fab(id);
         this.compteur++;
+        return { val: id, sorte: s };
     };
     return IdentificationParCompteur;
 }());
@@ -250,9 +258,10 @@ exports.creerIdentificationParCompteur = creerIdentificationParCompteur;
 */
 var TableIdentification = (function (_super) {
     __extends(TableIdentification, _super);
-    function TableIdentification(valInVersEx) {
-        var _this = _super.call(this, conversionFormatTable(valInVersEx), { table: {}, mutable: Unite.un }) || this;
-        _this._domaine = { table: {}, mutable: Unite.un };
+    function TableIdentification(sorte, valInVersEx, pop) {
+        if (pop === void 0) { pop = { table: {} }; }
+        var _this = _super.call(this, conversionFormatTable(valInVersEx), { table: pop.table, mutable: Unite.un }) || this;
+        _this.sorte = sorte;
         return _this;
     }
     TableIdentification.prototype.net = function (e) {
@@ -262,17 +271,20 @@ var TableIdentification = (function (_super) {
             case 'image': return this.image().map(function (v, i, t) { return JSON.stringify(v); }).toString();
             case 'graphe': return JSON.stringify(this.ex().table);
         }
-        return undefined;
+        return outils_1.jamais(e);
     };
     TableIdentification.prototype.representer = function () {
         return this.net('graphe');
     };
-    TableIdentification.prototype.valeur = function (id) {
-        var cle = undefined;
-        for (var c_9 in id) {
-            cle = id[c_9];
+    TableIdentification.prototype.valeur = function (ID_sorte) {
+        return this.ex().table[ID_sorte.val];
+    };
+    TableIdentification.prototype.contient = function (ID_sorte) {
+        if (this.ex().table[ID_sorte.val]) {
+            return true;
         }
-        return this.ex().table[cle];
+        return false;
+        ;
     };
     TableIdentification.prototype.image = function () {
         var tab = [];
@@ -282,14 +294,16 @@ var TableIdentification = (function (_super) {
         return tab;
     };
     TableIdentification.prototype.domaine = function () {
-        return creerTableImmutable(this._domaine).image();
+        var _this = this;
+        return creerTableImmutable(this.ex()).domaine().
+            map(function (s) { return { val: s, sorte: _this.sorte }; });
     };
     TableIdentification.prototype.selectionCle = function () {
         // sélection d'une clé
         for (var c_11 in this.ex().table) {
-            return this._domaine.table[c_11];
+            return { val: c_11, sorte: this.sorte };
         }
-        return undefined;
+        throw new Error("[Exception : selectionCle() non défini.]");
     };
     TableIdentification.prototype.taille = function () {
         var n = 0;
@@ -302,24 +316,22 @@ var TableIdentification = (function (_super) {
         return this.taille() === 0;
     };
     TableIdentification.prototype.ajouter = function (ID_sorte, x) {
-        for (var i in ID_sorte) {
-            this._domaine.table[ID_sorte[i]] = ID_sorte;
-            this.etat.table[ID_sorte[i]] = x;
-        }
+        this.etat.table[ID_sorte.val] = x;
     };
     TableIdentification.prototype.retirer = function (ID_sorte) {
-        for (var i in ID_sorte) {
-            delete this._domaine.table[ID_sorte[i]];
-            delete this.etat.table[ID_sorte[i]];
-        }
+        delete this.etat.table[ID_sorte.val];
     };
     return TableIdentification;
 }(Enveloppe));
 exports.TableIdentification = TableIdentification;
-function creerTableIdentificationVide(valInVersEx) {
-    return new TableIdentification(valInVersEx);
+function creerTableIdentificationVide(sorte, valInVersEx) {
+    return new TableIdentification(sorte, valInVersEx);
 }
 exports.creerTableIdentificationVide = creerTableIdentificationVide;
+function creerTableIdentification(sorte, valInVersEx, pop) {
+    return new TableIdentification(sorte, valInVersEx, pop);
+}
+exports.creerTableIdentification = creerTableIdentification;
 //# sourceMappingURL=types.js.map
 
 /***/ }),
@@ -339,6 +351,10 @@ function dateFrLog(d) {
     return (new Date(d)).toLocaleString("fr-FR", options);
 }
 exports.dateFrLog = dateFrLog;
+function jamais(x) {
+    throw new Error("* Erreur impossible : " + x);
+}
+exports.jamais = jamais;
 //# sourceMappingURL=outils.js.map
 
 /***/ }),
@@ -348,12 +364,19 @@ exports.dateFrLog = dateFrLog;
 "use strict";
 
 exports.__esModule = true;
+function recupererElementHTML(id) {
+    var r = document.getElementById(id);
+    if (typeof r === "undefined") {
+        throw new Error("[Erreur : elementParId(" + id + ") non d\u00E9fini.]");
+    }
+    return r;
+}
 function elementParId(id) {
-    return document.getElementById(id);
+    return recupererElementHTML(id);
 }
 exports.elementParId = elementParId;
 function entreeParId(id) {
-    return document.getElementById(id);
+    return recupererElementHTML(id);
 }
 exports.entreeParId = entreeParId;
 function recupererEntree(id) {
@@ -368,12 +391,14 @@ function initialiserDocument(contenu) {
     document.write(contenu);
 }
 exports.initialiserDocument = initialiserDocument;
-function contenuBalise(doc, champ) {
-    return doc.getElementById(champ).innerHTML;
+function contenuBalise(champ) {
+    var r = recupererElementHTML(champ);
+    return r.innerHTML;
 }
 exports.contenuBalise = contenuBalise;
 function poster(id, val) {
-    document.getElementById(id).innerHTML += val;
+    var r = recupererElementHTML(id);
+    r.innerHTML += val;
 }
 exports.poster = poster;
 function posterNL(id, val) {
@@ -386,7 +411,8 @@ function gererEvenementDocument(type, gestionnaire) {
 }
 exports.gererEvenementDocument = gererEvenementDocument;
 function gererEvenementElement(id, type, gestionnaire) {
-    document.getElementById(id).addEventListener(type, gestionnaire);
+    var r = recupererElementHTML(id);
+    r.addEventListener(type, gestionnaire);
 }
 exports.gererEvenementElement = gererEvenementElement;
 function elementSaisieEnvoi(idSaisie, idBoutonEnvoi, msg) {
@@ -529,18 +555,19 @@ exports.Sommet = Sommet;
 var Reseau = (function (_super) {
     __extends(Reseau, _super);
     function Reseau() {
-        return _super.call(this, function (x) { return x; }) || this;
+        return _super.call(this, 'sommet', function (x) { return x; }) || this;
     }
     Reseau.prototype.representer = function () {
         return "réseau de " + this.net('taille') + " noeuds : "
             + this.net('graphe');
     };
-    Reseau.prototype.possedeNoeud = function (id) {
-        return this._domaine.table[id.sommet] !== undefined;
+    // (simple renommmage)
+    Reseau.prototype.possedeNoeud = function (ID_sommet) {
+        return this.contient(ID_sommet);
     };
     // Précondition : id1 et id2 sont deux noeuds du réseau.
-    Reseau.prototype.sontVoisins = function (id1, id2) {
-        return this.etat.table[id1.sommet].voisins.table[id2.sommet] !== undefined;
+    Reseau.prototype.sontVoisins = function (ID_sommet1, ID_sommet2) {
+        return this.etat.table[ID_sommet1.val].voisins.table[ID_sommet2.val] !== undefined;
     };
     Reseau.prototype.ajouterNoeud = function (n) {
         this.ajouter(n.centre.ID, n);
@@ -563,11 +590,11 @@ var NoeudIN = (function (_super) {
     function NoeudIN(etat) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
-    NoeudIN.prototype.aPourVoisin = function (id) {
-        return this.etat.voisins.table[id.sommet] !== undefined;
+    NoeudIN.prototype.aPourVoisin = function (ID_sommet) {
+        return this.etat.voisins.table[ID_sommet.val] !== undefined;
     };
     NoeudIN.prototype.ajouterVoisin = function (v) {
-        this.etat.voisins.table[v.ID.sommet] = v;
+        this.etat.voisins.table[v.ID.val] = v;
     };
     NoeudIN.prototype.foncteurProceduralSurVoisins = function (proc) {
         for (var c_1 in this.etat.voisins.table) {
@@ -582,8 +609,8 @@ var NoeudEX = (function (_super) {
     function NoeudEX(etat) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
-    NoeudEX.prototype.aPourVoisin = function (id) {
-        return this.etat.voisins.table[id.sommet] !== undefined;
+    NoeudEX.prototype.aPourVoisin = function (ID_sommet) {
+        return this.etat.voisins.table[ID_sommet.val] !== undefined;
     };
     NoeudEX.prototype.foncteurProceduralSurVoisins = function (proc) {
         for (var c_2 in this.etat.voisins.table) {
@@ -613,7 +640,7 @@ var AssemblageReseauEnAnneau = (function () {
         var restant = this.taille - this.sommets.length;
         if (restant > 0) {
             console.log("- Impossible d'assembler un réseau en anneau de la taille donnée : ajouter " + restant + " sommets.");
-            return undefined;
+            throw new Error("[Exception : AssemblageReseau.assembler non défini.]");
         }
         // Définition du réseau
         var reseau = creerReseauVide();
@@ -700,15 +727,15 @@ function voir() {
     var contenuFormulaire = "";
     noeud.foncteurProceduralSurVoisins(function (v) {
         var ID_v = v.ID;
-        vueClient_1.poster("formulaire", vueClient_1.elementSaisieEnvoi("message_" + ID_v.sommet, "boutonEnvoi_" + ID_v.sommet, "Envoyer un message à " + tchat_1.creerSommetTchat(v).representer() + "."));
+        vueClient_1.poster("formulaire", vueClient_1.elementSaisieEnvoi("message_" + ID_v.val, "boutonEnvoi_" + ID_v.val, "Envoyer un message à " + tchat_1.creerSommetTchat(v).representer() + "."));
     });
     var type = "click";
     noeud.foncteurProceduralSurVoisins(function (v) {
         var ID_v = v.ID;
-        console.log("- Element " + ID_v.sommet + " : enregistrement d'un gestionnaire pour l'événement " + type);
-        vueClient_1.gererEvenementElement("boutonEnvoi_" + ID_v.sommet, type, function (e) {
-            var entree = vueClient_1.recupererEntree("message_" + ID_v.sommet);
-            vueClient_1.initialiserEntree("message_" + ID_v.sommet, "");
+        console.log("- Element " + ID_v.val + " : enregistrement d'un gestionnaire pour l'événement " + type);
+        vueClient_1.gererEvenementElement("boutonEnvoi_" + ID_v.val, type, function (e) {
+            var entree = vueClient_1.recupererEntree("message_" + ID_v.val);
+            vueClient_1.initialiserEntree("message_" + ID_v.val, "");
             console.log("* Entree : " + entree);
             envoyerMessage(entree, ID_v);
         });
@@ -753,9 +780,6 @@ var outils_1 = __webpack_require__(1);
 exports.hote = "merite"; // hôte local via TCP/IP - DNS : cf. /etc/hosts - IP : 127.0.0.1
 exports.port1 = 3000; // port de la essource 1 (serveur d'applications)
 exports.port2 = 1110; // port de la ressouce 2 (serveur de connexions)
-function conversionFormatSommet(s) {
-    return { ID: s.ID, pseudo: s.pseudo };
-}
 // La structure JSON décrivant le sommet est en lecture seulement. 
 var SommetTchat = (function (_super) {
     __extends(SommetTchat, _super);
@@ -766,9 +790,9 @@ var SommetTchat = (function (_super) {
         var s = this.ex();
         switch (e) {
             case 'nom': return s.pseudo;
-            case 'ID': return s.ID.sommet;
+            case 'ID': return s.ID.val;
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     SommetTchat.prototype.representer = function () {
         return this.net('nom') + " (" + this.net('ID') + ")";
@@ -792,7 +816,7 @@ var NoeudTchatIN = (function (_super) {
             case 'voisins':
                 return types_1.creerTableImmutable(s.voisins).representer();
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     NoeudTchatIN.prototype.representer = function () {
         return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
@@ -816,7 +840,7 @@ var NoeudTchatEX = (function (_super) {
             case 'voisins':
                 return types_1.creerTableImmutable(s.voisins).representer();
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     NoeudTchatEX.prototype.representer = function () {
         return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
@@ -858,11 +882,11 @@ var MessageTchat = (function (_super) {
         switch (e) {
             case 'type': return TypeMessageTchat[msg.type];
             case 'date': return outils_1.dateFr(msg.date);
-            case 'ID_de': return msg.ID_emetteur.sommet;
-            case 'ID_à': return msg.ID_destinataire.sommet;
+            case 'ID_de': return msg.ID_emetteur.val;
+            case 'ID_à': return msg.ID_destinataire.val;
             case 'contenu': return msg.contenu;
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     MessageTchat.prototype.representer = function () {
         var dem = this.net('ID_de');
@@ -937,7 +961,7 @@ var ConfigurationTchat = (function (_super) {
             case 'voisins': return types_1.creerTableImmutable(config.voisins).representer();
             case 'date': return outils_1.dateFr(config.date);
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     ConfigurationTchat.prototype.representer = function () {
         var cc = this.net('centre');
@@ -952,7 +976,7 @@ function creerConfigurationTchat(c) {
     return new ConfigurationTchat(c);
 }
 exports.creerConfigurationTchat = creerConfigurationTchat;
-function composerConfigurationJeu1(n, date) {
+function composerConfigurationTchat(n, date) {
     return new ConfigurationTchat({
         "configurationInitiale": types_1.Unite.un,
         "centre": n.centre,
@@ -960,7 +984,7 @@ function composerConfigurationJeu1(n, date) {
         "date": date
     });
 }
-exports.composerConfigurationJeu1 = composerConfigurationJeu1;
+exports.composerConfigurationTchat = composerConfigurationTchat;
 function decomposerConfiguration(c) {
     var centre = c.ex().centre;
     var voisins = c.ex().voisins;
@@ -978,7 +1002,7 @@ var ErreurTchat = (function (_super) {
             case 'messageErreur': return erreur.messageErreur;
             case 'date': return outils_1.dateFr(erreur.date);
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     ErreurTchat.prototype.representer = function () {
         return "[" + this.net('date') + " : " + this.net('messageErreur') + "]";
@@ -1002,8 +1026,7 @@ function creerAnneauTchat(noms) {
     var assembleur = communication_1.creerAssemblageReseauEnAnneau(noms.length, creerNoeudTchatIN);
     var identification = types_1.creerIdentificationParCompteur("S-");
     noms.forEach(function (nom, i, tab) {
-        var s = { ID: undefined, pseudo: tab[i], mutable: undefined };
-        identification.identifier(s, function (i) { return { sommet: i }; });
+        var s = { ID: identification.identifier('sommet'), pseudo: tab[i] };
         assembleur.ajouterSommet(s);
     });
     return assembleur.assembler();

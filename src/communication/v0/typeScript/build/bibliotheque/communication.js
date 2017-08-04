@@ -62,18 +62,19 @@ exports.Sommet = Sommet;
 var Reseau = (function (_super) {
     __extends(Reseau, _super);
     function Reseau() {
-        return _super.call(this, function (x) { return x; }) || this;
+        return _super.call(this, 'sommet', function (x) { return x; }) || this;
     }
     Reseau.prototype.representer = function () {
         return "réseau de " + this.net('taille') + " noeuds : "
             + this.net('graphe');
     };
-    Reseau.prototype.possedeNoeud = function (id) {
-        return this._domaine.table[id.sommet] !== undefined;
+    // (simple renommmage)
+    Reseau.prototype.possedeNoeud = function (ID_sommet) {
+        return this.contient(ID_sommet);
     };
     // Précondition : id1 et id2 sont deux noeuds du réseau.
-    Reseau.prototype.sontVoisins = function (id1, id2) {
-        return this.etat.table[id1.sommet].voisins.table[id2.sommet] !== undefined;
+    Reseau.prototype.sontVoisins = function (ID_sommet1, ID_sommet2) {
+        return this.etat.table[ID_sommet1.val].voisins.table[ID_sommet2.val] !== undefined;
     };
     Reseau.prototype.ajouterNoeud = function (n) {
         this.ajouter(n.centre.ID, n);
@@ -96,11 +97,11 @@ var NoeudIN = (function (_super) {
     function NoeudIN(etat) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
-    NoeudIN.prototype.aPourVoisin = function (id) {
-        return this.etat.voisins.table[id.sommet] !== undefined;
+    NoeudIN.prototype.aPourVoisin = function (ID_sommet) {
+        return this.etat.voisins.table[ID_sommet.val] !== undefined;
     };
     NoeudIN.prototype.ajouterVoisin = function (v) {
-        this.etat.voisins.table[v.ID.sommet] = v;
+        this.etat.voisins.table[v.ID.val] = v;
     };
     NoeudIN.prototype.foncteurProceduralSurVoisins = function (proc) {
         for (var c_1 in this.etat.voisins.table) {
@@ -115,8 +116,8 @@ var NoeudEX = (function (_super) {
     function NoeudEX(etat) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
-    NoeudEX.prototype.aPourVoisin = function (id) {
-        return this.etat.voisins.table[id.sommet] !== undefined;
+    NoeudEX.prototype.aPourVoisin = function (ID_sommet) {
+        return this.etat.voisins.table[ID_sommet.val] !== undefined;
     };
     NoeudEX.prototype.foncteurProceduralSurVoisins = function (proc) {
         for (var c_2 in this.etat.voisins.table) {
@@ -146,7 +147,7 @@ var AssemblageReseauEnAnneau = (function () {
         var restant = this.taille - this.sommets.length;
         if (restant > 0) {
             console.log("- Impossible d'assembler un réseau en anneau de la taille donnée : ajouter " + restant + " sommets.");
-            return undefined;
+            throw new Error("[Exception : AssemblageReseau.assembler non défini.]");
         }
         // Définition du réseau
         var reseau = creerReseauVide();

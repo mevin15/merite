@@ -10,4 +10,8 @@ function dateFrLog(d) {
     return (new Date(d)).toLocaleString("fr-FR", options);
 }
 exports.dateFrLog = dateFrLog;
+function jamais(x) {
+    throw new Error("* Erreur impossible : " + x);
+}
+exports.jamais = jamais;
 //# sourceMappingURL=outils.js.map

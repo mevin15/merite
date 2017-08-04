@@ -81,6 +81,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
+var outils_1 = __webpack_require__(1);
 var Unite;
 (function (Unite) {
     Unite[Unite["un"] = 0] = "un";
@@ -133,7 +134,7 @@ var TableImmutable = (function (_super) {
             case 'image': return this.image().map(function (v, i, t) { return JSON.stringify(v); }).toString();
             case 'graphe': return this.brut();
         }
-        return undefined;
+        return outils_1.jamais(e);
     };
     TableImmutable.prototype.representer = function () {
         return this.net('graphe');
@@ -159,6 +160,13 @@ var TableImmutable = (function (_super) {
         }
         return n;
     };
+    TableImmutable.prototype.foncteur = function (f) {
+        var r = { table: {} };
+        for (var c_5 in this.etat.table) {
+            r.table[c_5] = f(this.etat.table[c_5]);
+        }
+        return creerTableImmutable(r);
+    };
     return TableImmutable;
 }(Enveloppe));
 exports.TableImmutable = TableImmutable;
@@ -178,35 +186,35 @@ var Table = (function (_super) {
             case 'image': return this.image().map(function (v, i, t) { return JSON.stringify(v); }).toString();
             case 'graphe': return this.brut();
         }
-        return undefined;
+        return outils_1.jamais(e);
     };
     Table.prototype.representer = function () {
         return this.net('graphe');
     };
     Table.prototype.image = function () {
         var tab = [];
-        for (var c_5 in this.ex().table) {
-            tab.push(this.ex().table[c_5]);
+        for (var c_6 in this.ex().table) {
+            tab.push(this.ex().table[c_6]);
         }
         return tab;
     };
     Table.prototype.domaine = function () {
         var tab = [];
-        for (var c_6 in this.ex().table) {
-            tab.push(c_6);
+        for (var c_7 in this.ex().table) {
+            tab.push(c_7);
         }
         return tab;
     };
     Table.prototype.selectionCle = function () {
         // sélection d'une clé
-        for (var c_7 in this.ex().table) {
-            return c_7;
+        for (var c_8 in this.ex().table) {
+            return c_8;
         }
-        return undefined;
+        throw new Error("[Exception : selectionCle() non défini.]");
     };
     Table.prototype.taille = function () {
         var n = 0;
-        for (var c_8 in this.ex().table) {
+        for (var c_9 in this.ex().table) {
             n++;
         }
         return n;
@@ -232,10 +240,10 @@ var IdentificationParCompteur = (function () {
         this.prefixe = prefixe;
         this.compteur = 0;
     }
-    IdentificationParCompteur.prototype.identifier = function (val, fab) {
+    IdentificationParCompteur.prototype.identifier = function (s) {
         var id = this.prefixe + this.compteur;
-        val.ID = fab(id);
         this.compteur++;
+        return { val: id, sorte: s };
     };
     return IdentificationParCompteur;
 }());
@@ -250,9 +258,10 @@ exports.creerIdentificationParCompteur = creerIdentificationParCompteur;
 */
 var TableIdentification = (function (_super) {
     __extends(TableIdentification, _super);
-    function TableIdentification(valInVersEx) {
-        var _this = _super.call(this, conversionFormatTable(valInVersEx), { table: {}, mutable: Unite.un }) || this;
-        _this._domaine = { table: {}, mutable: Unite.un };
+    function TableIdentification(sorte, valInVersEx, pop) {
+        if (pop === void 0) { pop = { table: {} }; }
+        var _this = _super.call(this, conversionFormatTable(valInVersEx), { table: pop.table, mutable: Unite.un }) || this;
+        _this.sorte = sorte;
         return _this;
     }
     TableIdentification.prototype.net = function (e) {
@@ -262,17 +271,20 @@ var TableIdentification = (function (_super) {
             case 'image': return this.image().map(function (v, i, t) { return JSON.stringify(v); }).toString();
             case 'graphe': return JSON.stringify(this.ex().table);
         }
-        return undefined;
+        return outils_1.jamais(e);
     };
     TableIdentification.prototype.representer = function () {
         return this.net('graphe');
     };
-    TableIdentification.prototype.valeur = function (id) {
-        var cle = undefined;
-        for (var c_9 in id) {
-            cle = id[c_9];
+    TableIdentification.prototype.valeur = function (ID_sorte) {
+        return this.ex().table[ID_sorte.val];
+    };
+    TableIdentification.prototype.contient = function (ID_sorte) {
+        if (this.ex().table[ID_sorte.val]) {
+            return true;
         }
-        return this.ex().table[cle];
+        return false;
+        ;
     };
     TableIdentification.prototype.image = function () {
         var tab = [];
@@ -282,14 +294,16 @@ var TableIdentification = (function (_super) {
         return tab;
     };
     TableIdentification.prototype.domaine = function () {
-        return creerTableImmutable(this._domaine).image();
+        var _this = this;
+        return creerTableImmutable(this.ex()).domaine().
+            map(function (s) { return { val: s, sorte: _this.sorte }; });
     };
     TableIdentification.prototype.selectionCle = function () {
         // sélection d'une clé
         for (var c_11 in this.ex().table) {
-            return this._domaine.table[c_11];
+            return { val: c_11, sorte: this.sorte };
         }
-        return undefined;
+        throw new Error("[Exception : selectionCle() non défini.]");
     };
     TableIdentification.prototype.taille = function () {
         var n = 0;
@@ -302,24 +316,22 @@ var TableIdentification = (function (_super) {
         return this.taille() === 0;
     };
     TableIdentification.prototype.ajouter = function (ID_sorte, x) {
-        for (var i in ID_sorte) {
-            this._domaine.table[ID_sorte[i]] = ID_sorte;
-            this.etat.table[ID_sorte[i]] = x;
-        }
+        this.etat.table[ID_sorte.val] = x;
     };
     TableIdentification.prototype.retirer = function (ID_sorte) {
-        for (var i in ID_sorte) {
-            delete this._domaine.table[ID_sorte[i]];
-            delete this.etat.table[ID_sorte[i]];
-        }
+        delete this.etat.table[ID_sorte.val];
     };
     return TableIdentification;
 }(Enveloppe));
 exports.TableIdentification = TableIdentification;
-function creerTableIdentificationVide(valInVersEx) {
-    return new TableIdentification(valInVersEx);
+function creerTableIdentificationVide(sorte, valInVersEx) {
+    return new TableIdentification(sorte, valInVersEx);
 }
 exports.creerTableIdentificationVide = creerTableIdentificationVide;
+function creerTableIdentification(sorte, valInVersEx, pop) {
+    return new TableIdentification(sorte, valInVersEx, pop);
+}
+exports.creerTableIdentification = creerTableIdentification;
 //# sourceMappingURL=types.js.map
 
 /***/ }),
@@ -339,6 +351,10 @@ function dateFrLog(d) {
     return (new Date(d)).toLocaleString("fr-FR", options);
 }
 exports.dateFrLog = dateFrLog;
+function jamais(x) {
+    throw new Error("* Erreur impossible : " + x);
+}
+exports.jamais = jamais;
 //# sourceMappingURL=outils.js.map
 
 /***/ }),
@@ -348,12 +364,19 @@ exports.dateFrLog = dateFrLog;
 "use strict";
 
 exports.__esModule = true;
+function recupererElementHTML(id) {
+    var r = document.getElementById(id);
+    if (typeof r === "undefined") {
+        throw new Error("[Erreur : elementParId(" + id + ") non d\u00E9fini.]");
+    }
+    return r;
+}
 function elementParId(id) {
-    return document.getElementById(id);
+    return recupererElementHTML(id);
 }
 exports.elementParId = elementParId;
 function entreeParId(id) {
-    return document.getElementById(id);
+    return recupererElementHTML(id);
 }
 exports.entreeParId = entreeParId;
 function recupererEntree(id) {
@@ -368,12 +391,14 @@ function initialiserDocument(contenu) {
     document.write(contenu);
 }
 exports.initialiserDocument = initialiserDocument;
-function contenuBalise(doc, champ) {
-    return doc.getElementById(champ).innerHTML;
+function contenuBalise(champ) {
+    var r = recupererElementHTML(champ);
+    return r.innerHTML;
 }
 exports.contenuBalise = contenuBalise;
 function poster(id, val) {
-    document.getElementById(id).innerHTML += val;
+    var r = recupererElementHTML(id);
+    r.innerHTML += val;
 }
 exports.poster = poster;
 function posterNL(id, val) {
@@ -386,7 +411,8 @@ function gererEvenementDocument(type, gestionnaire) {
 }
 exports.gererEvenementDocument = gererEvenementDocument;
 function gererEvenementElement(id, type, gestionnaire) {
-    document.getElementById(id).addEventListener(type, gestionnaire);
+    var r = recupererElementHTML(id);
+    r.addEventListener(type, gestionnaire);
 }
 exports.gererEvenementElement = gererEvenementElement;
 function elementSaisieEnvoi(idSaisie, idBoutonEnvoi, msg) {
@@ -529,18 +555,19 @@ exports.Sommet = Sommet;
 var Reseau = (function (_super) {
     __extends(Reseau, _super);
     function Reseau() {
-        return _super.call(this, function (x) { return x; }) || this;
+        return _super.call(this, 'sommet', function (x) { return x; }) || this;
     }
     Reseau.prototype.representer = function () {
         return "réseau de " + this.net('taille') + " noeuds : "
             + this.net('graphe');
     };
-    Reseau.prototype.possedeNoeud = function (id) {
-        return this._domaine.table[id.sommet] !== undefined;
+    // (simple renommmage)
+    Reseau.prototype.possedeNoeud = function (ID_sommet) {
+        return this.contient(ID_sommet);
     };
     // Précondition : id1 et id2 sont deux noeuds du réseau.
-    Reseau.prototype.sontVoisins = function (id1, id2) {
-        return this.etat.table[id1.sommet].voisins.table[id2.sommet] !== undefined;
+    Reseau.prototype.sontVoisins = function (ID_sommet1, ID_sommet2) {
+        return this.etat.table[ID_sommet1.val].voisins.table[ID_sommet2.val] !== undefined;
     };
     Reseau.prototype.ajouterNoeud = function (n) {
         this.ajouter(n.centre.ID, n);
@@ -563,11 +590,11 @@ var NoeudIN = (function (_super) {
     function NoeudIN(etat) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
-    NoeudIN.prototype.aPourVoisin = function (id) {
-        return this.etat.voisins.table[id.sommet] !== undefined;
+    NoeudIN.prototype.aPourVoisin = function (ID_sommet) {
+        return this.etat.voisins.table[ID_sommet.val] !== undefined;
     };
     NoeudIN.prototype.ajouterVoisin = function (v) {
-        this.etat.voisins.table[v.ID.sommet] = v;
+        this.etat.voisins.table[v.ID.val] = v;
     };
     NoeudIN.prototype.foncteurProceduralSurVoisins = function (proc) {
         for (var c_1 in this.etat.voisins.table) {
@@ -582,8 +609,8 @@ var NoeudEX = (function (_super) {
     function NoeudEX(etat) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
-    NoeudEX.prototype.aPourVoisin = function (id) {
-        return this.etat.voisins.table[id.sommet] !== undefined;
+    NoeudEX.prototype.aPourVoisin = function (ID_sommet) {
+        return this.etat.voisins.table[ID_sommet.val] !== undefined;
     };
     NoeudEX.prototype.foncteurProceduralSurVoisins = function (proc) {
         for (var c_2 in this.etat.voisins.table) {
@@ -613,7 +640,7 @@ var AssemblageReseauEnAnneau = (function () {
         var restant = this.taille - this.sommets.length;
         if (restant > 0) {
             console.log("- Impossible d'assembler un réseau en anneau de la taille donnée : ajouter " + restant + " sommets.");
-            return undefined;
+            throw new Error("[Exception : AssemblageReseau.assembler non défini.]");
         }
         // Définition du réseau
         var reseau = creerReseauVide();
@@ -643,10 +670,10 @@ exports.creerAssemblageReseauEnAnneau = creerAssemblageReseauEnAnneau;
 "use strict";
 
 exports.__esModule = true;
+var types_1 = __webpack_require__(0);
 var vueClient_1 = __webpack_require__(2);
 var client_1 = __webpack_require__(3);
 var jeu1_adressageRoutage_1 = __webpack_require__(8);
-var outils_1 = __webpack_require__(1);
 console.log("* Chargement du script");
 var adresseServeur = jeu1_adressageRoutage_1.hote + ":" + jeu1_adressageRoutage_1.port2;
 // A initialiser
@@ -679,35 +706,35 @@ function initialisation() {
     });
     console.log("- du traitement de la configuration");
     canal.enregistrerTraitementConfigurationRecue(function (c) {
-        var config = jeu1_adressageRoutage_1.creerConfigurationDuJSON(c);
+        var config = jeu1_adressageRoutage_1.creerConfigurationJeu1(c);
         console.log("* Réception");
         console.log("- de la configuration brute : " + config.brut());
-        console.log("- de la configuration nette : " + jeu1_adressageRoutage_1.representerConfiguration(config));
+        console.log("- de la configuration nette : " + config.representer());
         console.log("* Initialisation du noeud du réseau");
         var decConfig = jeu1_adressageRoutage_1.decomposerConfiguration(config);
-        noeud = decConfig[0];
-        population = decConfig[1];
-        utilisateur = decConfig[2];
+        noeud = jeu1_adressageRoutage_1.creerNoeudJeu1EX(decConfig[0]);
+        population = jeu1_adressageRoutage_1.creerPopulationLocale(decConfig[1]);
+        utilisateur = jeu1_adressageRoutage_1.creerUtilisateur(decConfig[2]);
         voir();
     });
     console.log("- du traitement d'une erreur rédhibitoire");
     canal.enregistrerTraitementErreurRecue(function (err) {
-        var erreur = jeu1_adressageRoutage_1.creerErreurJeu1DuJSON(err);
+        var erreur = jeu1_adressageRoutage_1.creerErreurJeu1(err);
         console.log("* Réception");
         console.log("- de l'erreur rédhibitoire brute : " + erreur.brut());
-        console.log("- de l'erreur rédhibitoire nette : " + jeu1_adressageRoutage_1.representerErreur(erreur));
+        console.log("- de l'erreur rédhibitoire nette : " + erreur.representer());
         console.log("* Initialisation du document");
-        vueClient_1.initialiserDocument(jeu1_adressageRoutage_1.representerErreur(erreur));
+        vueClient_1.initialiserDocument(erreur.representer());
     });
 }
 function voir() {
     console.log("* Consolidation de la vue");
     console.log("- adresse, domaine, domaines voisins, utilisateur, autres utilisateurs du domaine");
     vueClient_1.poster("adresseServeur", adresseServeur);
-    vueClient_1.poster("centre", jeu1_adressageRoutage_1.representerSommet(noeud.centre()));
-    vueClient_1.poster("voisins", outils_1.imageTableJSON(noeud.voisins()).map(function (v, i, t) { return jeu1_adressageRoutage_1.representerSommet(v); }).toString());
-    vueClient_1.poster("utilisateur", jeu1_adressageRoutage_1.representerUtilisateur(utilisateur));
-    vueClient_1.poster("utilisateursDomaine", jeu1_adressageRoutage_1.representerPopulation(population));
+    vueClient_1.poster("centre", jeu1_adressageRoutage_1.creerSommetJeu1(noeud.ex().centre).representer());
+    vueClient_1.poster("voisins", types_1.creerTableImmutable(noeud.ex().voisins).representer());
+    vueClient_1.poster("utilisateur", utilisateur.representer());
+    vueClient_1.poster("utilisateursDomaine", population.representer());
     /*
     console.log("- formulaire");
     let voisinsNoeud = noeud.voisins();
@@ -768,22 +795,21 @@ var binaire_1 = __webpack_require__(9);
 exports.hote = "merite"; // hôte local via TCP/IP - DNS : cf. /etc/hosts - IP : 127.0.0.1
 exports.port1 = 3001; // port de la essource 1 (serveur d'applications)
 exports.port2 = 1111; // port de la ressouce 2 (serveur de connexions)
+// Iditenfiants indéfinis utilisés dans des messages définis partiellement
+exports.sommetInconnu = { val: "INCONNU", sorte: 'sommet' };
+exports.messageInconnu = { val: "INCONNU", sorte: 'message' };
 var SommetJeu1 = (function (_super) {
     __extends(SommetJeu1, _super);
-    function SommetJeu1() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function SommetJeu1(etat) {
+        return _super.call(this, function (x) { return x; }, etat) || this;
     }
-    SommetJeu1.prototype.ex = function () {
-        return this.etat;
-    };
-    ;
     SommetJeu1.prototype.net = function (e) {
         var s = this.ex();
         switch (e) {
             case 'domaine': return binaire_1.representerMot(s.domaine);
-            case 'ID': return s.ID.sommet;
+            case 'ID': return s.ID.val;
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     SommetJeu1.prototype.representer = function () {
         return this.net('domaine') + " (" + this.net('ID') + ")";
@@ -795,33 +821,52 @@ function creerSommetJeu1(s) {
     return new SommetJeu1(s);
 }
 exports.creerSommetJeu1 = creerSommetJeu1;
-var NoeudJeu1 = (function (_super) {
-    __extends(NoeudJeu1, _super);
-    function NoeudJeu1() {
+var NoeudJeu1IN = (function (_super) {
+    __extends(NoeudJeu1IN, _super);
+    function NoeudJeu1IN() {
         return _super !== null && _super.apply(this, arguments) || this;
     }
-    NoeudJeu1.prototype.ex = function () {
-        return this.etat;
-    };
-    ;
-    NoeudJeu1.prototype.net = function (e) {
+    NoeudJeu1IN.prototype.net = function (e) {
         var s = this.ex();
         switch (e) {
             case 'centre': return creerSommetJeu1(s.centre).representer();
             case 'voisins': return types_1.creerTableImmutable(s.voisins).representer();
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
-    NoeudJeu1.prototype.representer = function () {
+    NoeudJeu1IN.prototype.representer = function () {
         return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
     };
-    return NoeudJeu1;
-}(communication_1.Noeud));
-exports.NoeudJeu1 = NoeudJeu1;
-function creerNoeudJeu1(n) {
-    return new NoeudJeu1(n);
+    return NoeudJeu1IN;
+}(communication_1.NoeudIN));
+exports.NoeudJeu1IN = NoeudJeu1IN;
+function creerNoeudJeu1IN(n) {
+    return new NoeudJeu1IN(n);
 }
-exports.creerNoeudJeu1 = creerNoeudJeu1;
+exports.creerNoeudJeu1IN = creerNoeudJeu1IN;
+var NoeudJeu1EX = (function (_super) {
+    __extends(NoeudJeu1EX, _super);
+    function NoeudJeu1EX() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    NoeudJeu1EX.prototype.net = function (e) {
+        var s = this.ex();
+        switch (e) {
+            case 'centre': return creerSommetJeu1(s.centre).representer();
+            case 'voisins': return types_1.creerTableImmutable(s.voisins).representer();
+        }
+        return outils_1.jamais(e);
+    };
+    NoeudJeu1EX.prototype.representer = function () {
+        return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
+    };
+    return NoeudJeu1EX;
+}(communication_1.NoeudEX));
+exports.NoeudJeu1EX = NoeudJeu1EX;
+function creerNoeudJeu1EX(n) {
+    return new NoeudJeu1EX(n);
+}
+exports.creerNoeudJeu1EX = creerNoeudJeu1EX;
 var ReseauJeu1 = (function (_super) {
     __extends(ReseauJeu1, _super);
     function ReseauJeu1() {
@@ -863,24 +908,20 @@ var TypeMessageJeu1;
 // Structure immutable
 var MessageJeu1 = (function (_super) {
     __extends(MessageJeu1, _super);
-    function MessageJeu1() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function MessageJeu1(etat) {
+        return _super.call(this, function (x) { return x; }, etat) || this;
     }
-    MessageJeu1.prototype.ex = function () {
-        return this.etat;
-    };
-    ;
     MessageJeu1.prototype.net = function (e) {
         var msg = this.ex();
         switch (e) {
-            case 'ID': return msg.ID.message;
+            case 'ID': return msg.ID.val;
             case 'type': return TypeMessageJeu1[msg.type];
             case 'date': return outils_1.dateFr(msg.date);
-            case 'ID_de': return msg.ID_origine.sommet;
-            case 'ID_à': return msg.ID_destination.sommet;
+            case 'ID_de': return msg.ID_origine.val;
+            case 'ID_à': return msg.ID_destination.val;
             case 'contenu': return binaire_1.representerMot(msg.contenu);
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     MessageJeu1.prototype.representer = function () {
         var idm = this.net('ID');
@@ -897,8 +938,8 @@ var MessageJeu1 = (function (_super) {
         var msg = this.ex();
         return new MessageJeu1({
             "ID": msg.ID,
-            "ID_origine": { sommet: ID_origine },
-            "ID_destination": { sommet: ID_destination },
+            "ID_origine": { val: ID_origine, sorte: 'sommet' },
+            "ID_destination": { val: ID_destination, sorte: 'sommet' },
             "type": msg.type,
             "contenu": msg.contenu,
             "date": msg.date
@@ -927,6 +968,7 @@ var MessageJeu1 = (function (_super) {
             case AR.ECHEC:
                 type = TypeMessageJeu1.ECHEC_TRANSIT;
                 break;
+            default: return outils_1.jamais(statut);
         }
         return new MessageJeu1({
             "ID": msg.ID,
@@ -972,6 +1014,7 @@ var MessageJeu1 = (function (_super) {
             case AR.ECHEC:
                 type = TypeMessageJeu1.ECHEC_FIN;
                 break;
+            default: return outils_1.jamais(statut);
         }
         return new MessageJeu1({
             "ID": msg.ID,
@@ -988,9 +1031,9 @@ exports.MessageJeu1 = MessageJeu1;
 // 1. Client : Produire un message INIT.
 function creerMessageInitial(contenu) {
     return new MessageJeu1({
-        "ID": undefined,
-        "ID_origine": undefined,
-        "ID_destination": undefined,
+        "ID": exports.messageInconnu,
+        "ID_origine": exports.sommetInconnu,
+        "ID_destination": exports.sommetInconnu,
         "type": TypeMessageJeu1.INIT,
         "contenu": contenu,
         "date": new Date()
@@ -999,20 +1042,16 @@ function creerMessageInitial(contenu) {
 exports.creerMessageInitial = creerMessageInitial;
 var Utilisateur = (function (_super) {
     __extends(Utilisateur, _super);
-    function Utilisateur() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function Utilisateur(u) {
+        return _super.call(this, function (x) { return x; }, u) || this;
     }
-    Utilisateur.prototype.ex = function () {
-        return this.etat;
-    };
-    ;
     Utilisateur.prototype.net = function (e) {
         var u = this.ex();
         switch (e) {
-            case 'ID': return u.ID.utilisateur;
+            case 'ID': return u.ID.val;
             case 'nom': return binaire_1.representerMot(u.pseudo);
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     Utilisateur.prototype.representer = function () {
         return this.net('nom') + " (" + this.net('ID') + ")";
@@ -1024,28 +1063,28 @@ function creerUtilisateur(u) {
     return new Utilisateur(u);
 }
 exports.creerUtilisateur = creerUtilisateur;
+// inutile export type EtiquettePopulationLocale = 'effectif' | 'utilisateurs';
 var PopulationLocale = (function (_super) {
     __extends(PopulationLocale, _super);
-    function PopulationLocale() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function PopulationLocale(pop) {
+        return _super.call(this, 'utilisateur', function (x) { return x; }, pop) || this;
     }
-    PopulationLocale.prototype.ex = function () {
-        return this.etat;
-    };
-    ;
     return PopulationLocale;
 }(types_1.TableIdentification));
 exports.PopulationLocale = PopulationLocale;
 function creerPopulationLocaleVide() {
-    return new PopulationLocale();
+    return new PopulationLocale({ table: {} });
 }
 exports.creerPopulationLocaleVide = creerPopulationLocaleVide;
+function creerPopulationLocale(pop) {
+    return new PopulationLocale(pop);
+}
+exports.creerPopulationLocale = creerPopulationLocale;
 function peuplerPopulationLocale(prefixe, noms) {
     var identification = types_1.creerIdentificationParCompteur(prefixe);
     var pop = creerPopulationLocaleVide();
     noms.forEach(function (nom, i, tab) {
-        var u = { ID: undefined, pseudo: tab[i], mutable: undefined };
-        identification.identifier(u, (function (i) { return { utilisateur: i }; }));
+        var u = { ID: identification.identifier('utilisateur'), pseudo: tab[i] };
         pop.ajouter(u.ID, u);
     });
     return pop;
@@ -1053,24 +1092,20 @@ function peuplerPopulationLocale(prefixe, noms) {
 exports.peuplerPopulationLocale = peuplerPopulationLocale;
 var ConfigurationJeu1 = (function (_super) {
     __extends(ConfigurationJeu1, _super);
-    function ConfigurationJeu1() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function ConfigurationJeu1(c) {
+        return _super.call(this, function (x) { return x; }, c) || this;
     }
-    ConfigurationJeu1.prototype.ex = function () {
-        return this.etat;
-    };
-    ;
     ConfigurationJeu1.prototype.net = function (e) {
         var config = this.ex();
         switch (e) {
             case 'centre': return creerSommetJeu1(config.centre).representer();
             case 'population':
                 return types_1.creerTableImmutable(config.population).representer();
-            case 'utilisateur': creerUtilisateur(config.utilisateur).representer();
-            case 'voisins': types_1.creerTableImmutable(config.voisins).representer();
-            case 'date': outils_1.dateFr(config.date);
+            case 'utilisateur': return creerUtilisateur(config.utilisateur).representer();
+            case 'voisins': return types_1.creerTableImmutable(config.voisins).representer();
+            case 'date': return outils_1.dateFr(config.date);
         }
-        return undefined; // impossible
+        return outils_1.jamais(e);
     };
     ConfigurationJeu1.prototype.representer = function () {
         var c = this.net('centre');
@@ -1094,9 +1129,9 @@ exports.creerConfigurationJeu1 = creerConfigurationJeu1;
 function composerConfigurationJeu1(n, pop, u, date) {
     return new ConfigurationJeu1({
         "configurationInitiale": types_1.Unite.un,
+        "centre": n.centre,
         "population": pop,
         "utilisateur": u,
-        "centre": n.centre,
         "voisins": n.voisins,
         "date": date
     });
@@ -1114,20 +1149,16 @@ function decomposerConfiguration(c) {
 exports.decomposerConfiguration = decomposerConfiguration;
 var ErreurJeu1 = (function (_super) {
     __extends(ErreurJeu1, _super);
-    function ErreurJeu1() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function ErreurJeu1(err) {
+        return _super.call(this, function (x) { return x; }, err) || this;
     }
-    ErreurJeu1.prototype.ex = function () {
-        return this.etat;
-    };
-    ;
     ErreurJeu1.prototype.net = function (e) {
         var erreur = this.ex();
         switch (e) {
             case 'messageErreur': return erreur.messageErreur;
             case 'date': return outils_1.dateFr(erreur.date);
         }
-        return undefined; // impossible
+        throw new Error("[Erreur : net(" + e + ") non d\u00E9fini.]");
     };
     ErreurJeu1.prototype.representer = function () {
         return "[" + this.net('date') + " : " + this.net('messageErreur') + "]";
@@ -1148,57 +1179,67 @@ function composerErreurJeu1(msg, date) {
 }
 exports.composerErreurJeu1 = composerErreurJeu1;
 function creerAnneauJeu1(domaines) {
-    var assembleur = communication_1.creerAssemblageReseauEnAnneau(domaines.length, creerNoeudJeu1);
+    var assembleur = communication_1.creerAssemblageReseauEnAnneau(domaines.length, creerNoeudJeu1IN);
     var identification = types_1.creerIdentificationParCompteur("DOM-");
     domaines.forEach(function (dom, i, tab) {
-        var s = { ID: undefined, domaine: tab[i], mutable: undefined };
-        identification.identifier(s, function (i) { return { sommet: i }; });
+        var s = { ID: identification.identifier('sommet'), domaine: tab[i] };
         assembleur.ajouterSommet(s);
     });
     return assembleur.assembler();
 }
 exports.creerAnneauJeu1 = creerAnneauJeu1;
+// TODO TableIdentification
+// Type IN utilisant une table d'identification
+// Type EX au format JSON.
+/* TODO inutile
+export interface FormatPopulationParDomaineIN extends Mutable {
+    [ID_dom: string]: FormatPopulationLocaleIN
+}
+
+export interface FormatPopulationParDomaineEX {
+    readonly [ID_dom: string]: FormatPopulationLocaleEX
+}
+*/
 var TableUtilisateurs = (function (_super) {
     __extends(TableUtilisateurs, _super);
     function TableUtilisateurs() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        return _super.call(this, 'utilisateur', function (x) { return x; }) || this;
     }
-    TableUtilisateurs.prototype.ex = function () {
-        return this.etat;
-    };
-    ;
     return TableUtilisateurs;
 }(types_1.TableIdentification));
 var PopulationParDomaine = (function (_super) {
     __extends(PopulationParDomaine, _super);
     function PopulationParDomaine() {
-        return _super !== null && _super.apply(this, arguments) || this;
+        return _super.call(this, 'sommet', function (t) { return t.ex(); }) || this;
     }
-    PopulationParDomaine.prototype.ex = function () {
-        var r = {};
-        for (var c_1 in this.etat) {
-            r[c_1] = this.etat[c_1].ex();
+    PopulationParDomaine.prototype.contientUtilisateur = function (ID_dom, ID_util) {
+        if (!this.etat.table[ID_dom.val]) {
+            return false;
         }
-        return r;
+        return this.etat.table[ID_dom.val].contient(ID_util);
     };
-    ;
+    PopulationParDomaine.prototype.utilisateur = function (ID_dom, ID_util) {
+        console.log("pop " + this.etat.table[ID_dom.val].representer());
+        console.log("id util " + ID_util.val);
+        return this.etat.table[ID_dom.val].valeur(ID_util);
+    };
     PopulationParDomaine.prototype.ajouterDomaine = function (ID_dom) {
         this.ajouter(ID_dom, new TableUtilisateurs());
     };
     PopulationParDomaine.prototype.ajouterUtilisateur = function (ID_dom, u) {
-        this.etat[ID_dom.sommet].ajouter(u.ID, u);
+        this.etat.table[ID_dom.val].ajouter(u.ID, u);
     };
     PopulationParDomaine.prototype.retirerUtilisateur = function (ID_dom, ID_util) {
-        this.etat[ID_dom.sommet].retirer(ID_util);
+        this.etat.table[ID_dom.val].retirer(ID_util);
     };
     PopulationParDomaine.prototype.selectionnerUtilisateur = function () {
         var popDom = this.ex();
-        for (var idDom in popDom) {
-            for (var idUtil in popDom[idDom]) {
-                return [{ sommet: idDom }, { utilisateur: idUtil }];
+        for (var idDom in popDom.table) {
+            for (var idUtil in popDom.table[idDom].table) {
+                return [{ val: idDom, sorte: 'sommet' }, { val: idUtil, sorte: 'utilisateur' }];
             }
         }
-        return [undefined, undefined];
+        throw new Error("[Exception : selectionnerUtilisateur() non défini.]");
     };
     return PopulationParDomaine;
 }(types_1.TableIdentification));
@@ -1208,14 +1249,14 @@ function creerVidePopulationParDomaine() {
 }
 exports.creerVidePopulationParDomaine = creerVidePopulationParDomaine;
 function assemblerPopulationParDomaine(reseau, noms) {
-    var noeuds = reseau.ex().noeuds;
+    var noeuds = reseau.ex().table;
     var popDom = creerVidePopulationParDomaine();
     for (var idDom in noeuds) {
-        var ID_dom = { sommet: idDom };
+        var ID_dom = { val: idDom, sorte: 'sommet' };
         popDom.ajouterDomaine(ID_dom);
         var popLoc = peuplerPopulationLocale("UTIL-" + idDom + "-", noms).ex();
-        for (var idUtil in popLoc) {
-            popDom.ajouterUtilisateur(ID_dom, popLoc[idUtil]);
+        for (var idUtil in popLoc.table) {
+            popDom.ajouterUtilisateur(ID_dom, popLoc.table[idUtil]);
         }
     }
     return popDom;
@@ -1252,7 +1293,7 @@ var Alphabet;
     Alphabet[Alphabet["UN"] = 1] = "UN";
 })(Alphabet = exports.Alphabet || (exports.Alphabet = {}));
 function representerMot(mot) {
-    return mot.map(function (v, i, t) { return Alphabet[v]; }).toString();
+    return "[" + mot.map(function (v, i, t) { return Alphabet[v]; }).toString().replace(',', '.') + "]";
 }
 exports.representerMot = representerMot;
 function binaire(n) {
@@ -1261,11 +1302,20 @@ function binaire(n) {
         switch (v) {
             case '0': return Alphabet.ZERO;
             case '1': return Alphabet.UN;
-            default: return undefined;
+            default:
+                throw new Error("[Erreur : binaire(" + n.toString + ") non défini.");
         }
     });
 }
 exports.binaire = binaire;
+function premiersBinaires(n) {
+    var r = [];
+    for (var i = 0; i < n; i++) {
+        r.push(i);
+    }
+    return r.map(function (v, i, tab) { return binaire(v); });
+}
+exports.premiersBinaires = premiersBinaires;
 //# sourceMappingURL=binaire.js.map
 
 /***/ })

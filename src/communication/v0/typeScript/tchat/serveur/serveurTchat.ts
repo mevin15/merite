@@ -4,24 +4,24 @@ import * as shell from "shelljs";
 import {
     Table,
     Identifiant,
-    TableIdentification, creerTableIdentificationVide //FormatTableEX, FormatTableIN
+    TableIdentification, creerTableIdentificationVide 
 } from "../../bibliotheque/types";
 
 import { creerReseauVide } from "../../bibliotheque/communication";
 import {
     hote, port1, port2,
     SommetTchat,
-    ReseauTchat,
-    NoeudTchatIN, FormatNoeudTchatEX, creerNoeudTchatIN,
+    ReseauTchat, creerAnneauTchat,
+    FormatNoeudTchatEX, 
     creerMessageErreurConnexion, creerMessageRetourErreur,
     TypeMessageTchat, FormatMessageTchatEX, EtiquetteMessageTchat,
     MessageTchat,
-    composerConfigurationJeu1, FormatConfigurationTchatEX, EtiquetteConfigurationTchat,
+    composerConfigurationTchat, FormatConfigurationTchatEX, EtiquetteConfigurationTchat,
     composerErreurTchat, FormatErreurTchatEX, EtiquetteErreurTchat,
-    creerAnneauTchat, FormatSommetTchatIN
+    
 } from '../commun/tchat';
-import { adresse, ServeurLiensWebSocket, LienWebSocket } from "../../bibliotheque/serveurConnexions";
-import { ServeurApplications, Interaction } from "../../bibliotheque/serveurApplications"
+import { ServeurLiensWebSocket, LienWebSocket } from "../../bibliotheque/serveurConnexions";
+import { ServeurApplications, Interaction } from "../../bibliotheque/serveurApplications";
 
 import { dateFrLog } from "../../bibliotheque/outils"
 
@@ -37,16 +37,11 @@ class LienTchat extends LienWebSocket<
     FormatMessageTchatEX, FormatMessageTchatEX, EtiquetteMessageTchat
     > { }
 
-/*class TableConnexions extends TableIdentification<'sommet', LienTchat, LienTchat> {
-    constructor(etat : FormatTableIN<LienTchat>){
-        super((x) => x, etat);
-    }
-}
-*/
+
 const anneau: ReseauTchat = creerAnneauTchat(["titi", "toto", "coco", "sissi"]);
 const reseauConnecte: ReseauTchat = creerReseauVide();
 const connexions: TableIdentification<'sommet', LienTchat, LienTchat>
-    = creerTableIdentificationVide<'sommet', LienTchat, LienTchat>((x) => x);
+    = creerTableIdentificationVide<'sommet', LienTchat, LienTchat>('sommet', (x) => x);
 
 const repertoireHtml: string = shell.pwd() + "/build";
 
@@ -70,10 +65,12 @@ serveurAppli.demarrer();
 const serveurCanaux = new ServeurTchat(port2, hote);
 
 serveurCanaux.enregistrerTraitementConnexion((l: LienTchat) => {
-    let ID_sommet: Identifiant<'sommet'> = anneau.selectionCle();
-
-    if (ID_sommet === undefined) {
+    let ID_sommet: Identifiant<'sommet'>;
+    try{
+        ID_sommet = anneau.selectionCle();
+    }catch(e){
         let d = new Date();
+        console.log("* " + dateFrLog(d) + " - " + (<Error>e).message);
         console.log("* " + dateFrLog(d) + " - Connexion impossible d'un client : le réseau est complet.");
         l.envoyerMessageErreur(composerErreurTchat(
             "Tchat - Réseau complet ! Il est impossible de se connecter : le réseau est complet.",
@@ -81,7 +78,7 @@ serveurCanaux.enregistrerTraitementConnexion((l: LienTchat) => {
         return false;
     }
 
-    if ((connexions.valeur(ID_sommet) !== undefined) || (reseauConnecte.possedeNoeud(ID_sommet))) {
+    if (connexions.contient(ID_sommet) || reseauConnecte.possedeNoeud(ID_sommet)) {
         let d = new Date();
         console.log("* " + dateFrLog(d) + " - Connexion impossible d'un client : le réseau est corrompu.");
         l.envoyerMessageErreur(composerErreurTchat(
@@ -89,14 +86,15 @@ serveurCanaux.enregistrerTraitementConnexion((l: LienTchat) => {
             d));
         return false;
     }
+
     // Cas où la sélection d'un noeud a réussi
     let d = new Date();
-    console.log("* " + dateFrLog(d) + " - Connexion de " + ID_sommet.sommet + " par Web socket.");
+    console.log("* " + dateFrLog(d) + " - Connexion de " + ID_sommet.val + " par Web socket.");
 
     connexions.ajouter(ID_sommet, l);
 
     let n = anneau.valeur(ID_sommet);
-    let config = composerConfigurationJeu1(n, d);
+    let config = composerConfigurationTchat(n, d);
     console.log("- envoi au client d'adresse " + l.adresseClient());
     console.log("  - de la configuration brute " + config.brut());
     console.log("  - de la configuration nette " + config.representer());
@@ -117,7 +115,7 @@ serveurCanaux.enregistrerTraitementMessages((l: LienTchat, m: FormatMessageTchat
             let ID_emetteurMsg = m.ID_emetteur;
             let ID_destinataireMsg = m.ID_destinataire;
             // Contrôle de l'émetteur et du destinataire
-            if (!(ID_emetteurUrl.sommet === ID_emetteurMsg.sommet)) {
+            if (!(ID_emetteurUrl.val === ID_emetteurMsg.val)) {
                 let msgErreur = "problème d'identité pour l'émetteur : le client utilisant l'adresse "
                     + l.adresseClient()
                     + " devrait signer ses messages " + ID_emetteurUrl + " et non " + ID_emetteurMsg + ".";
@@ -140,8 +138,8 @@ serveurCanaux.enregistrerTraitementMessages((l: LienTchat, m: FormatMessageTchat
             // Contrôle des communications 
             if (!reseauConnecte.sontVoisins(ID_emetteurMsg, ID_destinataireMsg)) {
                 let msgErreur = "communication interdite : le noeud émetteur "
-                    + ID_emetteurMsg.sommet
-                    + " n'est pas vosin du noeud destinataire " + ID_destinataireMsg.sommet + ".";
+                    + ID_emetteurMsg.val
+                    + " n'est pas vosin du noeud destinataire " + ID_destinataireMsg.val + ".";
                 console.log("- " + msgErreur);
                 l.envoyerAuClientDestinataire(creerMessageRetourErreur(msg, TypeMessageTchat.INTERDICTION, msgErreur));
             }
@@ -170,12 +168,12 @@ serveurCanaux.enregistrerTraitementMessages((l: LienTchat, m: FormatMessageTchat
 serveurCanaux.enregistrerTraitementFermeture((l: LienTchat, r: number, desc: string) => {
     let ID_centre = l.configuration().ex().centre.ID;
     if ((connexions.valeur(ID_centre) === undefined) || (!reseauConnecte.possedeNoeud(ID_centre))) {
-        console.log("* Impossibilité de fermer la connexion par Web socket : " + ID_centre.sommet + " est déjà déconnecté.");
+        console.log("* Impossibilité de fermer la connexion par Web socket : " + ID_centre.val + " est déjà déconnecté.");
         connexions.ajouter(ID_centre, l);
         return;
     }
     console.log(" * " + dateFrLog(new Date())
-        + " - Déconnexion du client " + ID_centre.sommet
+        + " - Déconnexion du client " + ID_centre.val
         + " utilisant l'adresse " + l.adresseClient() + ".");
     console.log("- identité : " + l.configuration().ex().centre.ID);
     console.log("- raison : " + r + " ; description : " + desc);

@@ -13,23 +13,14 @@ import {
     FormatIdentifiableIN, FormatIdentifiableEX,
     Identification, creerIdentificationParCompteur, Identifiant
 } from "../../bibliotheque/types";
-import { dateFr } from "../../bibliotheque/outils";
+import { dateFr, jamais } from "../../bibliotheque/outils";
 
 export const hote: string = "merite"; // hôte local via TCP/IP - DNS : cf. /etc/hosts - IP : 127.0.0.1
 export const port1 = 3000; // port de la essource 1 (serveur d'applications)
 export const port2: number = 1110; // port de la ressouce 2 (serveur de connexions)
 
-export interface FormatSommetTchatIN extends FormatIdentifiableIN<'sommet'>, Mutable {
-    readonly "pseudo": string,
-}
-
 export interface FormatSommetTchatEX extends FormatIdentifiableEX<'sommet'> {
     readonly "pseudo": string,
-}
-
-function conversionFormatSommet(s: FormatSommetTchatIN)
-    : FormatSommetTchatEX {
-    return { ID: s.ID, pseudo: s.pseudo };
 }
 
 export type EtiquetteSommetTchat = 'ID' | 'nom';
@@ -46,9 +37,9 @@ export class SommetTchat
         let s = this.ex();
         switch (e) {
             case 'nom': return s.pseudo;
-            case 'ID': return s.ID.sommet;
+            case 'ID': return s.ID.val;
         }
-        return undefined;// impossible
+        return jamais(e);
     }
     representer(): string {
         return this.net('nom') + " (" + this.net('ID') + ")";
@@ -59,7 +50,6 @@ export function creerSommetTchat(s: FormatSommetTchatEX) {
     return new SommetTchat(s);
 }
 
-export type FormatNoeudTchatEX = FormatNoeudEX<FormatSommetTchatEX>;
 export type FormatNoeudTchatIN = FormatNoeudIN<FormatSommetTchatEX>;
 
 export class NoeudTchatIN extends NoeudIN<FormatSommetTchatEX>{
@@ -71,7 +61,7 @@ export class NoeudTchatIN extends NoeudIN<FormatSommetTchatEX>{
             case 'voisins':
                 return creerTableImmutable(s.voisins).representer();
         }
-        return undefined;// impossible
+        return jamais(e);
     }
     representer(): string {
         return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
@@ -82,6 +72,9 @@ export function creerNoeudTchatIN(n: FormatNoeudTchatIN) {
     return new NoeudTchatIN(n);
 }
 
+
+export type FormatNoeudTchatEX = FormatNoeudEX<FormatSommetTchatEX>;
+
 export class NoeudTchatEX extends NoeudEX<FormatSommetTchatEX>{
 
     net(e: EtiquetteNoeud): string {
@@ -91,7 +84,7 @@ export class NoeudTchatEX extends NoeudEX<FormatSommetTchatEX>{
             case 'voisins':
                 return creerTableImmutable(s.voisins).representer();
         }
-        return undefined;// impossible
+        return jamais(e);
     }
     representer(): string {
         return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
@@ -147,11 +140,11 @@ export class MessageTchat extends Message<FormatMessageTchatEX, FormatMessageTch
         switch (e) {
             case 'type': return TypeMessageTchat[msg.type];
             case 'date': return dateFr(msg.date);
-            case 'ID_de': return msg.ID_emetteur.sommet;
-            case 'ID_à': return msg.ID_destinataire.sommet;
+            case 'ID_de': return msg.ID_emetteur.val;
+            case 'ID_à': return msg.ID_destinataire.val;
             case 'contenu': return msg.contenu;
         }
-        return undefined;// impossible
+        return jamais(e);
     }
 
     representer(): string {
@@ -245,7 +238,10 @@ export interface FormatConfigurationTchatEX extends FormatConfigurationInitiale 
 export type EtiquetteConfigurationTchat = 'centre' | 'voisins' | 'date';
 
 export class ConfigurationTchat
-    extends Configuration<FormatConfigurationTchatEX, FormatConfigurationTchatEX, EtiquetteConfigurationTchat> {
+    extends Configuration<
+    FormatConfigurationTchatEX,
+    FormatConfigurationTchatEX,
+    EtiquetteConfigurationTchat> {
 
     constructor(c: FormatConfigurationTchatEX) {
         super((x) => x, c);
@@ -258,7 +254,7 @@ export class ConfigurationTchat
             case 'voisins': return creerTableImmutable(config.voisins).representer();
             case 'date': return dateFr(config.date);
         }
-        return undefined;// impossible
+        return jamais(e);
     }
     representer(): string {
         let cc = this.net('centre');
@@ -272,7 +268,9 @@ export function creerConfigurationTchat(c: FormatConfigurationTchatEX) {
     return new ConfigurationTchat(c);
 }
 
-export function composerConfigurationJeu1(n: FormatNoeudTchatEX, date: Date): ConfigurationTchat {
+export function composerConfigurationTchat(
+    n: FormatNoeudTchatEX, date: Date)
+    : ConfigurationTchat {
     return new ConfigurationTchat({
         "configurationInitiale": Unite.un,
         "centre": n.centre,
@@ -296,9 +294,10 @@ export interface FormatErreurTchatEX extends FormatErreurRedhibitoire {
 
 export type EtiquetteErreurTchat = 'messageErreur' | 'date';
 
-export class ErreurTchat extends ErreurRedhibitoire<FormatErreurTchatEX, FormatErreurTchatEX, EtiquetteErreurTchat> {
+export class ErreurTchat
+    extends ErreurRedhibitoire<FormatErreurTchatEX, FormatErreurTchatEX, EtiquetteErreurTchat> {
 
-    constructor(err : FormatErreurTchatEX){
+    constructor(err: FormatErreurTchatEX) {
         super((x) => x, err);
     }
 
@@ -308,7 +307,7 @@ export class ErreurTchat extends ErreurRedhibitoire<FormatErreurTchatEX, FormatE
             case 'messageErreur': return erreur.messageErreur;
             case 'date': return dateFr(erreur.date);
         }
-        return undefined;// impossible
+        return jamais(e);
     }
     representer(): string {
         return "[" + this.net('date') + " : " + this.net('messageErreur') + "]";
@@ -328,13 +327,13 @@ export function composerErreurTchat(msg: string, date: Date): ErreurTchat {
 }
 
 export function creerAnneauTchat(noms: string[]): ReseauTchat {
-    let assembleur: AssemblageReseauTchatEnAnneau = creerAssemblageReseauEnAnneau(noms.length, creerNoeudTchatIN);
+    let assembleur: AssemblageReseauTchatEnAnneau
+        = creerAssemblageReseauEnAnneau(noms.length, creerNoeudTchatIN);
     let identification: Identification<'sommet'>
         = creerIdentificationParCompteur("S-");
     noms.forEach((nom: string, i: number, tab: string[]) => {
-        let s: FormatSommetTchatIN
-            = { ID: undefined, pseudo: tab[i], mutable: undefined };
-        identification.identifier(s, (i: string) => { return { sommet: i }; });
+        let s: FormatSommetTchatEX
+            = { ID: identification.identifier('sommet'), pseudo: tab[i]};
         assembleur.ajouterSommet(s);
     });
     return assembleur.assembler();

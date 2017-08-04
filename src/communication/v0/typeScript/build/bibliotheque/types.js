@@ -11,6 +11,7 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 exports.__esModule = true;
+var outils_1 = require("./outils");
 var Unite;
 (function (Unite) {
     Unite[Unite["un"] = 0] = "un";
@@ -63,7 +64,7 @@ var TableImmutable = (function (_super) {
             case 'image': return this.image().map(function (v, i, t) { return JSON.stringify(v); }).toString();
             case 'graphe': return this.brut();
         }
-        return undefined;
+        return outils_1.jamais(e);
     };
     TableImmutable.prototype.representer = function () {
         return this.net('graphe');
@@ -89,6 +90,13 @@ var TableImmutable = (function (_super) {
         }
         return n;
     };
+    TableImmutable.prototype.foncteur = function (f) {
+        var r = { table: {} };
+        for (var c_5 in this.etat.table) {
+            r.table[c_5] = f(this.etat.table[c_5]);
+        }
+        return creerTableImmutable(r);
+    };
     return TableImmutable;
 }(Enveloppe));
 exports.TableImmutable = TableImmutable;
@@ -108,35 +116,35 @@ var Table = (function (_super) {
             case 'image': return this.image().map(function (v, i, t) { return JSON.stringify(v); }).toString();
             case 'graphe': return this.brut();
         }
-        return undefined;
+        return outils_1.jamais(e);
     };
     Table.prototype.representer = function () {
         return this.net('graphe');
     };
     Table.prototype.image = function () {
         var tab = [];
-        for (var c_5 in this.ex().table) {
-            tab.push(this.ex().table[c_5]);
+        for (var c_6 in this.ex().table) {
+            tab.push(this.ex().table[c_6]);
         }
         return tab;
     };
     Table.prototype.domaine = function () {
         var tab = [];
-        for (var c_6 in this.ex().table) {
-            tab.push(c_6);
+        for (var c_7 in this.ex().table) {
+            tab.push(c_7);
         }
         return tab;
     };
     Table.prototype.selectionCle = function () {
         // sélection d'une clé
-        for (var c_7 in this.ex().table) {
-            return c_7;
+        for (var c_8 in this.ex().table) {
+            return c_8;
         }
-        return undefined;
+        throw new Error("[Exception : selectionCle() non défini.]");
     };
     Table.prototype.taille = function () {
         var n = 0;
-        for (var c_8 in this.ex().table) {
+        for (var c_9 in this.ex().table) {
             n++;
         }
         return n;
@@ -162,10 +170,10 @@ var IdentificationParCompteur = (function () {
         this.prefixe = prefixe;
         this.compteur = 0;
     }
-    IdentificationParCompteur.prototype.identifier = function (val, fab) {
+    IdentificationParCompteur.prototype.identifier = function (s) {
         var id = this.prefixe + this.compteur;
-        val.ID = fab(id);
         this.compteur++;
+        return { val: id, sorte: s };
     };
     return IdentificationParCompteur;
 }());
@@ -180,9 +188,10 @@ exports.creerIdentificationParCompteur = creerIdentificationParCompteur;
 */
 var TableIdentification = (function (_super) {
     __extends(TableIdentification, _super);
-    function TableIdentification(valInVersEx) {
-        var _this = _super.call(this, conversionFormatTable(valInVersEx), { table: {}, mutable: Unite.un }) || this;
-        _this._domaine = { table: {}, mutable: Unite.un };
+    function TableIdentification(sorte, valInVersEx, pop) {
+        if (pop === void 0) { pop = { table: {} }; }
+        var _this = _super.call(this, conversionFormatTable(valInVersEx), { table: pop.table, mutable: Unite.un }) || this;
+        _this.sorte = sorte;
         return _this;
     }
     TableIdentification.prototype.net = function (e) {
@@ -192,17 +201,20 @@ var TableIdentification = (function (_super) {
             case 'image': return this.image().map(function (v, i, t) { return JSON.stringify(v); }).toString();
             case 'graphe': return JSON.stringify(this.ex().table);
         }
-        return undefined;
+        return outils_1.jamais(e);
     };
     TableIdentification.prototype.representer = function () {
         return this.net('graphe');
     };
-    TableIdentification.prototype.valeur = function (id) {
-        var cle = undefined;
-        for (var c_9 in id) {
-            cle = id[c_9];
+    TableIdentification.prototype.valeur = function (ID_sorte) {
+        return this.ex().table[ID_sorte.val];
+    };
+    TableIdentification.prototype.contient = function (ID_sorte) {
+        if (this.ex().table[ID_sorte.val]) {
+            return true;
         }
-        return this.ex().table[cle];
+        return false;
+        ;
     };
     TableIdentification.prototype.image = function () {
         var tab = [];
@@ -212,14 +224,16 @@ var TableIdentification = (function (_super) {
         return tab;
     };
     TableIdentification.prototype.domaine = function () {
-        return creerTableImmutable(this._domaine).image();
+        var _this = this;
+        return creerTableImmutable(this.ex()).domaine().
+            map(function (s) { return { val: s, sorte: _this.sorte }; });
     };
     TableIdentification.prototype.selectionCle = function () {
         // sélection d'une clé
         for (var c_11 in this.ex().table) {
-            return this._domaine.table[c_11];
+            return { val: c_11, sorte: this.sorte };
         }
-        return undefined;
+        throw new Error("[Exception : selectionCle() non défini.]");
     };
     TableIdentification.prototype.taille = function () {
         var n = 0;
@@ -232,22 +246,20 @@ var TableIdentification = (function (_super) {
         return this.taille() === 0;
     };
     TableIdentification.prototype.ajouter = function (ID_sorte, x) {
-        for (var i in ID_sorte) {
-            this._domaine.table[ID_sorte[i]] = ID_sorte;
-            this.etat.table[ID_sorte[i]] = x;
-        }
+        this.etat.table[ID_sorte.val] = x;
     };
     TableIdentification.prototype.retirer = function (ID_sorte) {
-        for (var i in ID_sorte) {
-            delete this._domaine.table[ID_sorte[i]];
-            delete this.etat.table[ID_sorte[i]];
-        }
+        delete this.etat.table[ID_sorte.val];
     };
     return TableIdentification;
 }(Enveloppe));
 exports.TableIdentification = TableIdentification;
-function creerTableIdentificationVide(valInVersEx) {
-    return new TableIdentification(valInVersEx);
+function creerTableIdentificationVide(sorte, valInVersEx) {
+    return new TableIdentification(sorte, valInVersEx);
 }
 exports.creerTableIdentificationVide = creerTableIdentificationVide;
+function creerTableIdentification(sorte, valInVersEx, pop) {
+    return new TableIdentification(sorte, valInVersEx, pop);
+}
+exports.creerTableIdentification = creerTableIdentification;
 //# sourceMappingURL=types.js.map
