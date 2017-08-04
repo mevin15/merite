@@ -2,6 +2,7 @@ import {
     Unite,
     FormatIdentifiableIN, FormatIdentifiableEX, Identifiant,
     Enveloppe,
+    MODULE_TABLE, 
     TableIdentification, FormatTableIN,
     FormatTableEX, conversionFormatTable
 } from "./types"
@@ -94,7 +95,7 @@ export class Reseau<SEX extends FormatIdentifiableEX<'sommet'>>
     }
     // Précondition : id1 et id2 sont deux noeuds du réseau.
     sontVoisins(ID_sommet1: Identifiant<'sommet'>, ID_sommet2: Identifiant<'sommet'>): boolean {
-        return this.etat.table[ID_sommet1.val].voisins.table[ID_sommet2.val] !== undefined;
+        return MODULE_TABLE.contient(this.valeurIN(ID_sommet1).voisins, ID_sommet2.val);
     }
     ajouterNoeud(n: FormatNoeudEX<SEX>): void {
         this.ajouter(n.centre.ID, n);
@@ -138,15 +139,10 @@ export abstract class NoeudIN<S extends FormatIdentifiableEX<'sommet'>>
     }
 
     aPourVoisin(ID_sommet: Identifiant<'sommet'>): boolean {
-        return this.etat.voisins.table[ID_sommet.val] !== undefined;
+        return MODULE_TABLE.contient(this.etat.voisins, ID_sommet.val);
     }
     ajouterVoisin(v: S): void {
-        this.etat.voisins.table[v.ID.val] = v;
-    }
-    foncteurProceduralSurVoisins(proc: (v: S) => void) {
-        for (let c in this.etat.voisins.table) {
-            proc(this.etat.voisins.table[c]);
-        }
+        return MODULE_TABLE.ajouter(this.etat.voisins, v.ID.val, v);
     }
 }
 
@@ -158,12 +154,12 @@ export abstract class NoeudEX<S extends FormatIdentifiableEX<'sommet'>>
     }
 
     aPourVoisin(ID_sommet: Identifiant<'sommet'>): boolean {
-        return this.etat.voisins.table[ID_sommet.val] !== undefined;
+        return MODULE_TABLE.contient(this.etat.voisins, ID_sommet.val);
     }
     foncteurProceduralSurVoisins(proc: (v: S) => void) {
-        for (let c in this.etat.voisins.table) {
-            proc(this.etat.voisins.table[c]);
-        }
+        MODULE_TABLE.pourChaque((c, v) => {
+            proc(v);
+        }, this.etat.voisins)
     }
 }
 

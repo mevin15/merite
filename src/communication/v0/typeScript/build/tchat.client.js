@@ -112,12 +112,75 @@ var Enveloppe = (function () {
     return Enveloppe;
 }());
 exports.Enveloppe = Enveloppe;
+var ModuleTable = (function () {
+    function ModuleTable() {
+    }
+    ModuleTable.prototype.pourChaque = function (f, t) {
+        for (var c_1 in t.table) {
+            f(c_1, t.table[c_1], t.table);
+        }
+    };
+    ModuleTable.prototype.valeur = function (t, cle) {
+        return t.table[cle];
+    };
+    ModuleTable.prototype.contient = function (t, cle) {
+        if (t.table[cle]) {
+            return true;
+        }
+        return false;
+        ;
+    };
+    ModuleTable.prototype.image = function (t) {
+        var tab = [];
+        this.pourChaque(function (c, v) {
+            tab.push(v);
+        }, t);
+        return tab;
+    };
+    ModuleTable.prototype.domaine = function (t) {
+        var tab = [];
+        this.pourChaque(function (c, v) {
+            tab.push(c);
+        }, t);
+        return tab;
+    };
+    ModuleTable.prototype.taille = function (t) {
+        var n = 0;
+        this.pourChaque(function (c, v) {
+            n++;
+        }, t);
+        return n;
+    };
+    ModuleTable.prototype.foncteur = function (t, f) {
+        var r = {};
+        this.pourChaque(function (c, v) {
+            r[c] = f(v);
+        }, t);
+        return r;
+    };
+    ModuleTable.prototype.selectionCle = function (t) {
+        // sélection d'une clé
+        for (var c_2 in t.table) {
+            return c_2;
+        }
+        throw new Error("[Exception : selectionCle() non défini.]");
+    };
+    ModuleTable.prototype.ajouter = function (t, cle, x) {
+        t.table[cle] = x;
+    };
+    ModuleTable.prototype.retirer = function (t, cle) {
+        delete t.table[cle];
+    };
+    return ModuleTable;
+}());
+exports.ModuleTable = ModuleTable;
+exports.MODULE_TABLE = new ModuleTable();
 function conversionFormatTable(conv) {
     return (function (t) {
         var r = {};
-        for (var c_1 in t.table) {
-            r[c_1] = conv(t.table[c_1]);
-        }
+        exports.MODULE_TABLE.pourChaque(function (c, v) {
+            r[c] = conv(v);
+        }, t);
         return { table: r };
     });
 }
@@ -140,32 +203,16 @@ var TableImmutable = (function (_super) {
         return this.net('graphe');
     };
     TableImmutable.prototype.image = function () {
-        var tab = [];
-        for (var c_2 in this.ex().table) {
-            tab.push(this.ex().table[c_2]);
-        }
-        return tab;
+        return exports.MODULE_TABLE.image(this.ex());
     };
     TableImmutable.prototype.domaine = function () {
-        var tab = [];
-        for (var c_3 in this.ex().table) {
-            tab.push(c_3);
-        }
-        return tab;
+        return exports.MODULE_TABLE.domaine(this.ex());
     };
     TableImmutable.prototype.taille = function () {
-        var n = 0;
-        for (var c_4 in this.ex().table) {
-            n++;
-        }
-        return n;
+        return exports.MODULE_TABLE.taille(this.ex());
     };
     TableImmutable.prototype.foncteur = function (f) {
-        var r = { table: {} };
-        for (var c_5 in this.etat.table) {
-            r.table[c_5] = f(this.etat.table[c_5]);
-        }
-        return creerTableImmutable(r);
+        return creerTableImmutable({ table: exports.MODULE_TABLE.foncteur(this.ex(), f) });
     };
     return TableImmutable;
 }(Enveloppe));
@@ -192,41 +239,25 @@ var Table = (function (_super) {
         return this.net('graphe');
     };
     Table.prototype.image = function () {
-        var tab = [];
-        for (var c_6 in this.ex().table) {
-            tab.push(this.ex().table[c_6]);
-        }
-        return tab;
+        return exports.MODULE_TABLE.image(this.ex());
     };
     Table.prototype.domaine = function () {
-        var tab = [];
-        for (var c_7 in this.ex().table) {
-            tab.push(c_7);
-        }
-        return tab;
+        return exports.MODULE_TABLE.domaine(this.etat);
     };
     Table.prototype.selectionCle = function () {
-        // sélection d'une clé
-        for (var c_8 in this.ex().table) {
-            return c_8;
-        }
-        throw new Error("[Exception : selectionCle() non défini.]");
+        return exports.MODULE_TABLE.selectionCle(this.etat);
     };
     Table.prototype.taille = function () {
-        var n = 0;
-        for (var c_9 in this.ex().table) {
-            n++;
-        }
-        return n;
+        return exports.MODULE_TABLE.taille(this.etat);
     };
     Table.prototype.estVide = function () {
         return this.taille() === 0;
     };
     Table.prototype.ajouter = function (cle, x) {
-        this.etat.table[cle] = x;
+        exports.MODULE_TABLE.ajouter(this.etat, cle, x);
     };
     Table.prototype.retirer = function (cle) {
-        delete this.etat.table[cle];
+        exports.MODULE_TABLE.retirer(this.etat, cle);
     };
     return Table;
 }(Enveloppe));
@@ -276,50 +307,40 @@ var TableIdentification = (function (_super) {
     TableIdentification.prototype.representer = function () {
         return this.net('graphe');
     };
+    TableIdentification.prototype.valeurIN = function (ID_sorte) {
+        return exports.MODULE_TABLE.valeur(this.etat, ID_sorte.val);
+    };
     TableIdentification.prototype.valeur = function (ID_sorte) {
-        return this.ex().table[ID_sorte.val];
+        return exports.MODULE_TABLE.valeur(this.ex(), ID_sorte.val);
     };
     TableIdentification.prototype.contient = function (ID_sorte) {
-        if (this.ex().table[ID_sorte.val]) {
-            return true;
-        }
-        return false;
-        ;
+        return exports.MODULE_TABLE.contient(this.ex(), ID_sorte.val);
     };
     TableIdentification.prototype.image = function () {
-        var tab = [];
-        for (var c_10 in this.ex().table) {
-            tab.push(this.ex().table[c_10]);
-        }
-        return tab;
+        return exports.MODULE_TABLE.image(this.ex());
     };
     TableIdentification.prototype.domaine = function () {
         var _this = this;
-        return creerTableImmutable(this.ex()).domaine().
+        return exports.MODULE_TABLE.domaine(this.ex()).
             map(function (s) { return { val: s, sorte: _this.sorte }; });
     };
     TableIdentification.prototype.selectionCle = function () {
-        // sélection d'une clé
-        for (var c_11 in this.ex().table) {
-            return { val: c_11, sorte: this.sorte };
-        }
-        throw new Error("[Exception : selectionCle() non défini.]");
+        return {
+            val: exports.MODULE_TABLE.selectionCle(this.etat),
+            sorte: this.sorte
+        };
     };
     TableIdentification.prototype.taille = function () {
-        var n = 0;
-        for (var c_12 in this.ex().table) {
-            n++;
-        }
-        return n;
+        return exports.MODULE_TABLE.taille(this.etat);
     };
     TableIdentification.prototype.estVide = function () {
         return this.taille() === 0;
     };
     TableIdentification.prototype.ajouter = function (ID_sorte, x) {
-        this.etat.table[ID_sorte.val] = x;
+        exports.MODULE_TABLE.ajouter(this.etat, ID_sorte.val, x);
     };
     TableIdentification.prototype.retirer = function (ID_sorte) {
-        delete this.etat.table[ID_sorte.val];
+        exports.MODULE_TABLE.retirer(this.etat, ID_sorte.val);
     };
     return TableIdentification;
 }(Enveloppe));
@@ -567,7 +588,7 @@ var Reseau = (function (_super) {
     };
     // Précondition : id1 et id2 sont deux noeuds du réseau.
     Reseau.prototype.sontVoisins = function (ID_sommet1, ID_sommet2) {
-        return this.etat.table[ID_sommet1.val].voisins.table[ID_sommet2.val] !== undefined;
+        return types_1.MODULE_TABLE.contient(this.valeurIN(ID_sommet1).voisins, ID_sommet2.val);
     };
     Reseau.prototype.ajouterNoeud = function (n) {
         this.ajouter(n.centre.ID, n);
@@ -591,15 +612,10 @@ var NoeudIN = (function (_super) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
     NoeudIN.prototype.aPourVoisin = function (ID_sommet) {
-        return this.etat.voisins.table[ID_sommet.val] !== undefined;
+        return types_1.MODULE_TABLE.contient(this.etat.voisins, ID_sommet.val);
     };
     NoeudIN.prototype.ajouterVoisin = function (v) {
-        this.etat.voisins.table[v.ID.val] = v;
-    };
-    NoeudIN.prototype.foncteurProceduralSurVoisins = function (proc) {
-        for (var c_1 in this.etat.voisins.table) {
-            proc(this.etat.voisins.table[c_1]);
-        }
+        return types_1.MODULE_TABLE.ajouter(this.etat.voisins, v.ID.val, v);
     };
     return NoeudIN;
 }(types_1.Enveloppe));
@@ -610,12 +626,12 @@ var NoeudEX = (function (_super) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
     NoeudEX.prototype.aPourVoisin = function (ID_sommet) {
-        return this.etat.voisins.table[ID_sommet.val] !== undefined;
+        return types_1.MODULE_TABLE.contient(this.etat.voisins, ID_sommet.val);
     };
     NoeudEX.prototype.foncteurProceduralSurVoisins = function (proc) {
-        for (var c_2 in this.etat.voisins.table) {
-            proc(this.etat.voisins.table[c_2]);
-        }
+        types_1.MODULE_TABLE.pourChaque(function (c, v) {
+            proc(v);
+        }, this.etat.voisins);
     };
     return NoeudEX;
 }(types_1.Enveloppe));

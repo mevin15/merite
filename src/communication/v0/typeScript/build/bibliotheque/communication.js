@@ -74,7 +74,7 @@ var Reseau = (function (_super) {
     };
     // Précondition : id1 et id2 sont deux noeuds du réseau.
     Reseau.prototype.sontVoisins = function (ID_sommet1, ID_sommet2) {
-        return this.etat.table[ID_sommet1.val].voisins.table[ID_sommet2.val] !== undefined;
+        return types_1.MODULE_TABLE.contient(this.valeurIN(ID_sommet1).voisins, ID_sommet2.val);
     };
     Reseau.prototype.ajouterNoeud = function (n) {
         this.ajouter(n.centre.ID, n);
@@ -98,15 +98,10 @@ var NoeudIN = (function (_super) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
     NoeudIN.prototype.aPourVoisin = function (ID_sommet) {
-        return this.etat.voisins.table[ID_sommet.val] !== undefined;
+        return types_1.MODULE_TABLE.contient(this.etat.voisins, ID_sommet.val);
     };
     NoeudIN.prototype.ajouterVoisin = function (v) {
-        this.etat.voisins.table[v.ID.val] = v;
-    };
-    NoeudIN.prototype.foncteurProceduralSurVoisins = function (proc) {
-        for (var c_1 in this.etat.voisins.table) {
-            proc(this.etat.voisins.table[c_1]);
-        }
+        return types_1.MODULE_TABLE.ajouter(this.etat.voisins, v.ID.val, v);
     };
     return NoeudIN;
 }(types_1.Enveloppe));
@@ -117,12 +112,12 @@ var NoeudEX = (function (_super) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
     NoeudEX.prototype.aPourVoisin = function (ID_sommet) {
-        return this.etat.voisins.table[ID_sommet.val] !== undefined;
+        return types_1.MODULE_TABLE.contient(this.etat.voisins, ID_sommet.val);
     };
     NoeudEX.prototype.foncteurProceduralSurVoisins = function (proc) {
-        for (var c_2 in this.etat.voisins.table) {
-            proc(this.etat.voisins.table[c_2]);
-        }
+        types_1.MODULE_TABLE.pourChaque(function (c, v) {
+            proc(v);
+        }, this.etat.voisins);
     };
     return NoeudEX;
 }(types_1.Enveloppe));
