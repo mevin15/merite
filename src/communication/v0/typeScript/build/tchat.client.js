@@ -60,16 +60,16 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 5);
+/******/ 	return __webpack_require__(__webpack_require__.s = 87);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ 14:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-// Revue 02/08 - Testé.
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -80,27 +80,46 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-exports.__esModule = true;
-var outils_1 = __webpack_require__(1);
+Object.defineProperty(exports, "__esModule", { value: true });
+// Revue 02/08 - Testé.
+var outils_1 = __webpack_require__(21);
+// Les enum sont des sous-types de number.
 var Unite;
 (function (Unite) {
-    Unite[Unite["un"] = 0] = "un";
+    Unite[Unite["ZERO"] = 0] = "ZERO";
 })(Unite = exports.Unite || (exports.Unite = {}));
+var Deux;
+(function (Deux) {
+    Deux[Deux["ZERO"] = 0] = "ZERO";
+    Deux[Deux["UN"] = 1] = "UN";
+})(Deux = exports.Deux || (exports.Deux = {}));
 // Types formats JSON : FormatX par convention
-// Format ::= { (etiquette : Format)*} | { [x : string] : Format }
-// Modèle générique d'une enveloppe d'un document JSON
-// TEX : type de sortie (souvent format JSON en lecture seulement)
-// TIN : type d'entrée pour l'état en format JSON ou non (confiné, permettant des modifications)
+// Il est recommandé de choisir le plus possible des formats immutables.
+// Format ::= { (readonly etiquette : Format)*} 
+//          | { (readonly etiquette : Format)*, (etiquette : Format)+, mutable : Unite} 
+//          | { readonly table: { readonly [cle: string]: T }}
+//          | { readonly table: { [cle: string]: T }}
+//          | { table: { readonly [cle: string]: T }, mutable : Unite}
+//          | { table: { [cle: string]: T }, mutable : Unite}
+// Modèle générique d'une enveloppe d'un état
+// TEX : type de sortie immutable (souvent format JSON en lecture seulement)
+// TIN : type d'entrée pour l'état en format JSON ou non (mutable ou non, confiné si mutable)
 // E : étiquettes utiles pour une représentation (cf. méthode net)
-// La différence entre TIN et TEX permet de gérer la mutabilité et la visibilité de la structure 
-//   de données, souvent au format JSON.
-// Une fonction de conversion de TIN ves TEX est requise.
+// La différence entre TIN et TEX permet de gérer les effets de bord sur l'état, souvent au format JSON.
+// Une fonction de conversion de TIN vers TEX est requise.
+// Toute méthode ayant une occurrence positive de TIN est protected. En effet, elle est susceptible
+//   de permettre un effet de bord sur l'état s'il est mutable.
+// Cette classe abstraite doit être étedue ;
+// - implémentation de net et représenter,
+// - extension par de méthodes modifiant ou observant l'état.
 var Enveloppe = (function () {
     function Enveloppe(inEnEx, etat) {
         this.etat = etat;
         this.inEnEx = inEnEx;
     }
-    ;
+    Enveloppe.prototype.in = function () {
+        return this.etat;
+    };
     Enveloppe.prototype.ex = function () {
         return this.inEnEx(this.etat);
     };
@@ -112,6 +131,246 @@ var Enveloppe = (function () {
     return Enveloppe;
 }());
 exports.Enveloppe = Enveloppe;
+/* ***********************************************************************************************
+*
+*/
+var Semaine;
+(function (Semaine) {
+    Semaine[Semaine["LUNDI"] = 0] = "LUNDI";
+    Semaine[Semaine["MARDI"] = 1] = "MARDI";
+    Semaine[Semaine["MERCREDI"] = 2] = "MERCREDI";
+    Semaine[Semaine["JEUDI"] = 3] = "JEUDI";
+    Semaine[Semaine["VENDREDI"] = 4] = "VENDREDI";
+    Semaine[Semaine["SAMEDI"] = 5] = "SAMEDI";
+    Semaine[Semaine["DIMANCHE"] = 6] = "DIMANCHE";
+})(Semaine = exports.Semaine || (exports.Semaine = {}));
+var Mois;
+(function (Mois) {
+    Mois[Mois["JANVIER"] = 0] = "JANVIER";
+    Mois[Mois["FEVRIER"] = 1] = "FEVRIER";
+    Mois[Mois["MARS"] = 2] = "MARS";
+    Mois[Mois["AVRIL"] = 3] = "AVRIL";
+    Mois[Mois["MAI"] = 4] = "MAI";
+    Mois[Mois["JUIN"] = 5] = "JUIN";
+    Mois[Mois["JUILLET"] = 6] = "JUILLET";
+    Mois[Mois["AOUT"] = 7] = "AOUT";
+    Mois[Mois["SEPTEMBRE"] = 8] = "SEPTEMBRE";
+    Mois[Mois["OCTOBRE"] = 9] = "OCTOBRE";
+    Mois[Mois["NOVEMBRE"] = 10] = "NOVEMBRE";
+    Mois[Mois["DECEMBRE"] = 11] = "DECEMBRE";
+})(Mois = exports.Mois || (exports.Mois = {}));
+function conversionDate(d) {
+    return {
+        seconde: d.getSeconds(),
+        minute: d.getMinutes(),
+        heure: d.getHours(),
+        jourSemaine: (d.getDay() + 6) % 7,
+        jourMois: d.getDate(),
+        mois: d.getMonth(),
+        annee: d.getFullYear()
+    };
+}
+exports.conversionDate = conversionDate;
+var DateFrEnveloppe = (function (_super) {
+    __extends(DateFrEnveloppe, _super);
+    function DateFrEnveloppe() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    DateFrEnveloppe.prototype.net = function (e) {
+        // A déplacer sous les cas.
+        var s = outils_1.normalisationNombre(this.in().seconde, 2);
+        var min = outils_1.normalisationNombre(this.in().minute, 2);
+        var h = outils_1.normalisationNombre(this.in().heure, 2);
+        var js = this.in().jourSemaine;
+        var jsL = Semaine[js].toLowerCase();
+        var jm = outils_1.normalisationNombre(this.in().jourMois, 2);
+        var mo = this.in().mois;
+        var moL = Mois[mo].toLowerCase();
+        var moN = outils_1.normalisationNombre(mo + 1, 2);
+        var a = this.in().annee.toString();
+        switch (e) {
+            case 'heure': return h + ":" + min + ":" + s;
+            case 'jourSemaine': return jsL;
+            case 'jourMois': return jm;
+            case 'moisLettre': return moL;
+            case 'moisNumero': return moN;
+            case 'annee': return a;
+            case 'date': return jm + "/" + moN + "/" + a;
+            case 'dateLongue': return jsL + " " + jm + " " + moL + " " + a;
+        }
+        return outils_1.jamais(e);
+    };
+    DateFrEnveloppe.prototype.detail = function (e) {
+        return this.detail(e);
+    };
+    DateFrEnveloppe.prototype.representation = function () {
+        return this.net('heure') + ", le " + this.net('date');
+    };
+    DateFrEnveloppe.prototype.representationLongue = function () {
+        return this.net('heure') + ", le " + this.net('dateLongue');
+    };
+    DateFrEnveloppe.prototype.representationLog = function () {
+        return this.net('heure') + " " + this.net('date');
+    };
+    return DateFrEnveloppe;
+}(Enveloppe));
+exports.DateFrEnveloppe = DateFrEnveloppe;
+function creerDateMaintenant() {
+    return new DateFrEnveloppe(function (x) { return x; }, conversionDate(new Date()));
+}
+exports.creerDateMaintenant = creerDateMaintenant;
+function creerDate(d) {
+    return new DateFrEnveloppe(function (x) { return x; }, d);
+}
+exports.creerDate = creerDate;
+var ModuleTableau = (function () {
+    function ModuleTableau() {
+    }
+    ModuleTableau.prototype.pourChaque = function (f, t) {
+        t.tableau.forEach(function (v, i, t) { return f(i, v, t); });
+    };
+    ModuleTableau.prototype.valeur = function (t, index) {
+        return t.tableau[index];
+    };
+    ModuleTableau.prototype.taille = function (t) {
+        return t.tableau.length;
+    };
+    ModuleTableau.prototype.foncteur = function (t, f) {
+        var r = [];
+        this.pourChaque(function (i, v) {
+            r[i] = f(v);
+        }, t);
+        return { taille: r.length, tableau: r, mutable: Unite.ZERO };
+    };
+    ModuleTableau.prototype.reduction = function (t, neutre, op) {
+        var r = neutre;
+        this.pourChaque(function (i, v) {
+            r = op(r, v);
+        }, t);
+        return r;
+    };
+    ModuleTableau.prototype.ajouterEnFin = function (t, x) {
+        t.tableau.push(x);
+    };
+    ModuleTableau.prototype.retirerEnFin = function (t) {
+        if (t.taille === 0) {
+            throw new Error("[Exception : retirerEnFin() non défini.]");
+        }
+        return t.tableau.pop();
+    };
+    return ModuleTableau;
+}());
+exports.ModuleTableau = ModuleTableau;
+var MODULE_TABLEAU = new ModuleTableau();
+// Conversion pour les tables 
+function conversionFormatTableau(conv) {
+    return (function (t) {
+        var r = new Array(t.taille);
+        MODULE_TABLEAU.pourChaque(function (i, v) {
+            r[i] = conv(v);
+        }, t);
+        return { taille: t.taille, tableau: r };
+    });
+}
+exports.conversionFormatTableau = conversionFormatTableau;
+// Tableau immutable : TIN = TEX (recommandé : immutable)
+var TableauImmutable = (function (_super) {
+    __extends(TableauImmutable, _super);
+    function TableauImmutable(etat) {
+        return _super.call(this, function (x) { return x; }, etat) || this;
+    }
+    TableauImmutable.prototype.net = function (e) {
+        switch (e) {
+            case 'taille': return this.taille().toString();
+            case 'valeurs': return this.in().tableau.toString();
+        }
+        return outils_1.jamais(e);
+    };
+    TableauImmutable.prototype.representation = function () {
+        return "[" + this.net('valeurs') + "]";
+    };
+    TableauImmutable.prototype.pourChaque = function (f) {
+        MODULE_TABLEAU.pourChaque(f, this.in());
+    };
+    TableauImmutable.prototype.foncteur = function (f) {
+        return new TableauImmutable(MODULE_TABLEAU.foncteur(this.in(), f));
+    };
+    TableauImmutable.prototype.reduction = function (neutre, op) {
+        return MODULE_TABLEAU.reduction(this.in(), neutre, op);
+    };
+    TableauImmutable.prototype.valeur = function (index) {
+        return MODULE_TABLEAU.valeur(this.in(), index);
+    };
+    TableauImmutable.prototype.taille = function () {
+        return MODULE_TABLEAU.taille(this.in());
+    };
+    TableauImmutable.prototype.estVide = function () {
+        return this.taille() === 0;
+    };
+    return TableauImmutable;
+}(Enveloppe));
+exports.TableauImmutable = TableauImmutable;
+function creerTableauImmutable(t) {
+    return new TableauImmutable({
+        taille: t.length,
+        tableau: t
+    });
+}
+exports.creerTableauImmutable = creerTableauImmutable;
+// Tableau mutable - TIN peut être différent de TEX.
+//   Recommandé : TEX immutable.
+// Attention : la méthode ex() requiert un parcours du tableau formant l'état.
+var Tableau = (function (_super) {
+    __extends(Tableau, _super);
+    function Tableau(valInVersEx, etat) {
+        if (etat === void 0) { etat = { taille: 0, tableau: [], mutable: Unite.ZERO }; }
+        var _this = _super.call(this, conversionFormatTableau(valInVersEx), etat) || this;
+        _this.valInVersEx = valInVersEx;
+        return _this;
+    }
+    Tableau.prototype.net = function (e) {
+        switch (e) {
+            case 'taille': return this.taille().toString();
+            case 'valeurs': return this.in().tableau.toString();
+        }
+        return outils_1.jamais(e);
+    };
+    Tableau.prototype.representation = function () {
+        return "[" + this.net('valeurs') + "]";
+    };
+    Tableau.prototype.pourChaqueIn = function (f) {
+        MODULE_TABLEAU.pourChaque(f, this.in());
+    };
+    Tableau.prototype.pourChaque = function (f) {
+        var _this = this;
+        this.pourChaqueIn(function (i, v, t) { return f(i, _this.valInVersEx(v)); });
+    };
+    Tableau.prototype.valeurIn = function (i) {
+        return MODULE_TABLEAU.valeur(this.in(), i);
+    };
+    Tableau.prototype.valeur = function (i) {
+        return this.valInVersEx(this.valeurIn(i));
+    };
+    Tableau.prototype.taille = function () {
+        return MODULE_TABLEAU.taille(this.in());
+    };
+    Tableau.prototype.estVide = function () {
+        return this.taille() === 0;
+    };
+    Tableau.prototype.ajouterEnFin = function (x) {
+        MODULE_TABLEAU.ajouterEnFin(this.in(), x);
+    };
+    Tableau.prototype.retirerEnFin = function () {
+        MODULE_TABLEAU.retirerEnFin(this.in());
+    };
+    return Tableau;
+}(Enveloppe));
+exports.Tableau = Tableau;
+function creerTableauVide(valInVersEx) {
+    return new Tableau(valInVersEx);
+}
+exports.creerTableauVide = creerTableauVide;
+// Un module réservoir de fonctions utiles sur les tables.
 var ModuleTable = (function () {
     function ModuleTable() {
     }
@@ -156,6 +415,13 @@ var ModuleTable = (function () {
         this.pourChaque(function (c, v) {
             r[c] = f(v);
         }, t);
+        return { table: r, mutable: Unite.ZERO };
+    };
+    ModuleTable.prototype.transformationTableVersTableau = function (t, f) {
+        var r = [];
+        this.pourChaque(function (c, v) {
+            r.push(f(c, v));
+        }, t);
         return r;
     };
     ModuleTable.prototype.selectionCle = function (t) {
@@ -164,6 +430,15 @@ var ModuleTable = (function () {
             return c_2;
         }
         throw new Error("[Exception : selectionCle() non défini.]");
+    };
+    ModuleTable.prototype.selectionCleSuivantCritere = function (t, prop) {
+        // sélection d'une clé
+        for (var c_3 in t.table) {
+            if (prop(t.table[c_3])) {
+                return c_3;
+            }
+        }
+        throw new Error("[Exception : selectionCleSuivantCritere() non défini.]");
     };
     ModuleTable.prototype.ajouter = function (t, cle, x) {
         t.table[cle] = x;
@@ -174,17 +449,19 @@ var ModuleTable = (function () {
     return ModuleTable;
 }());
 exports.ModuleTable = ModuleTable;
-exports.MODULE_TABLE = new ModuleTable();
+var MODULE_TABLE = new ModuleTable();
+// Conversion pour les tables 
 function conversionFormatTable(conv) {
     return (function (t) {
         var r = {};
-        exports.MODULE_TABLE.pourChaque(function (c, v) {
+        MODULE_TABLE.pourChaque(function (c, v) {
             r[c] = conv(v);
         }, t);
         return { table: r };
     });
 }
 exports.conversionFormatTable = conversionFormatTable;
+// Table immutable : TIN = TEX (recommandé : immutable)
 var TableImmutable = (function (_super) {
     __extends(TableImmutable, _super);
     function TableImmutable(etat) {
@@ -199,20 +476,32 @@ var TableImmutable = (function (_super) {
         }
         return outils_1.jamais(e);
     };
-    TableImmutable.prototype.representer = function () {
+    TableImmutable.prototype.representation = function () {
         return this.net('graphe');
     };
+    TableImmutable.prototype.pourChaque = function (f) {
+        MODULE_TABLE.pourChaque(f, this.in());
+    };
+    TableImmutable.prototype.valeur = function (cle) {
+        return MODULE_TABLE.valeur(this.in(), cle);
+    };
+    TableImmutable.prototype.contient = function (cle) {
+        return MODULE_TABLE.contient(this.in(), cle);
+    };
     TableImmutable.prototype.image = function () {
-        return exports.MODULE_TABLE.image(this.ex());
+        return MODULE_TABLE.image(this.in());
     };
     TableImmutable.prototype.domaine = function () {
-        return exports.MODULE_TABLE.domaine(this.ex());
+        return MODULE_TABLE.domaine(this.in());
     };
     TableImmutable.prototype.taille = function () {
-        return exports.MODULE_TABLE.taille(this.ex());
+        return MODULE_TABLE.taille(this.in());
     };
-    TableImmutable.prototype.foncteur = function (f) {
-        return creerTableImmutable({ table: exports.MODULE_TABLE.foncteur(this.ex(), f) });
+    TableImmutable.prototype.selectionCle = function () {
+        return MODULE_TABLE.selectionCle(this.in());
+    };
+    TableImmutable.prototype.selectionCleSuivantCritere = function (prop) {
+        return MODULE_TABLE.selectionCleSuivantCritere(this.in(), prop);
     };
     return TableImmutable;
 }(Enveloppe));
@@ -221,49 +510,85 @@ function creerTableImmutable(t) {
     return new TableImmutable(t);
 }
 exports.creerTableImmutable = creerTableImmutable;
+// Table mutable - TIN peut être différent de TEX.
+//   Recommandé : TEX immutable.
+// Attention : la méthode ex() requiert un parcours de la table formant l'état.
 var Table = (function (_super) {
     __extends(Table, _super);
     function Table(valInVersEx, etat) {
-        return _super.call(this, conversionFormatTable(valInVersEx), etat) || this;
+        var _this = _super.call(this, conversionFormatTable(valInVersEx), etat) || this;
+        _this.valInVersEx = valInVersEx;
+        return _this;
     }
     Table.prototype.net = function (e) {
         switch (e) {
             case 'taille': return this.taille().toString();
             case 'domaine': return this.domaine().toString();
-            case 'image': return this.image().map(function (v, i, t) { return JSON.stringify(v); }).toString();
+            case 'image': return this.image().map(function (v, i) { return JSON.stringify(v); }).toString();
             case 'graphe': return this.brut();
         }
         return outils_1.jamais(e);
     };
-    Table.prototype.representer = function () {
+    Table.prototype.representation = function () {
         return this.net('graphe');
     };
+    Table.prototype.pourChaqueIn = function (f) {
+        MODULE_TABLE.pourChaque(f, this.in());
+    };
+    Table.prototype.pourChaque = function (f) {
+        var _this = this;
+        this.pourChaqueIn(function (c, v, t) { return f(c, _this.valInVersEx(v)); });
+        // moins efficace (deux parcours) : MODULE_TABLE.pourChaque(f, this.ex());
+    };
+    Table.prototype.valeurIn = function (cle) {
+        return MODULE_TABLE.valeur(this.in(), cle);
+    };
+    Table.prototype.valeur = function (cle) {
+        return this.valInVersEx(this.valeurIn(cle));
+        // moins efficace : MODULE_TABLE.valeur(this.ex(), cle);
+    };
+    Table.prototype.contient = function (cle) {
+        return MODULE_TABLE.contient(this.in(), cle);
+    };
+    Table.prototype.imageIn = function () {
+        return MODULE_TABLE.image(this.in());
+    };
     Table.prototype.image = function () {
-        return exports.MODULE_TABLE.image(this.ex());
+        var _this = this;
+        return MODULE_TABLE.transformationTableVersTableau(this.in(), function (c, v) { return _this.valInVersEx(v); });
+        // moins efficace : MODULE_TABLE.image(this.ex());
     };
     Table.prototype.domaine = function () {
-        return exports.MODULE_TABLE.domaine(this.etat);
-    };
-    Table.prototype.selectionCle = function () {
-        return exports.MODULE_TABLE.selectionCle(this.etat);
+        return MODULE_TABLE.domaine(this.in());
     };
     Table.prototype.taille = function () {
-        return exports.MODULE_TABLE.taille(this.etat);
+        return MODULE_TABLE.taille(this.in());
     };
     Table.prototype.estVide = function () {
         return this.taille() === 0;
     };
+    Table.prototype.selectionCle = function () {
+        return MODULE_TABLE.selectionCle(this.in());
+    };
+    Table.prototype.selectionCleSuivantCritereIn = function (prop) {
+        return MODULE_TABLE.selectionCleSuivantCritere(this.in(), prop);
+    };
+    Table.prototype.selectionCleSuivantCritere = function (prop) {
+        var _this = this;
+        return this.selectionCleSuivantCritereIn(function (x) { return prop(_this.valInVersEx(x)); });
+        // moins efficace : MODULE_TABLE.selectionCleSuivantCritere(this.ex(), prop);
+    };
     Table.prototype.ajouter = function (cle, x) {
-        exports.MODULE_TABLE.ajouter(this.etat, cle, x);
+        MODULE_TABLE.ajouter(this.in(), cle, x);
     };
     Table.prototype.retirer = function (cle) {
-        exports.MODULE_TABLE.retirer(this.etat, cle);
+        MODULE_TABLE.retirer(this.in(), cle);
     };
     return Table;
 }(Enveloppe));
 exports.Table = Table;
 function creerTableVide(valInVersEx) {
-    return new Table(valInVersEx, { table: {}, mutable: Unite.un });
+    return new Table(valInVersEx, { table: {}, mutable: Unite.ZERO });
 }
 exports.creerTableVide = creerTableVide;
 var IdentificationParCompteur = (function () {
@@ -274,7 +599,7 @@ var IdentificationParCompteur = (function () {
     IdentificationParCompteur.prototype.identifier = function (s) {
         var id = this.prefixe + this.compteur;
         this.compteur++;
-        return { val: id, sorte: s };
+        return creerIdentifiant(s, id);
     };
     return IdentificationParCompteur;
 }());
@@ -283,16 +608,24 @@ function creerIdentificationParCompteur(prefixe) {
     return new IdentificationParCompteur(prefixe);
 }
 exports.creerIdentificationParCompteur = creerIdentificationParCompteur;
+function creerIdentifiant(s, cle) {
+    return {
+        val: cle,
+        sorte: s
+    };
+}
+exports.creerIdentifiant = creerIdentifiant;
 /*
 * Table utilisant des identificateurs comme clé.
-* Remarque : les tables précédentes fondées sur les tables en JSON utilisent nécessdairemetn le type string pour les clés.
+* Remarque : les tables précédentes fondées sur les tables en JSON utilisent nécessdairement le type string pour les clés.
 */
 var TableIdentification = (function (_super) {
     __extends(TableIdentification, _super);
     function TableIdentification(sorte, valInVersEx, pop) {
         if (pop === void 0) { pop = { table: {} }; }
-        var _this = _super.call(this, conversionFormatTable(valInVersEx), { table: pop.table, mutable: Unite.un }) || this;
+        var _this = _super.call(this, conversionFormatTable(valInVersEx), { table: pop.table, mutable: Unite.ZERO }) || this;
         _this.sorte = sorte;
+        _this.valInVersEx = valInVersEx;
         return _this;
     }
     TableIdentification.prototype.net = function (e) {
@@ -304,43 +637,63 @@ var TableIdentification = (function (_super) {
         }
         return outils_1.jamais(e);
     };
-    TableIdentification.prototype.representer = function () {
+    TableIdentification.prototype.representation = function () {
         return this.net('graphe');
     };
+    TableIdentification.prototype.pourChaqueIn = function (f) {
+        var _this = this;
+        MODULE_TABLE.pourChaque(function (id, v, t) { return f(creerIdentifiant(_this.sorte, id), v, t); }, this.in());
+    };
+    TableIdentification.prototype.pourChaque = function (f) {
+        var _this = this;
+        this.pourChaqueIn(function (c, v, t) { return f(c, _this.valInVersEx(v)); });
+        // moins efficace (deux parcours) : MODULE_TABLE.pourChaque(f, this.ex());
+    };
     TableIdentification.prototype.valeurIN = function (ID_sorte) {
-        return exports.MODULE_TABLE.valeur(this.etat, ID_sorte.val);
+        return MODULE_TABLE.valeur(this.in(), ID_sorte.val);
     };
     TableIdentification.prototype.valeur = function (ID_sorte) {
-        return exports.MODULE_TABLE.valeur(this.ex(), ID_sorte.val);
+        return this.valInVersEx(this.valeurIN(ID_sorte));
     };
     TableIdentification.prototype.contient = function (ID_sorte) {
-        return exports.MODULE_TABLE.contient(this.ex(), ID_sorte.val);
+        return MODULE_TABLE.contient(this.in(), ID_sorte.val);
+    };
+    TableIdentification.prototype.imageIn = function () {
+        return MODULE_TABLE.image(this.in());
     };
     TableIdentification.prototype.image = function () {
-        return exports.MODULE_TABLE.image(this.ex());
+        var _this = this;
+        return MODULE_TABLE.transformationTableVersTableau(this.in(), function (c, v) { return _this.valInVersEx(v); });
+        // moins efficace : MODULE_TABLE.image(this.ex());
     };
     TableIdentification.prototype.domaine = function () {
         var _this = this;
-        return exports.MODULE_TABLE.domaine(this.ex()).
-            map(function (s) { return { val: s, sorte: _this.sorte }; });
+        return MODULE_TABLE.transformationTableVersTableau(this.in(), function (c, v) { return creerIdentifiant(_this.sorte, c); });
+        // moins efficace : return MODULE_TABLE.domaine(this.in()).
+        //    map((s) => { return { val: s, sorte: this.sorte } });
     };
     TableIdentification.prototype.selectionCle = function () {
-        return {
-            val: exports.MODULE_TABLE.selectionCle(this.etat),
-            sorte: this.sorte
-        };
+        return creerIdentifiant(this.sorte, MODULE_TABLE.selectionCle(this.in()));
+    };
+    TableIdentification.prototype.selectionCleSuivantCritereIn = function (prop) {
+        return creerIdentifiant(this.sorte, MODULE_TABLE.selectionCleSuivantCritere(this.in(), prop));
+    };
+    TableIdentification.prototype.selectionCleSuivantCritere = function (prop) {
+        var _this = this;
+        return this.selectionCleSuivantCritereIn(function (x) { return prop(_this.valInVersEx(x)); });
+        // moins efficace : MODULE_TABLE.selectionCleSuivantCritere(this.ex(), prop);
     };
     TableIdentification.prototype.taille = function () {
-        return exports.MODULE_TABLE.taille(this.etat);
+        return MODULE_TABLE.taille(this.in());
     };
     TableIdentification.prototype.estVide = function () {
         return this.taille() === 0;
     };
     TableIdentification.prototype.ajouter = function (ID_sorte, x) {
-        exports.MODULE_TABLE.ajouter(this.etat, ID_sorte.val, x);
+        MODULE_TABLE.ajouter(this.in(), ID_sorte.val, x);
     };
     TableIdentification.prototype.retirer = function (ID_sorte) {
-        exports.MODULE_TABLE.retirer(this.etat, ID_sorte.val);
+        MODULE_TABLE.retirer(this.in(), ID_sorte.val);
     };
     return TableIdentification;
 }(Enveloppe));
@@ -353,38 +706,99 @@ function creerTableIdentification(sorte, valInVersEx, pop) {
     return new TableIdentification(sorte, valInVersEx, pop);
 }
 exports.creerTableIdentification = creerTableIdentification;
-//# sourceMappingURL=types.js.map
+// Version immutable
+var TableIdentificationImmutable = (function (_super) {
+    __extends(TableIdentificationImmutable, _super);
+    function TableIdentificationImmutable(sorte, pop) {
+        if (pop === void 0) { pop = { table: {} }; }
+        var _this = _super.call(this, conversionFormatTable(function (x) { return x; }), pop) || this;
+        _this.sorte = sorte;
+        return _this;
+    }
+    TableIdentificationImmutable.prototype.net = function (e) {
+        switch (e) {
+            case 'taille': return this.taille().toString();
+            case 'domaine': return this.domaine().map(function (v, i, t) { return JSON.stringify(v); }).toString();
+            case 'image': return this.image().map(function (v, i, t) { return JSON.stringify(v); }).toString();
+            case 'graphe': return JSON.stringify(this.ex().table);
+        }
+        return outils_1.jamais(e);
+    };
+    TableIdentificationImmutable.prototype.representation = function () {
+        return this.net('graphe');
+    };
+    TableIdentificationImmutable.prototype.pourChaque = function (f) {
+        var _this = this;
+        MODULE_TABLE.pourChaque(function (id, v, t) { return f(creerIdentifiant(_this.sorte, id), v, t); }, this.in());
+    };
+    TableIdentificationImmutable.prototype.valeur = function (ID_sorte) {
+        return MODULE_TABLE.valeur(this.in(), ID_sorte.val);
+    };
+    TableIdentificationImmutable.prototype.contient = function (ID_sorte) {
+        return MODULE_TABLE.contient(this.in(), ID_sorte.val);
+    };
+    TableIdentificationImmutable.prototype.image = function () {
+        return MODULE_TABLE.image(this.in());
+    };
+    TableIdentificationImmutable.prototype.domaine = function () {
+        var _this = this;
+        return MODULE_TABLE.transformationTableVersTableau(this.in(), function (c, v) { return creerIdentifiant(_this.sorte, c); });
+    };
+    TableIdentificationImmutable.prototype.selectionCle = function () {
+        return creerIdentifiant(this.sorte, MODULE_TABLE.selectionCle(this.in()));
+    };
+    TableIdentificationImmutable.prototype.selectionCleSuivantCritere = function (prop) {
+        return creerIdentifiant(this.sorte, MODULE_TABLE.selectionCleSuivantCritere(this.in(), prop));
+    };
+    TableIdentificationImmutable.prototype.taille = function () {
+        return MODULE_TABLE.taille(this.in());
+    };
+    TableIdentificationImmutable.prototype.estVide = function () {
+        return this.taille() === 0;
+    };
+    return TableIdentificationImmutable;
+}(Enveloppe));
+exports.TableIdentificationImmutable = TableIdentificationImmutable;
+function creerTableIdentificationImmutableVide(sorte) {
+    return new TableIdentificationImmutable(sorte);
+}
+exports.creerTableIdentificationImmutableVide = creerTableIdentificationImmutableVide;
+function creerTableIdentificationImmutable(sorte, pop) {
+    return new TableIdentificationImmutable(sorte, pop);
+}
+exports.creerTableIdentificationImmutable = creerTableIdentificationImmutable;
+
 
 /***/ }),
-/* 1 */
+
+/***/ 21:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-exports.__esModule = true;
-function dateFr(d) {
-    var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    return (new Date(d)).toLocaleString("fr-FR", options);
-}
-exports.dateFr = dateFr;
-function dateFrLog(d) {
-    var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-    return (new Date(d)).toLocaleString("fr-FR", options);
-}
-exports.dateFrLog = dateFrLog;
+Object.defineProperty(exports, "__esModule", { value: true });
 function jamais(x) {
     throw new Error("* Erreur impossible : " + x);
 }
 exports.jamais = jamais;
-//# sourceMappingURL=outils.js.map
+function normalisationNombre(n, taille) {
+    var r = n.toString();
+    while (r.length < taille) {
+        r = "0" + r;
+    }
+    return r;
+}
+exports.normalisationNombre = normalisationNombre;
+
 
 /***/ }),
-/* 2 */
+
+/***/ 34:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 function recupererElementHTML(id) {
     var r = document.getElementById(id);
     if (typeof r === "undefined") {
@@ -441,15 +855,16 @@ function elementSaisieEnvoi(idSaisie, idBoutonEnvoi, msg) {
         + '<input class="button" type="button" id="' + idBoutonEnvoi + '" value="' + msg + '" >';
 }
 exports.elementSaisieEnvoi = elementSaisieEnvoi;
-//# sourceMappingURL=vueClient.js.map
+
 
 /***/ }),
-/* 3 */
+
+/***/ 35:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var CanalClient = (function () {
     function CanalClient(adresse) {
         this.adresse = adresse;
@@ -505,10 +920,11 @@ function creerCanalClient(adresse) {
     return new CanalClient(adresse);
 }
 exports.creerCanalClient = creerCanalClient;
-//# sourceMappingURL=client.js.map
+
 
 /***/ }),
-/* 4 */
+
+/***/ 36:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -523,8 +939,8 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-exports.__esModule = true;
-var types_1 = __webpack_require__(0);
+Object.defineProperty(exports, "__esModule", { value: true });
+var types_1 = __webpack_require__(14);
 ;
 var Message = (function (_super) {
     __extends(Message, _super);
@@ -570,37 +986,47 @@ var Sommet = (function (_super) {
     return Sommet;
 }(types_1.Enveloppe));
 exports.Sommet = Sommet;
-// - réseau ::= noeud*
-// Hypothèse : le réseau ne modifie ni les sommets ni les neouds. 
-//   Conséquence : un seul format est utilisé, pour les sommets et pour les noeuds respectivement.
-var Reseau = (function (_super) {
-    __extends(Reseau, _super);
-    function Reseau() {
+var ReseauTableDeNoeuds = (function (_super) {
+    __extends(ReseauTableDeNoeuds, _super);
+    function ReseauTableDeNoeuds() {
         return _super.call(this, 'sommet', function (x) { return x; }) || this;
     }
-    Reseau.prototype.representer = function () {
+    ReseauTableDeNoeuds.prototype.representation = function () {
         return "réseau de " + this.net('taille') + " noeuds : "
             + this.net('graphe');
     };
     // (simple renommmage)
-    Reseau.prototype.possedeNoeud = function (ID_sommet) {
+    ReseauTableDeNoeuds.prototype.possedeNoeud = function (ID_sommet) {
         return this.contient(ID_sommet);
     };
     // Précondition : id1 et id2 sont deux noeuds du réseau.
-    Reseau.prototype.sontVoisins = function (ID_sommet1, ID_sommet2) {
-        return types_1.MODULE_TABLE.contient(this.valeurIN(ID_sommet1).voisins, ID_sommet2.val);
+    ReseauTableDeNoeuds.prototype.sontVoisins = function (ID_sommet1, ID_sommet2) {
+        return types_1.creerTableIdentificationImmutable('sommet', this.valeurIN(ID_sommet1).voisins).
+            contient(ID_sommet2);
     };
-    Reseau.prototype.ajouterNoeud = function (n) {
+    ReseauTableDeNoeuds.prototype.pourChaqueNoeud = function (f) {
+        this.pourChaqueIn(f);
+    };
+    ReseauTableDeNoeuds.prototype.noeud = function (ID_sommet) {
+        return this.valeur(ID_sommet);
+    };
+    ReseauTableDeNoeuds.prototype.identifiantsNoeuds = function () {
+        return this.domaine();
+    };
+    ReseauTableDeNoeuds.prototype.selectionNoeud = function () {
+        return this.selectionCle();
+    };
+    ReseauTableDeNoeuds.prototype.ajouterNoeud = function (n) {
         this.ajouter(n.centre.ID, n);
     };
-    Reseau.prototype.retirerNoeud = function (n) {
+    ReseauTableDeNoeuds.prototype.retirerNoeud = function (n) {
         this.retirer(n.centre.ID);
     };
-    return Reseau;
+    return ReseauTableDeNoeuds;
 }(types_1.TableIdentification));
-exports.Reseau = Reseau;
+exports.ReseauTableDeNoeuds = ReseauTableDeNoeuds;
 function creerReseauVide() {
-    return new Reseau();
+    return new ReseauTableDeNoeuds();
 }
 exports.creerReseauVide = creerReseauVide;
 function conversionFormatNoeud(n) {
@@ -612,10 +1038,15 @@ var NoeudIN = (function (_super) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
     NoeudIN.prototype.aPourVoisin = function (ID_sommet) {
-        return types_1.MODULE_TABLE.contient(this.etat.voisins, ID_sommet.val);
+        return types_1.creerTableIdentificationImmutable('sommet', this.in().voisins).
+            contient(ID_sommet);
+    };
+    NoeudIN.prototype.pourChaqueVoisin = function (proc) {
+        types_1.creerTableIdentificationImmutable('sommet', this.in().voisins).pourChaque(proc);
     };
     NoeudIN.prototype.ajouterVoisin = function (v) {
-        return types_1.MODULE_TABLE.ajouter(this.etat.voisins, v.ID.val, v);
+        return types_1.creerTableIdentification('sommet', function (x) { return x; }, this.in().voisins)
+            .ajouter(v.ID, v);
     };
     return NoeudIN;
 }(types_1.Enveloppe));
@@ -626,26 +1057,28 @@ var NoeudEX = (function (_super) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
     NoeudEX.prototype.aPourVoisin = function (ID_sommet) {
-        return types_1.MODULE_TABLE.contient(this.etat.voisins, ID_sommet.val);
+        return types_1.creerTableIdentificationImmutable('sommet', this.in().voisins).
+            contient(ID_sommet);
     };
-    NoeudEX.prototype.foncteurProceduralSurVoisins = function (proc) {
-        types_1.MODULE_TABLE.pourChaque(function (c, v) {
-            proc(v);
-        }, this.etat.voisins);
+    NoeudEX.prototype.pourChaqueVoisin = function (proc) {
+        types_1.creerTableIdentificationImmutable('sommet', this.in().voisins).pourChaque(proc);
     };
     return NoeudEX;
 }(types_1.Enveloppe));
 exports.NoeudEX = NoeudEX;
-var AssemblageReseauEnAnneau = (function () {
-    function AssemblageReseauEnAnneau(taille, fabriqueNoeud) {
-        this.fabriqueNoeud = fabriqueNoeud;
-        console.log("* Construction d'un réseau en anneau de " + taille + " éléments.");
-        this.sommets = [];
-        this.taille = taille;
+var AssemblageReseauEnAnneau = (function (_super) {
+    __extends(AssemblageReseauEnAnneau, _super);
+    function AssemblageReseauEnAnneau(nombreSommets, fabriqueNoeud) {
+        var _this = _super.call(this, function (x) { return x; }) || this;
+        _this.nombreSommets = nombreSommets;
+        _this.fabriqueNoeud = fabriqueNoeud;
+        console.log("* Construction d'un réseau en anneau de " + nombreSommets.toString() + " éléments.");
+        return _this;
     }
+    // Les sommetts doivent avoir des identifiants deux à deux distincts.
     AssemblageReseauEnAnneau.prototype.ajouterSommet = function (s) {
-        if (this.sommets.length < this.taille) {
-            this.sommets.push(s);
+        if (this.taille() < this.nombreSommets) {
+            this.ajouterEnFin(s);
         }
         else {
             console.log("- Impossible d'ajouter un sommet : le réseau en anneau est complet.");
@@ -653,41 +1086,41 @@ var AssemblageReseauEnAnneau = (function () {
     };
     AssemblageReseauEnAnneau.prototype.assembler = function () {
         var _this = this;
-        var restant = this.taille - this.sommets.length;
+        var restant = this.nombreSommets - this.taille();
         if (restant > 0) {
             console.log("- Impossible d'assembler un réseau en anneau de la taille donnée : ajouter " + restant + " sommets.");
             throw new Error("[Exception : AssemblageReseau.assembler non défini.]");
         }
         // Définition du réseau
         var reseau = creerReseauVide();
-        this.sommets.forEach(function (s, i, tab) {
-            var n = _this.fabriqueNoeud({ centre: s, voisins: { table: {}, mutable: types_1.Unite.un } });
-            n.ajouterVoisin(tab[(i + 1) % _this.taille]);
-            n.ajouterVoisin(tab[(i + (_this.taille - 1)) % _this.taille]);
+        this.pourChaque(function (i, s) {
+            var n = _this.fabriqueNoeud({ centre: s, voisins: { table: {}, mutable: types_1.Unite.ZERO } });
+            n.ajouterVoisin(_this.valeurIn((i + 1) % _this.nombreSommets));
+            n.ajouterVoisin(_this.valeurIn((i + (_this.nombreSommets - 1)) % _this.nombreSommets));
             reseau.ajouterNoeud(n.ex());
         });
         return reseau;
     };
     return AssemblageReseauEnAnneau;
-}());
-exports.AssemblageReseauEnAnneau = AssemblageReseauEnAnneau;
+}(types_1.Tableau));
 function creerAssemblageReseauEnAnneau(taille, fabriqueNoeud) {
     return new AssemblageReseauEnAnneau(taille, fabriqueNoeud);
 }
 exports.creerAssemblageReseauEnAnneau = creerAssemblageReseauEnAnneau;
-//# sourceMappingURL=communication.js.map
+
 
 /***/ }),
-/* 5 */
+
+/***/ 87:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-exports.__esModule = true;
-var types_1 = __webpack_require__(0);
-var vueClient_1 = __webpack_require__(2);
-var client_1 = __webpack_require__(3);
-var tchat_1 = __webpack_require__(6);
+Object.defineProperty(exports, "__esModule", { value: true });
+var types_1 = __webpack_require__(14);
+var vueClient_1 = __webpack_require__(34);
+var client_1 = __webpack_require__(35);
+var tchat_1 = __webpack_require__(88);
 console.log("* Chargement du script");
 var adresseServeur = tchat_1.hote + ":" + tchat_1.port2;
 // A initialiser
@@ -696,7 +1129,7 @@ var noeud;
 function envoyerMessage(texte, ID_destinataire) {
     var msg = tchat_1.creerMessageCommunication(noeud.ex().centre.ID, ID_destinataire, texte);
     console.log("- Envoi du message brut : " + msg.brut());
-    console.log("- Envoi du message net : " + msg.representer());
+    console.log("- Envoi du message net : " + msg.representation());
     canal.envoyerMessage(msg);
 }
 // A exécuter après chargement de la page
@@ -710,15 +1143,15 @@ function initialisation() {
         var msg = new tchat_1.MessageTchat(m);
         console.log("* Réception");
         console.log("- du message brut : " + msg.brut());
-        console.log("- du message net : " + msg.representer());
-        vueClient_1.posterNL('logChats', msg.representer());
+        console.log("- du message net : " + msg.representation());
+        vueClient_1.posterNL('logChats', msg.representation());
     });
     console.log("- du traitement de la configuration");
     canal.enregistrerTraitementConfigurationRecue(function (c) {
         var config = tchat_1.creerConfigurationTchat(c);
         console.log("* Réception");
         console.log("- de la configuration brute : " + config.brut());
-        console.log("- de la configuration nette : " + config.representer());
+        console.log("- de la configuration nette : " + config.representation());
         console.log("* Initialisation du noeud du réseau");
         noeud = tchat_1.creerNoeudTchatEX(tchat_1.decomposerConfiguration(config));
         voir();
@@ -728,25 +1161,25 @@ function initialisation() {
         var erreur = tchat_1.creerErreurTchat(err);
         console.log("* Réception");
         console.log("- de l'erreur rédhibitoire brute : " + erreur.brut());
-        console.log("- de l'erreur rédhibitoire nette : " + erreur.representer());
+        console.log("- de l'erreur rédhibitoire nette : " + erreur.representation());
         console.log("* Initialisation du document");
-        vueClient_1.initialiserDocument(erreur.representer());
+        vueClient_1.initialiserDocument(erreur.representation());
     });
 }
 function voir() {
     console.log("* Consolidation de la vue");
     console.log("- adresse, centre, voisins");
     vueClient_1.poster("adresseServeur", adresseServeur);
-    vueClient_1.poster("centre", tchat_1.creerSommetTchat(noeud.ex().centre).representer());
-    vueClient_1.poster("voisins", types_1.creerTableImmutable(noeud.ex().voisins).representer());
+    vueClient_1.poster("centre", tchat_1.creerSommetTchat(noeud.ex().centre).representation());
+    vueClient_1.poster("voisins", types_1.creerTableImmutable(noeud.ex().voisins).representation());
     console.log("- formulaire");
     var contenuFormulaire = "";
-    noeud.foncteurProceduralSurVoisins(function (v) {
+    noeud.pourChaqueVoisin(function (id, v) {
         var ID_v = v.ID;
-        vueClient_1.poster("formulaire", vueClient_1.elementSaisieEnvoi("message_" + ID_v.val, "boutonEnvoi_" + ID_v.val, "Envoyer un message à " + tchat_1.creerSommetTchat(v).representer() + "."));
+        vueClient_1.poster("formulaire", vueClient_1.elementSaisieEnvoi("message_" + ID_v.val, "boutonEnvoi_" + ID_v.val, "Envoyer un message à " + tchat_1.creerSommetTchat(v).representation() + "."));
     });
     var type = "click";
-    noeud.foncteurProceduralSurVoisins(function (v) {
+    noeud.pourChaqueVoisin(function (id, v) {
         var ID_v = v.ID;
         console.log("- Element " + ID_v.val + " : enregistrement d'un gestionnaire pour l'événement " + type);
         vueClient_1.gererEvenementElement("boutonEnvoi_" + ID_v.val, type, function (e) {
@@ -771,10 +1204,11 @@ vueClient_1.gererEvenementDocument('DOMContentLoaded', initialisation);
 </script>
 
 */
-//# sourceMappingURL=clientTchat.js.map
+
 
 /***/ }),
-/* 6 */
+
+/***/ 88:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -789,10 +1223,10 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-exports.__esModule = true;
-var communication_1 = __webpack_require__(4);
-var types_1 = __webpack_require__(0);
-var outils_1 = __webpack_require__(1);
+Object.defineProperty(exports, "__esModule", { value: true });
+var communication_1 = __webpack_require__(36);
+var types_1 = __webpack_require__(14);
+var outils_1 = __webpack_require__(21);
 exports.hote = "merite"; // hôte local via TCP/IP - DNS : cf. /etc/hosts - IP : 127.0.0.1
 exports.port1 = 3000; // port de la essource 1 (serveur d'applications)
 exports.port2 = 1110; // port de la ressouce 2 (serveur de connexions)
@@ -810,7 +1244,7 @@ var SommetTchat = (function (_super) {
         }
         return outils_1.jamais(e);
     };
-    SommetTchat.prototype.representer = function () {
+    SommetTchat.prototype.representation = function () {
         return this.net('nom') + " (" + this.net('ID') + ")";
     };
     return SommetTchat;
@@ -828,13 +1262,13 @@ var NoeudTchatIN = (function (_super) {
     NoeudTchatIN.prototype.net = function (e) {
         var s = this.ex();
         switch (e) {
-            case 'centre': return creerSommetTchat(s.centre).representer();
+            case 'centre': return creerSommetTchat(s.centre).representation();
             case 'voisins':
-                return types_1.creerTableImmutable(s.voisins).representer();
+                return types_1.creerTableImmutable(s.voisins).representation();
         }
         return outils_1.jamais(e);
     };
-    NoeudTchatIN.prototype.representer = function () {
+    NoeudTchatIN.prototype.representation = function () {
         return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
     };
     return NoeudTchatIN;
@@ -852,13 +1286,13 @@ var NoeudTchatEX = (function (_super) {
     NoeudTchatEX.prototype.net = function (e) {
         var s = this.ex();
         switch (e) {
-            case 'centre': return creerSommetTchat(s.centre).representer();
+            case 'centre': return creerSommetTchat(s.centre).representation();
             case 'voisins':
-                return types_1.creerTableImmutable(s.voisins).representer();
+                return types_1.creerTableImmutable(s.voisins).representation();
         }
         return outils_1.jamais(e);
     };
-    NoeudTchatEX.prototype.representer = function () {
+    NoeudTchatEX.prototype.representation = function () {
         return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
     };
     return NoeudTchatEX;
@@ -868,14 +1302,6 @@ function creerNoeudTchatEX(n) {
     return new NoeudTchatEX(n);
 }
 exports.creerNoeudTchatEX = creerNoeudTchatEX;
-var ReseauTchat = (function (_super) {
-    __extends(ReseauTchat, _super);
-    function ReseauTchat() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    return ReseauTchat;
-}(communication_1.Reseau));
-exports.ReseauTchat = ReseauTchat;
 var TypeMessageTchat;
 (function (TypeMessageTchat) {
     TypeMessageTchat[TypeMessageTchat["COM"] = 0] = "COM";
@@ -897,14 +1323,14 @@ var MessageTchat = (function (_super) {
         var msg = this.ex();
         switch (e) {
             case 'type': return TypeMessageTchat[msg.type];
-            case 'date': return outils_1.dateFr(msg.date);
+            case 'date': return types_1.creerDate(msg.date).representation();
             case 'ID_de': return msg.ID_emetteur.val;
             case 'ID_à': return msg.ID_destinataire.val;
             case 'contenu': return msg.contenu;
         }
         return outils_1.jamais(e);
     };
-    MessageTchat.prototype.representer = function () {
+    MessageTchat.prototype.representation = function () {
         var dem = this.net('ID_de');
         var am = this.net('ID_à');
         var typem = this.net('type');
@@ -941,7 +1367,7 @@ function creerMessageErreurConnexion(idEmetteur, messageErreur) {
         "ID_destinataire": idEmetteur,
         "type": TypeMessageTchat.ERREUR_CONNEXION,
         "contenu": messageErreur,
-        "date": new Date()
+        "date": types_1.creerDateMaintenant().ex()
     });
 }
 exports.creerMessageErreurConnexion = creerMessageErreurConnexion;
@@ -951,7 +1377,7 @@ function creerMessageCommunication(idEmetteur, idDestinataire, texte) {
         "ID_destinataire": idDestinataire,
         "type": TypeMessageTchat.COM,
         "contenu": texte,
-        "date": new Date()
+        "date": types_1.creerDateMaintenant().ex()
     });
 }
 exports.creerMessageCommunication = creerMessageCommunication;
@@ -973,13 +1399,13 @@ var ConfigurationTchat = (function (_super) {
     ConfigurationTchat.prototype.net = function (e) {
         var config = this.ex();
         switch (e) {
-            case 'centre': return creerSommetTchat(config.centre).representer();
-            case 'voisins': return types_1.creerTableImmutable(config.voisins).representer();
-            case 'date': return outils_1.dateFr(config.date);
+            case 'centre': return creerSommetTchat(config.centre).representation();
+            case 'voisins': return types_1.creerTableImmutable(config.voisins).representation();
+            case 'date': return types_1.creerDate(config.date).representation();
         }
         return outils_1.jamais(e);
     };
-    ConfigurationTchat.prototype.representer = function () {
+    ConfigurationTchat.prototype.representation = function () {
         var cc = this.net('centre');
         var vc = this.net('voisins');
         var dc = this.net('date');
@@ -994,7 +1420,7 @@ function creerConfigurationTchat(c) {
 exports.creerConfigurationTchat = creerConfigurationTchat;
 function composerConfigurationTchat(n, date) {
     return new ConfigurationTchat({
-        "configurationInitiale": types_1.Unite.un,
+        "configurationInitiale": types_1.Unite.ZERO,
         "centre": n.centre,
         "voisins": n.voisins,
         "date": date
@@ -1016,11 +1442,11 @@ var ErreurTchat = (function (_super) {
         var erreur = this.ex();
         switch (e) {
             case 'messageErreur': return erreur.messageErreur;
-            case 'date': return outils_1.dateFr(erreur.date);
+            case 'date': return types_1.creerDate(erreur.date).representation();
         }
         return outils_1.jamais(e);
     };
-    ErreurTchat.prototype.representer = function () {
+    ErreurTchat.prototype.representation = function () {
         return "[" + this.net('date') + " : " + this.net('messageErreur') + "]";
     };
     return ErreurTchat;
@@ -1032,7 +1458,7 @@ function creerErreurTchat(err) {
 exports.creerErreurTchat = creerErreurTchat;
 function composerErreurTchat(msg, date) {
     return new ErreurTchat({
-        "erreurRedhibitoire": types_1.Unite.un,
+        "erreurRedhibitoire": types_1.Unite.ZERO,
         "messageErreur": msg,
         "date": date
     });
@@ -1048,7 +1474,9 @@ function creerAnneauTchat(noms) {
     return assembleur.assembler();
 }
 exports.creerAnneauTchat = creerAnneauTchat;
-//# sourceMappingURL=tchat.js.map
+
 
 /***/ })
-/******/ ]);
+
+/******/ });
+//# sourceMappingURL=tchat.client.js.map

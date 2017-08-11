@@ -1,7 +1,9 @@
 import * as express from 'express';
 import * as sysFichier from 'fs';
 
-import { dateFrLog } from "./outils";
+import {
+    creerDateMaintenant
+} from "./types"
 
 /*
 Serveur utilisant Express
@@ -51,7 +53,7 @@ export class ServeurApplications {
     demarrer(): void {
         let ceServeur = this;
         this.appli.listen(this.port, this.hote, () => {
-            console.log("* " + dateFrLog(new Date()) + " - Le serveur écoute le port " + this.port + " de l'hôte " + this.hote + ".");
+            console.log("* " + creerDateMaintenant().representationLog() + " - Le serveur écoute le port " + this.port + " de l'hôte " + this.hote + ".");
         });
     }
     /*

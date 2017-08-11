@@ -1,9 +1,9 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var chai = require("chai");
 var tchat_1 = require("../../../tchat/commun/tchat");
 var anneau = tchat_1.creerAnneauTchat(["titi", "toto", "coco", "sissi"]);
-var IDs_noeuds = anneau.domaine();
+var IDs_noeuds = anneau.identifiantsNoeuds();
 for (var j in IDs_noeuds) {
     describe('fonction creerAnneauChat', function () {
         describe('méthode TableIdentification.possedeNoeud ', function () {
@@ -27,8 +27,8 @@ var _loop_1 = function (j) {
     describe('fonction creerAnneauChat', function () {
         describe('méthode TableIdentification.valeur', function () {
             console.log(j);
-            console.log(JSON.stringify(anneau.valeur(IDs_noeuds[j])));
-            var ID_res = anneau.valeur(IDs_noeuds[j]).centre.ID;
+            console.log(JSON.stringify(anneau.noeud(IDs_noeuds[j])));
+            var ID_res = anneau.noeud(IDs_noeuds[j]).centre.ID;
             it('renvoie ' + ID_res.val, function () {
                 chai.expect(ID_res.val).to.equal(IDs_noeuds[j].val);
             });

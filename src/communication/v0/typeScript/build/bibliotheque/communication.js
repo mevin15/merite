@@ -9,7 +9,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var types_1 = require("./types");
 ;
 var Message = (function (_super) {
@@ -56,37 +56,47 @@ var Sommet = (function (_super) {
     return Sommet;
 }(types_1.Enveloppe));
 exports.Sommet = Sommet;
-// - réseau ::= noeud*
-// Hypothèse : le réseau ne modifie ni les sommets ni les neouds. 
-//   Conséquence : un seul format est utilisé, pour les sommets et pour les noeuds respectivement.
-var Reseau = (function (_super) {
-    __extends(Reseau, _super);
-    function Reseau() {
+var ReseauTableDeNoeuds = (function (_super) {
+    __extends(ReseauTableDeNoeuds, _super);
+    function ReseauTableDeNoeuds() {
         return _super.call(this, 'sommet', function (x) { return x; }) || this;
     }
-    Reseau.prototype.representer = function () {
+    ReseauTableDeNoeuds.prototype.representation = function () {
         return "réseau de " + this.net('taille') + " noeuds : "
             + this.net('graphe');
     };
     // (simple renommmage)
-    Reseau.prototype.possedeNoeud = function (ID_sommet) {
+    ReseauTableDeNoeuds.prototype.possedeNoeud = function (ID_sommet) {
         return this.contient(ID_sommet);
     };
     // Précondition : id1 et id2 sont deux noeuds du réseau.
-    Reseau.prototype.sontVoisins = function (ID_sommet1, ID_sommet2) {
-        return types_1.MODULE_TABLE.contient(this.valeurIN(ID_sommet1).voisins, ID_sommet2.val);
+    ReseauTableDeNoeuds.prototype.sontVoisins = function (ID_sommet1, ID_sommet2) {
+        return types_1.creerTableIdentificationImmutable('sommet', this.valeurIN(ID_sommet1).voisins).
+            contient(ID_sommet2);
     };
-    Reseau.prototype.ajouterNoeud = function (n) {
+    ReseauTableDeNoeuds.prototype.pourChaqueNoeud = function (f) {
+        this.pourChaqueIn(f);
+    };
+    ReseauTableDeNoeuds.prototype.noeud = function (ID_sommet) {
+        return this.valeur(ID_sommet);
+    };
+    ReseauTableDeNoeuds.prototype.identifiantsNoeuds = function () {
+        return this.domaine();
+    };
+    ReseauTableDeNoeuds.prototype.selectionNoeud = function () {
+        return this.selectionCle();
+    };
+    ReseauTableDeNoeuds.prototype.ajouterNoeud = function (n) {
         this.ajouter(n.centre.ID, n);
     };
-    Reseau.prototype.retirerNoeud = function (n) {
+    ReseauTableDeNoeuds.prototype.retirerNoeud = function (n) {
         this.retirer(n.centre.ID);
     };
-    return Reseau;
+    return ReseauTableDeNoeuds;
 }(types_1.TableIdentification));
-exports.Reseau = Reseau;
+exports.ReseauTableDeNoeuds = ReseauTableDeNoeuds;
 function creerReseauVide() {
-    return new Reseau();
+    return new ReseauTableDeNoeuds();
 }
 exports.creerReseauVide = creerReseauVide;
 function conversionFormatNoeud(n) {
@@ -98,10 +108,15 @@ var NoeudIN = (function (_super) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
     NoeudIN.prototype.aPourVoisin = function (ID_sommet) {
-        return types_1.MODULE_TABLE.contient(this.etat.voisins, ID_sommet.val);
+        return types_1.creerTableIdentificationImmutable('sommet', this.in().voisins).
+            contient(ID_sommet);
+    };
+    NoeudIN.prototype.pourChaqueVoisin = function (proc) {
+        types_1.creerTableIdentificationImmutable('sommet', this.in().voisins).pourChaque(proc);
     };
     NoeudIN.prototype.ajouterVoisin = function (v) {
-        return types_1.MODULE_TABLE.ajouter(this.etat.voisins, v.ID.val, v);
+        return types_1.creerTableIdentification('sommet', function (x) { return x; }, this.in().voisins)
+            .ajouter(v.ID, v);
     };
     return NoeudIN;
 }(types_1.Enveloppe));
@@ -112,26 +127,28 @@ var NoeudEX = (function (_super) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
     NoeudEX.prototype.aPourVoisin = function (ID_sommet) {
-        return types_1.MODULE_TABLE.contient(this.etat.voisins, ID_sommet.val);
+        return types_1.creerTableIdentificationImmutable('sommet', this.in().voisins).
+            contient(ID_sommet);
     };
-    NoeudEX.prototype.foncteurProceduralSurVoisins = function (proc) {
-        types_1.MODULE_TABLE.pourChaque(function (c, v) {
-            proc(v);
-        }, this.etat.voisins);
+    NoeudEX.prototype.pourChaqueVoisin = function (proc) {
+        types_1.creerTableIdentificationImmutable('sommet', this.in().voisins).pourChaque(proc);
     };
     return NoeudEX;
 }(types_1.Enveloppe));
 exports.NoeudEX = NoeudEX;
-var AssemblageReseauEnAnneau = (function () {
-    function AssemblageReseauEnAnneau(taille, fabriqueNoeud) {
-        this.fabriqueNoeud = fabriqueNoeud;
-        console.log("* Construction d'un réseau en anneau de " + taille + " éléments.");
-        this.sommets = [];
-        this.taille = taille;
+var AssemblageReseauEnAnneau = (function (_super) {
+    __extends(AssemblageReseauEnAnneau, _super);
+    function AssemblageReseauEnAnneau(nombreSommets, fabriqueNoeud) {
+        var _this = _super.call(this, function (x) { return x; }) || this;
+        _this.nombreSommets = nombreSommets;
+        _this.fabriqueNoeud = fabriqueNoeud;
+        console.log("* Construction d'un réseau en anneau de " + nombreSommets.toString() + " éléments.");
+        return _this;
     }
+    // Les sommetts doivent avoir des identifiants deux à deux distincts.
     AssemblageReseauEnAnneau.prototype.ajouterSommet = function (s) {
-        if (this.sommets.length < this.taille) {
-            this.sommets.push(s);
+        if (this.taille() < this.nombreSommets) {
+            this.ajouterEnFin(s);
         }
         else {
             console.log("- Impossible d'ajouter un sommet : le réseau en anneau est complet.");
@@ -139,24 +156,23 @@ var AssemblageReseauEnAnneau = (function () {
     };
     AssemblageReseauEnAnneau.prototype.assembler = function () {
         var _this = this;
-        var restant = this.taille - this.sommets.length;
+        var restant = this.nombreSommets - this.taille();
         if (restant > 0) {
             console.log("- Impossible d'assembler un réseau en anneau de la taille donnée : ajouter " + restant + " sommets.");
             throw new Error("[Exception : AssemblageReseau.assembler non défini.]");
         }
         // Définition du réseau
         var reseau = creerReseauVide();
-        this.sommets.forEach(function (s, i, tab) {
-            var n = _this.fabriqueNoeud({ centre: s, voisins: { table: {}, mutable: types_1.Unite.un } });
-            n.ajouterVoisin(tab[(i + 1) % _this.taille]);
-            n.ajouterVoisin(tab[(i + (_this.taille - 1)) % _this.taille]);
+        this.pourChaque(function (i, s) {
+            var n = _this.fabriqueNoeud({ centre: s, voisins: { table: {}, mutable: types_1.Unite.ZERO } });
+            n.ajouterVoisin(_this.valeurIn((i + 1) % _this.nombreSommets));
+            n.ajouterVoisin(_this.valeurIn((i + (_this.nombreSommets - 1)) % _this.nombreSommets));
             reseau.ajouterNoeud(n.ex());
         });
         return reseau;
     };
     return AssemblageReseauEnAnneau;
-}());
-exports.AssemblageReseauEnAnneau = AssemblageReseauEnAnneau;
+}(types_1.Tableau));
 function creerAssemblageReseauEnAnneau(taille, fabriqueNoeud) {
     return new AssemblageReseauEnAnneau(taille, fabriqueNoeud);
 }

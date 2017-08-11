@@ -14,7 +14,7 @@ import {
 
 const anneau: ReseauTchat= creerAnneauTchat(["titi", "toto", "coco", "sissi"]);
 
-let IDs_noeuds = anneau.domaine();
+let IDs_noeuds = anneau.identifiantsNoeuds();
 
 for (let j in IDs_noeuds) {
     describe('fonction creerAnneauChat', () => {
@@ -41,8 +41,8 @@ for (let j in IDs_noeuds) {
     describe('fonction creerAnneauChat', () => {
         describe('méthode TableIdentification.valeur', () => {
             console.log(j);
-            console.log(JSON.stringify(anneau.valeur(IDs_noeuds[j])));
-            let ID_res = anneau.valeur(IDs_noeuds[j]).centre.ID;
+            console.log(JSON.stringify(anneau.noeud(IDs_noeuds[j])));
+            let ID_res = anneau.noeud(IDs_noeuds[j]).centre.ID;
             it('renvoie ' + ID_res.val, () => {
                 chai.expect(ID_res.val).to.equal(IDs_noeuds[j].val);
             });

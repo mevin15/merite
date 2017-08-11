@@ -8,7 +8,7 @@ import * as http from 'http';
 import * as websocket from 'websocket';
 import * as url from 'url';
 
-import { dateFrLog } from "./outils";
+import { creerDateMaintenant } from "./types";
 import {
     FormatMessage, Message,
     FormatConfigurationInitiale, Configuration,
@@ -131,7 +131,7 @@ export class ServeurLiensWebSocket<
         let p = this.port;
         let h = this.hote;
         serveurHTTP.listen(p, h, function () {
-            console.log("* " + dateFrLog(new Date()) + " - Le serveur écoute le port " + p + " de l'hôte " + h + ".");
+            console.log("* " + creerDateMaintenant().representationLog() + " - Le serveur écoute le port " + p + " de l'hôte " + h + ".");
         });
         let serveurWS = new websocket.server({
             httpServer: serveurHTTP

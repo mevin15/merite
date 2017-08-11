@@ -9,7 +9,7 @@ import {
 import { CanalClient, creerCanalClient } from "../../bibliotheque/client";
 import {
     hote, port2,
-    NoeudTchatEX, creerNoeudTchatEX,
+    NoeudTchatImmutable, creerNoeudTchatEX,
     SommetTchat, creerSommetTchat,
     creerMessageCommunication,
     TypeMessageTchat, FormatMessageTchatEX, EtiquetteMessageTchat, MessageTchat,
@@ -19,7 +19,7 @@ import {
     ErreurTchat, creerErreurTchat,
     decomposerConfiguration
 } from '../commun/tchat';
-import { dateFr } from "../../bibliotheque/outils"
+
 
 
 console.log("* Chargement du script");
@@ -34,13 +34,13 @@ type CanalTchat
 
 // A initialiser
 var canal: CanalTchat;
-var noeud: NoeudTchatEX;
+var noeud: NoeudTchatImmutable;
 
 
 function envoyerMessage(texte: string, ID_destinataire: Identifiant<'sommet'>) {
     let msg: MessageTchat = creerMessageCommunication(noeud.ex().centre.ID, ID_destinataire, texte);
     console.log("- Envoi du message brut : " + msg.brut());
-    console.log("- Envoi du message net : " + msg.representer());
+    console.log("- Envoi du message net : " + msg.representation());
     canal.envoyerMessage(msg);
 }
 
@@ -57,8 +57,8 @@ function initialisation(): void {
         let msg = new MessageTchat(m);
         console.log("* Réception");
         console.log("- du message brut : " + msg.brut());
-        console.log("- du message net : " + msg.representer());
-        posterNL('logChats', msg.representer());
+        console.log("- du message net : " + msg.representation());
+        posterNL('logChats', msg.representation());
     });
 
     console.log("- du traitement de la configuration");
@@ -66,7 +66,7 @@ function initialisation(): void {
         let config = creerConfigurationTchat(c);
         console.log("* Réception");
         console.log("- de la configuration brute : " + config.brut());
-        console.log("- de la configuration nette : " + config.representer());
+        console.log("- de la configuration nette : " + config.representation());
         console.log("* Initialisation du noeud du réseau");
         noeud = creerNoeudTchatEX(decomposerConfiguration(config));
         voir();
@@ -78,9 +78,9 @@ function initialisation(): void {
         let erreur = creerErreurTchat(err);
         console.log("* Réception");
         console.log("- de l'erreur rédhibitoire brute : " + erreur.brut());
-        console.log("- de l'erreur rédhibitoire nette : " + erreur.representer());
+        console.log("- de l'erreur rédhibitoire nette : " + erreur.representation());
         console.log("* Initialisation du document");
-        initialiserDocument(erreur.representer());
+        initialiserDocument(erreur.representation());
     });
 
 }
@@ -89,19 +89,19 @@ function voir(): void {
     console.log("* Consolidation de la vue");
     console.log("- adresse, centre, voisins");
     poster("adresseServeur", adresseServeur);
-    poster("centre", creerSommetTchat(noeud.ex().centre).representer());
-    poster("voisins", creerTableImmutable(noeud.ex().voisins).representer());
+    poster("centre", creerSommetTchat(noeud.ex().centre).representation());
+    poster("voisins", creerTableImmutable(noeud.ex().voisins).representation());
 
     console.log("- formulaire");
     let contenuFormulaire = "";
-    noeud.foncteurProceduralSurVoisins(v => {
+    noeud.pourChaqueVoisin((id, v) => {
         let ID_v = v.ID;
         poster("formulaire", elementSaisieEnvoi("message_" + ID_v.val, "boutonEnvoi_" + ID_v.val,
-            "Envoyer un message à " + creerSommetTchat(v).representer() + "."));
+            "Envoyer un message à " + creerSommetTchat(v).representation() + "."));
     }
     );
     let type = "click";
-    noeud.foncteurProceduralSurVoisins(v => {
+    noeud.pourChaqueVoisin((id, v) => {
         let ID_v = v.ID;
         console.log("- Element " + ID_v.val + " : enregistrement d'un gestionnaire pour l'événement " + type);
         gererEvenementElement("boutonEnvoi_" + ID_v.val, type, e => {

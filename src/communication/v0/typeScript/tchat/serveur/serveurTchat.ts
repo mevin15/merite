@@ -23,7 +23,7 @@ import {
 import { ServeurLiensWebSocket, LienWebSocket } from "../../bibliotheque/serveurConnexions";
 import { ServeurApplications, Interaction } from "../../bibliotheque/serveurApplications";
 
-import { dateFrLog } from "../../bibliotheque/outils"
+import { creerDateMaintenant } from "../../bibliotheque/types"
 
 class ServeurTchat extends ServeurLiensWebSocket<
     FormatErreurTchatEX, FormatErreurTchatEX, EtiquetteErreurTchat,
@@ -54,8 +54,7 @@ serveurAppli.specifierRepertoireScriptsEmbarques("build");
     let ressource = "clientTchat1.html";
 
     serveurAppli.enregistrerReponseARequeteGET(racine, (i: Interaction) => {
-        let d = new Date();
-        console.log("* " + dateFrLog(d) + " - Service de " + ressource + " en " + racine);
+        console.log("* " + creerDateMaintenant().representationLog() + " - Service de " + ressource + " en " + racine);
         i.servirFichier(repertoireHtml, ressource);
     });
 }
@@ -67,37 +66,37 @@ const serveurCanaux = new ServeurTchat(port2, hote);
 serveurCanaux.enregistrerTraitementConnexion((l: LienTchat) => {
     let ID_sommet: Identifiant<'sommet'>;
     try{
-        ID_sommet = anneau.selectionCle();
+        ID_sommet = anneau.selectionNoeud();
     }catch(e){
-        let d = new Date();
-        console.log("* " + dateFrLog(d) + " - " + (<Error>e).message);
-        console.log("* " + dateFrLog(d) + " - Connexion impossible d'un client : le réseau est complet.");
+        let d = creerDateMaintenant();
+        console.log("* " + d.representationLog() + " - " + (<Error>e).message);
+        console.log("* " + d.representationLog() + " - Connexion impossible d'un client : le réseau est complet.");
         l.envoyerMessageErreur(composerErreurTchat(
             "Tchat - Réseau complet ! Il est impossible de se connecter : le réseau est complet.",
-            d));
+            d.ex()));
         return false;
     }
 
     if (connexions.contient(ID_sommet) || reseauConnecte.possedeNoeud(ID_sommet)) {
-        let d = new Date();
-        console.log("* " + dateFrLog(d) + " - Connexion impossible d'un client : le réseau est corrompu.");
+        let d = creerDateMaintenant()
+        console.log("* " + d.representationLog() + " - Connexion impossible d'un client : le réseau est corrompu.");
         l.envoyerMessageErreur(composerErreurTchat(
             "Tchat - Réseau corrompu ! Il est impossible de se connecter : le réseau est corrompu. Contacter l'administrateur.",
-            d));
+            d.ex()));
         return false;
     }
 
     // Cas où la sélection d'un noeud a réussi
-    let d = new Date();
-    console.log("* " + dateFrLog(d) + " - Connexion de " + ID_sommet.val + " par Web socket.");
+    let d = creerDateMaintenant()
+    console.log("* " + d.representationLog() + " - Connexion de " + ID_sommet.val + " par Web socket.");
 
     connexions.ajouter(ID_sommet, l);
 
-    let n = anneau.valeur(ID_sommet);
-    let config = composerConfigurationTchat(n, d);
+    let n = anneau.noeud(ID_sommet);
+    let config = composerConfigurationTchat(n, d.ex());
     console.log("- envoi au client d'adresse " + l.adresseClient());
     console.log("  - de la configuration brute " + config.brut());
-    console.log("  - de la configuration nette " + config.representer());
+    console.log("  - de la configuration nette " + config.representation());
     l.envoyerConfiguration(config);
     anneau.retirerNoeud(n);
     reseauConnecte.ajouterNoeud(n);
@@ -108,7 +107,7 @@ serveurCanaux.enregistrerTraitementMessages((l: LienTchat, m: FormatMessageTchat
     let msg: MessageTchat = new MessageTchat(m);
     console.log("* Traitement d'un message");
     console.log("- brut : " + msg.brut());
-    console.log("- net : " + msg.representer());
+    console.log("- net : " + msg.representation());
     switch (m.type) {
         case TypeMessageTchat.COM:
             let ID_emetteurUrl = l.configuration().ex().centre.ID;
@@ -149,12 +148,12 @@ serveurCanaux.enregistrerTraitementMessages((l: LienTchat, m: FormatMessageTchat
             let msgTransit = msg.transit();
             console.log("- Envoi en transit au client utilisant l'adresse " + lienDestinaire.adresseClient());
             console.log("  - du message brut : " + msgTransit.brut());
-            console.log("  - du message net : " + msgTransit.representer());
+            console.log("  - du message net : " + msgTransit.representation());
             lienDestinaire.envoyerAuClientDestinataire(msgTransit);
             let msgAR = msg.avecAccuseReception();
             console.log("- Envoi en accusé de réception au client utilisant l'adresse " + lienDestinaire.adresseClient());
             console.log("  - du message brut : " + msgAR.brut());
-            console.log("  - du message net : " + msgAR.representer());
+            console.log("  - du message net : " + msgAR.representation());
             lienEmetteur.envoyerAuClientDestinataire(msgAR);
             break;
         default:
@@ -172,12 +171,12 @@ serveurCanaux.enregistrerTraitementFermeture((l: LienTchat, r: number, desc: str
         connexions.ajouter(ID_centre, l);
         return;
     }
-    console.log(" * " + dateFrLog(new Date())
+    console.log(" * " + creerDateMaintenant().representationLog()
         + " - Déconnexion du client " + ID_centre.val
         + " utilisant l'adresse " + l.adresseClient() + ".");
     console.log("- identité : " + l.configuration().ex().centre.ID);
     console.log("- raison : " + r + " ; description : " + desc);
-    let n = reseauConnecte.valeur(ID_centre);
+    let n = reseauConnecte.noeud(ID_centre);
     reseauConnecte.retirerNoeud(n);
     connexions.retirer(ID_centre);
     anneau.ajouterNoeud(n);

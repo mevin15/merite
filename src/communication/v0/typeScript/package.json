@@ -6,23 +6,31 @@
   "scripts": {
     "tsc": "tsc",
     "webpack": "webpack",
-    "build": "npm run tsc && npm run webpack",
-    "test": "mocha -r ts-node/register test/general.ts"
+    "build": "npm run tsc && npm run verif && npm run webpack",
+    "test": "mocha -r ts-node/register test/general.ts",
+    "verif": "tslint --exclude bibiliotheque/js **/*.ts"
   },
   "devDependencies": {
     "@types/chai": "^4.0.1",
     "@types/express": "^4.0.36",
     "@types/mocha": "^2.2.41",
     "@types/shelljs": "^0.7.2",
+    "awesome-typescript-loader": "^3.2.2",
     "chai": "^4.1.0",
     "mocha": "^3.4.2",
+    "source-map-loader": "^0.2.1",
     "ts-node": "^3.2.1",
-    "typescript": "^2.4.1",
+    "tslint": "^5.5.0",
+    "typescript": "^2.4.2",
     "webpack": "^3.0.0"
   },
   "dependencies": {
+    "@types/react": "^16.0.1",
+    "@types/react-dom": "^15.5.2",
     "express": "^4.15.3",
     "intl": "^1.2.5",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
     "rxjs": "^5.4.2",
     "shelljs": "^0.7.8",
     "websocket": "^1.0.24"

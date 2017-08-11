@@ -1,5 +1,5 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var CanalClient = (function () {
     function CanalClient(adresse) {
         this.adresse = adresse;

@@ -2,18 +2,19 @@ import {
     FormatMessage, Message,
     FormatConfigurationInitiale, Configuration,
     FormatErreurRedhibitoire, ErreurRedhibitoire,
-    Sommet, Reseau, AssemblageReseauEnAnneau,
-    NoeudIN, NoeudEX, FormatNoeudEX, FormatNoeudIN, EtiquetteNoeud,
+    Sommet, ReseauMutable, AssemblageReseau,
+    NoeudIN, NoeudEX, NoeudImmutable, FormatNoeudEX, FormatNoeudIN, EtiquetteNoeud,
     creerAssemblageReseauEnAnneau
 } from "../../bibliotheque/communication";
 
 import {
     Unite, Mutable,
+    FormatDateFrEX, creerDate, creerDateMaintenant,
     creerTableImmutable, FormatTableEX,
     FormatIdentifiableIN, FormatIdentifiableEX,
     Identification, creerIdentificationParCompteur, Identifiant
 } from "../../bibliotheque/types";
-import { dateFr, jamais } from "../../bibliotheque/outils";
+import { jamais } from "../../bibliotheque/outils";
 
 export const hote: string = "merite"; // hôte local via TCP/IP - DNS : cf. /etc/hosts - IP : 127.0.0.1
 export const port1 = 3000; // port de la essource 1 (serveur d'applications)
@@ -41,7 +42,7 @@ export class SommetTchat
         }
         return jamais(e);
     }
-    representer(): string {
+    representation(): string {
         return this.net('nom') + " (" + this.net('ID') + ")";
     }
 }
@@ -57,13 +58,13 @@ export class NoeudTchatIN extends NoeudIN<FormatSommetTchatEX>{
     net(e: EtiquetteNoeud): string {
         let s = this.ex();
         switch (e) {
-            case 'centre': return creerSommetTchat(s.centre).representer();
+            case 'centre': return creerSommetTchat(s.centre).representation();
             case 'voisins':
-                return creerTableImmutable(s.voisins).representer();
+                return creerTableImmutable(s.voisins).representation();
         }
         return jamais(e);
     }
-    representer(): string {
+    representation(): string {
         return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
     }
 }
@@ -74,32 +75,33 @@ export function creerNoeudTchatIN(n: FormatNoeudTchatIN) {
 
 
 export type FormatNoeudTchatEX = FormatNoeudEX<FormatSommetTchatEX>;
+export type NoeudTchatImmutable = NoeudImmutable<FormatSommetTchatEX>;
 
 export class NoeudTchatEX extends NoeudEX<FormatSommetTchatEX>{
 
     net(e: EtiquetteNoeud): string {
         let s = this.ex();
         switch (e) {
-            case 'centre': return creerSommetTchat(s.centre).representer();
+            case 'centre': return creerSommetTchat(s.centre).representation();
             case 'voisins':
-                return creerTableImmutable(s.voisins).representer();
+                return creerTableImmutable(s.voisins).representation();
         }
         return jamais(e);
     }
-    representer(): string {
+    representation(): string {
         return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
     }
 }
 
-export function creerNoeudTchatEX(n: FormatNoeudTchatEX) {
+export function creerNoeudTchatEX(n: FormatNoeudTchatEX) : NoeudTchatImmutable{
     return new NoeudTchatEX(n);
 }
 
 
-export class ReseauTchat extends Reseau<FormatSommetTchatEX> { }
+export type ReseauTchat = ReseauMutable<FormatSommetTchatEX>;
 
-export type AssemblageReseauTchatEnAnneau
-    = AssemblageReseauEnAnneau<FormatSommetTchatEX>;
+export type AssemblageReseauTchat
+    = AssemblageReseau<FormatSommetTchatEX>;
 
 export enum TypeMessageTchat {
     COM,
@@ -123,7 +125,7 @@ export interface FormatMessageTchatEX extends FormatMessage {
     readonly "ID_destinataire": Identifiant<'sommet'>,
     readonly "type": TypeMessageTchat,
     readonly "contenu": string,
-    readonly "date": Date
+    readonly "date": FormatDateFrEX
 }
 
 export type EtiquetteMessageTchat = 'type' | 'date' | 'ID_de' | 'ID_à' | 'contenu';
@@ -139,7 +141,7 @@ export class MessageTchat extends Message<FormatMessageTchatEX, FormatMessageTch
         let msg = this.ex();
         switch (e) {
             case 'type': return TypeMessageTchat[msg.type];
-            case 'date': return dateFr(msg.date);
+            case 'date': return creerDate(msg.date).representation();
             case 'ID_de': return msg.ID_emetteur.val;
             case 'ID_à': return msg.ID_destinataire.val;
             case 'contenu': return msg.contenu;
@@ -147,7 +149,7 @@ export class MessageTchat extends Message<FormatMessageTchatEX, FormatMessageTch
         return jamais(e);
     }
 
-    representer(): string {
+    representation(): string {
         let dem = this.net('ID_de');
         let am = this.net('ID_à');
         let typem = this.net('type');
@@ -186,7 +188,7 @@ export function creerMessageErreurConnexion(idEmetteur: Identifiant<'sommet'>, m
         "ID_destinataire": idEmetteur,
         "type": TypeMessageTchat.ERREUR_CONNEXION,
         "contenu": messageErreur,
-        "date": new Date()
+        "date": creerDateMaintenant().ex()
     });
 }
 
@@ -196,7 +198,7 @@ export function creerMessageCommunication(idEmetteur: Identifiant<'sommet'>, idD
         "ID_destinataire": idDestinataire,
         "type": TypeMessageTchat.COM,
         "contenu": texte,
-        "date": new Date()
+        "date": creerDateMaintenant().ex()
     });
 }
 
@@ -231,7 +233,7 @@ export interface FormatConfigurationTchatIN
 export interface FormatConfigurationTchatEX extends FormatConfigurationInitiale {
     readonly "centre": FormatSommetTchatEX,
     readonly "voisins": FormatTableEX<FormatSommetTchatEX>,
-    readonly "date": Date
+    readonly "date": FormatDateFrEX
 }
 
 
@@ -250,13 +252,13 @@ export class ConfigurationTchat
     net(e: EtiquetteConfigurationTchat): string {
         let config = this.ex();
         switch (e) {
-            case 'centre': return creerSommetTchat(config.centre).representer();
-            case 'voisins': return creerTableImmutable(config.voisins).representer();
-            case 'date': return dateFr(config.date);
+            case 'centre': return creerSommetTchat(config.centre).representation();
+            case 'voisins': return creerTableImmutable(config.voisins).representation();
+            case 'date': return creerDate(config.date).representation();
         }
         return jamais(e);
     }
-    representer(): string {
+    representation(): string {
         let cc = this.net('centre');
         let vc = this.net('voisins');
         let dc = this.net('date');
@@ -269,10 +271,10 @@ export function creerConfigurationTchat(c: FormatConfigurationTchatEX) {
 }
 
 export function composerConfigurationTchat(
-    n: FormatNoeudTchatEX, date: Date)
+    n: FormatNoeudTchatEX, date: FormatDateFrEX)
     : ConfigurationTchat {
     return new ConfigurationTchat({
-        "configurationInitiale": Unite.un,
+        "configurationInitiale": Unite.ZERO,
         "centre": n.centre,
         "voisins": n.voisins,
         "date": date
@@ -289,7 +291,7 @@ export function decomposerConfiguration(c: ConfigurationTchat)
 
 export interface FormatErreurTchatEX extends FormatErreurRedhibitoire {
     readonly "messageErreur": string,
-    readonly "date": Date
+    readonly "date": FormatDateFrEX
 }
 
 export type EtiquetteErreurTchat = 'messageErreur' | 'date';
@@ -305,11 +307,11 @@ export class ErreurTchat
         let erreur = this.ex();
         switch (e) {
             case 'messageErreur': return erreur.messageErreur;
-            case 'date': return dateFr(erreur.date);
+            case 'date': return creerDate(erreur.date).representation();
         }
         return jamais(e);
     }
-    representer(): string {
+    representation(): string {
         return "[" + this.net('date') + " : " + this.net('messageErreur') + "]";
     }
 }
@@ -318,16 +320,16 @@ export function creerErreurTchat(err: FormatErreurTchatEX): ErreurTchat {
     return new ErreurTchat(err);
 }
 
-export function composerErreurTchat(msg: string, date: Date): ErreurTchat {
+export function composerErreurTchat(msg: string, date: FormatDateFrEX): ErreurTchat {
     return new ErreurTchat({
-        "erreurRedhibitoire": Unite.un,
+        "erreurRedhibitoire": Unite.ZERO,
         "messageErreur": msg,
         "date": date
     });
 }
 
 export function creerAnneauTchat(noms: string[]): ReseauTchat {
-    let assembleur: AssemblageReseauTchatEnAnneau
+    let assembleur: AssemblageReseauTchat
         = creerAssemblageReseauEnAnneau(noms.length, creerNoeudTchatIN);
     let identification: Identification<'sommet'>
         = creerIdentificationParCompteur("S-");

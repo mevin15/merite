@@ -9,7 +9,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var communication_1 = require("../../bibliotheque/communication");
 var types_1 = require("../../bibliotheque/types");
 var outils_1 = require("../../bibliotheque/outils");
@@ -30,7 +30,7 @@ var SommetTchat = (function (_super) {
         }
         return outils_1.jamais(e);
     };
-    SommetTchat.prototype.representer = function () {
+    SommetTchat.prototype.representation = function () {
         return this.net('nom') + " (" + this.net('ID') + ")";
     };
     return SommetTchat;
@@ -48,13 +48,13 @@ var NoeudTchatIN = (function (_super) {
     NoeudTchatIN.prototype.net = function (e) {
         var s = this.ex();
         switch (e) {
-            case 'centre': return creerSommetTchat(s.centre).representer();
+            case 'centre': return creerSommetTchat(s.centre).representation();
             case 'voisins':
-                return types_1.creerTableImmutable(s.voisins).representer();
+                return types_1.creerTableImmutable(s.voisins).representation();
         }
         return outils_1.jamais(e);
     };
-    NoeudTchatIN.prototype.representer = function () {
+    NoeudTchatIN.prototype.representation = function () {
         return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
     };
     return NoeudTchatIN;
@@ -72,13 +72,13 @@ var NoeudTchatEX = (function (_super) {
     NoeudTchatEX.prototype.net = function (e) {
         var s = this.ex();
         switch (e) {
-            case 'centre': return creerSommetTchat(s.centre).representer();
+            case 'centre': return creerSommetTchat(s.centre).representation();
             case 'voisins':
-                return types_1.creerTableImmutable(s.voisins).representer();
+                return types_1.creerTableImmutable(s.voisins).representation();
         }
         return outils_1.jamais(e);
     };
-    NoeudTchatEX.prototype.representer = function () {
+    NoeudTchatEX.prototype.representation = function () {
         return "(centre : " + this.net('centre') + " ; voisins : " + this.net('voisins') + ")";
     };
     return NoeudTchatEX;
@@ -88,14 +88,6 @@ function creerNoeudTchatEX(n) {
     return new NoeudTchatEX(n);
 }
 exports.creerNoeudTchatEX = creerNoeudTchatEX;
-var ReseauTchat = (function (_super) {
-    __extends(ReseauTchat, _super);
-    function ReseauTchat() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
-    return ReseauTchat;
-}(communication_1.Reseau));
-exports.ReseauTchat = ReseauTchat;
 var TypeMessageTchat;
 (function (TypeMessageTchat) {
     TypeMessageTchat[TypeMessageTchat["COM"] = 0] = "COM";
@@ -117,14 +109,14 @@ var MessageTchat = (function (_super) {
         var msg = this.ex();
         switch (e) {
             case 'type': return TypeMessageTchat[msg.type];
-            case 'date': return outils_1.dateFr(msg.date);
+            case 'date': return types_1.creerDate(msg.date).representation();
             case 'ID_de': return msg.ID_emetteur.val;
             case 'ID_à': return msg.ID_destinataire.val;
             case 'contenu': return msg.contenu;
         }
         return outils_1.jamais(e);
     };
-    MessageTchat.prototype.representer = function () {
+    MessageTchat.prototype.representation = function () {
         var dem = this.net('ID_de');
         var am = this.net('ID_à');
         var typem = this.net('type');
@@ -161,7 +153,7 @@ function creerMessageErreurConnexion(idEmetteur, messageErreur) {
         "ID_destinataire": idEmetteur,
         "type": TypeMessageTchat.ERREUR_CONNEXION,
         "contenu": messageErreur,
-        "date": new Date()
+        "date": types_1.creerDateMaintenant().ex()
     });
 }
 exports.creerMessageErreurConnexion = creerMessageErreurConnexion;
@@ -171,7 +163,7 @@ function creerMessageCommunication(idEmetteur, idDestinataire, texte) {
         "ID_destinataire": idDestinataire,
         "type": TypeMessageTchat.COM,
         "contenu": texte,
-        "date": new Date()
+        "date": types_1.creerDateMaintenant().ex()
     });
 }
 exports.creerMessageCommunication = creerMessageCommunication;
@@ -193,13 +185,13 @@ var ConfigurationTchat = (function (_super) {
     ConfigurationTchat.prototype.net = function (e) {
         var config = this.ex();
         switch (e) {
-            case 'centre': return creerSommetTchat(config.centre).representer();
-            case 'voisins': return types_1.creerTableImmutable(config.voisins).representer();
-            case 'date': return outils_1.dateFr(config.date);
+            case 'centre': return creerSommetTchat(config.centre).representation();
+            case 'voisins': return types_1.creerTableImmutable(config.voisins).representation();
+            case 'date': return types_1.creerDate(config.date).representation();
         }
         return outils_1.jamais(e);
     };
-    ConfigurationTchat.prototype.representer = function () {
+    ConfigurationTchat.prototype.representation = function () {
         var cc = this.net('centre');
         var vc = this.net('voisins');
         var dc = this.net('date');
@@ -214,7 +206,7 @@ function creerConfigurationTchat(c) {
 exports.creerConfigurationTchat = creerConfigurationTchat;
 function composerConfigurationTchat(n, date) {
     return new ConfigurationTchat({
-        "configurationInitiale": types_1.Unite.un,
+        "configurationInitiale": types_1.Unite.ZERO,
         "centre": n.centre,
         "voisins": n.voisins,
         "date": date
@@ -236,11 +228,11 @@ var ErreurTchat = (function (_super) {
         var erreur = this.ex();
         switch (e) {
             case 'messageErreur': return erreur.messageErreur;
-            case 'date': return outils_1.dateFr(erreur.date);
+            case 'date': return types_1.creerDate(erreur.date).representation();
         }
         return outils_1.jamais(e);
     };
-    ErreurTchat.prototype.representer = function () {
+    ErreurTchat.prototype.representation = function () {
         return "[" + this.net('date') + " : " + this.net('messageErreur') + "]";
     };
     return ErreurTchat;
@@ -252,7 +244,7 @@ function creerErreurTchat(err) {
 exports.creerErreurTchat = creerErreurTchat;
 function composerErreurTchat(msg, date) {
     return new ErreurTchat({
-        "erreurRedhibitoire": types_1.Unite.un,
+        "erreurRedhibitoire": types_1.Unite.ZERO,
         "messageErreur": msg,
         "date": date
     });

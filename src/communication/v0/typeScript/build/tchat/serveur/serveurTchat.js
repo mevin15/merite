@@ -9,14 +9,14 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var shell = require("shelljs");
 var types_1 = require("../../bibliotheque/types");
 var communication_1 = require("../../bibliotheque/communication");
 var tchat_1 = require("../commun/tchat");
 var serveurConnexions_1 = require("../../bibliotheque/serveurConnexions");
 var serveurApplications_1 = require("../../bibliotheque/serveurApplications");
-var outils_1 = require("../../bibliotheque/outils");
+var types_2 = require("../../bibliotheque/types");
 var ServeurTchat = (function (_super) {
     __extends(ServeurTchat, _super);
     function ServeurTchat() {
@@ -41,8 +41,7 @@ serveurAppli.specifierRepertoireScriptsEmbarques("build");
     var racine_1 = "/";
     var ressource_1 = "clientTchat1.html";
     serveurAppli.enregistrerReponseARequeteGET(racine_1, function (i) {
-        var d = new Date();
-        console.log("* " + outils_1.dateFrLog(d) + " - Service de " + ressource_1 + " en " + racine_1);
+        console.log("* " + types_2.creerDateMaintenant().representationLog() + " - Service de " + ressource_1 + " en " + racine_1);
         i.servirFichier(repertoireHtml, ressource_1);
     });
 }
@@ -51,30 +50,30 @@ var serveurCanaux = new ServeurTchat(tchat_1.port2, tchat_1.hote);
 serveurCanaux.enregistrerTraitementConnexion(function (l) {
     var ID_sommet;
     try {
-        ID_sommet = anneau.selectionCle();
+        ID_sommet = anneau.selectionNoeud();
     }
     catch (e) {
-        var d_1 = new Date();
-        console.log("* " + outils_1.dateFrLog(d_1) + " - " + e.message);
-        console.log("* " + outils_1.dateFrLog(d_1) + " - Connexion impossible d'un client : le réseau est complet.");
-        l.envoyerMessageErreur(tchat_1.composerErreurTchat("Tchat - Réseau complet ! Il est impossible de se connecter : le réseau est complet.", d_1));
+        var d_1 = types_2.creerDateMaintenant();
+        console.log("* " + d_1.representationLog() + " - " + e.message);
+        console.log("* " + d_1.representationLog() + " - Connexion impossible d'un client : le réseau est complet.");
+        l.envoyerMessageErreur(tchat_1.composerErreurTchat("Tchat - Réseau complet ! Il est impossible de se connecter : le réseau est complet.", d_1.ex()));
         return false;
     }
     if (connexions.contient(ID_sommet) || reseauConnecte.possedeNoeud(ID_sommet)) {
-        var d_2 = new Date();
-        console.log("* " + outils_1.dateFrLog(d_2) + " - Connexion impossible d'un client : le réseau est corrompu.");
-        l.envoyerMessageErreur(tchat_1.composerErreurTchat("Tchat - Réseau corrompu ! Il est impossible de se connecter : le réseau est corrompu. Contacter l'administrateur.", d_2));
+        var d_2 = types_2.creerDateMaintenant();
+        console.log("* " + d_2.representationLog() + " - Connexion impossible d'un client : le réseau est corrompu.");
+        l.envoyerMessageErreur(tchat_1.composerErreurTchat("Tchat - Réseau corrompu ! Il est impossible de se connecter : le réseau est corrompu. Contacter l'administrateur.", d_2.ex()));
         return false;
     }
     // Cas où la sélection d'un noeud a réussi
-    var d = new Date();
-    console.log("* " + outils_1.dateFrLog(d) + " - Connexion de " + ID_sommet.val + " par Web socket.");
+    var d = types_2.creerDateMaintenant();
+    console.log("* " + d.representationLog() + " - Connexion de " + ID_sommet.val + " par Web socket.");
     connexions.ajouter(ID_sommet, l);
-    var n = anneau.valeur(ID_sommet);
-    var config = tchat_1.composerConfigurationTchat(n, d);
+    var n = anneau.noeud(ID_sommet);
+    var config = tchat_1.composerConfigurationTchat(n, d.ex());
     console.log("- envoi au client d'adresse " + l.adresseClient());
     console.log("  - de la configuration brute " + config.brut());
-    console.log("  - de la configuration nette " + config.representer());
+    console.log("  - de la configuration nette " + config.representation());
     l.envoyerConfiguration(config);
     anneau.retirerNoeud(n);
     reseauConnecte.ajouterNoeud(n);
@@ -84,7 +83,7 @@ serveurCanaux.enregistrerTraitementMessages(function (l, m) {
     var msg = new tchat_1.MessageTchat(m);
     console.log("* Traitement d'un message");
     console.log("- brut : " + msg.brut());
-    console.log("- net : " + msg.representer());
+    console.log("- net : " + msg.representation());
     switch (m.type) {
         case tchat_1.TypeMessageTchat.COM:
             var ID_emetteurUrl = l.configuration().ex().centre.ID;
@@ -125,12 +124,12 @@ serveurCanaux.enregistrerTraitementMessages(function (l, m) {
             var msgTransit = msg.transit();
             console.log("- Envoi en transit au client utilisant l'adresse " + lienDestinaire.adresseClient());
             console.log("  - du message brut : " + msgTransit.brut());
-            console.log("  - du message net : " + msgTransit.representer());
+            console.log("  - du message net : " + msgTransit.representation());
             lienDestinaire.envoyerAuClientDestinataire(msgTransit);
             var msgAR = msg.avecAccuseReception();
             console.log("- Envoi en accusé de réception au client utilisant l'adresse " + lienDestinaire.adresseClient());
             console.log("  - du message brut : " + msgAR.brut());
-            console.log("  - du message net : " + msgAR.representer());
+            console.log("  - du message net : " + msgAR.representation());
             lienEmetteur.envoyerAuClientDestinataire(msgAR);
             break;
         default:
@@ -147,12 +146,12 @@ serveurCanaux.enregistrerTraitementFermeture(function (l, r, desc) {
         connexions.ajouter(ID_centre, l);
         return;
     }
-    console.log(" * " + outils_1.dateFrLog(new Date())
+    console.log(" * " + types_2.creerDateMaintenant().representationLog()
         + " - Déconnexion du client " + ID_centre.val
         + " utilisant l'adresse " + l.adresseClient() + ".");
     console.log("- identité : " + l.configuration().ex().centre.ID);
     console.log("- raison : " + r + " ; description : " + desc);
-    var n = reseauConnecte.valeur(ID_centre);
+    var n = reseauConnecte.noeud(ID_centre);
     reseauConnecte.retirerNoeud(n);
     connexions.retirer(ID_centre);
     anneau.ajouterNoeud(n);

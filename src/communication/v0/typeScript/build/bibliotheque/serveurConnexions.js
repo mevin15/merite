@@ -3,11 +3,11 @@
 // - Configuration à la connexion
 // - Communication entre clients
 // - Déconnexion
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 // Un module commençant par un import
 var http = require("http");
 var websocket = require("websocket");
-var outils_1 = require("./outils");
+var types_1 = require("./types");
 var LienWebSocket = (function () {
     function LienWebSocket(requete) {
         this._connexion = requete.accept('echo-protocol', requete.origin);
@@ -87,7 +87,7 @@ var ServeurLiensWebSocket = (function () {
         var p = this.port;
         var h = this.hote;
         serveurHTTP.listen(p, h, function () {
-            console.log("* " + outils_1.dateFrLog(new Date()) + " - Le serveur écoute le port " + p + " de l'hôte " + h + ".");
+            console.log("* " + types_1.creerDateMaintenant().representationLog() + " - Le serveur écoute le port " + p + " de l'hôte " + h + ".");
         });
         var serveurWS = new websocket.server({
             httpServer: serveurHTTP

@@ -1,8 +1,8 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var express = require("express");
 var sysFichier = require("fs");
-var outils_1 = require("./outils");
+var types_1 = require("./types");
 /*
 Serveur utilisant Express
 http://expressjs.com/en/api.html
@@ -21,7 +21,7 @@ var Interaction = (function () {
     };
     Interaction.prototype.servirFichier = function (chemin, fichier) {
         var options = {
-            root: chemin
+            root: chemin,
         };
         this._reponse.sendFile(fichier, options);
     };
@@ -41,7 +41,7 @@ var ServeurApplications = (function () {
         var _this = this;
         var ceServeur = this;
         this.appli.listen(this.port, this.hote, function () {
-            console.log("* " + outils_1.dateFrLog(new Date()) + " - Le serveur écoute le port " + _this.port + " de l'hôte " + _this.hote + ".");
+            console.log("* " + types_1.creerDateMaintenant().representationLog() + " - Le serveur écoute le port " + _this.port + " de l'hôte " + _this.hote + ".");
         });
     };
     /*
