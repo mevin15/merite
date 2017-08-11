@@ -1,0 +1,167 @@
+<!doctype html>
+<title>Example</title>
+<meta charset="UTF-8" />
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        display: flex;
+        min-height: 100vh;
+        min-width: 100vw;
+        flex-direction: column;
+        margin: 0;
+    }
+
+    body>tete {
+        flex: none;
+        height: 7ex;
+        width: 100vw;
+        background: rgb(255, 255, 0);
+        margin: 0;
+    }
+
+    body>corps {
+        flex: none;
+        height: calc(100vh - 14ex);
+        width: 100vw;
+        background: rgb(255, 0, 0);
+        margin: 0;
+        display: flex;
+        flex-direction: row;
+    }
+
+    body>corps>gauche {
+        flex: none;
+        height: calc(100vh - 14ex);
+        width: 75vw;
+        margin: 0;
+        overflow: auto;
+        max-height: calc(100vh - 14ex);
+    }
+
+    body>corps>gauche>containerGauche {
+        min-height: calc(100vh - 14ex);
+        width: calc(75vw - 2em);
+        background: rgb(0, 255, 255);
+        margin: 1em;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: flex-start;
+    }
+
+    body>corps>droite {
+        flex: none;
+        height: calc(100vh - 14ex);
+        width: 25vw;
+        margin: 0;
+        overflow: auto;
+        max-height: calc(100vh - 14ex);
+    }
+
+    body>corps>droite>containerDroit {
+        min-height: calc(100vh - 14ex);
+        width: calc(25vw - 2em);
+        background: rgb(0, 255, 0);
+        margin: 1em;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+
+    entree {
+        flex: none;
+        background: rgb(255, 255, 255);
+        color: rgb(0, 0, 0);
+        text-align: center;
+        padding: 1ex;
+        height: 2cm;
+        width: 2cm;
+        margin: 1ex;
+    }
+
+    entreeDroite {
+        flex: none;
+        background: rgb(255, 255, 255);
+        color: rgb(0, 0, 0);
+        text-align: center;
+        padding: 1ex;
+        height: 2cm;
+        width: 2cm;
+        margin: 1ex;
+        align-self: flex-end;
+    }
+
+    body>pied {
+        flex: none;
+        height: 7ex;
+        width: 100vw;
+        background: rgb(0, 0, 255);
+        margin: 0;
+    }
+</style>
+
+<body>
+    <tete>La tête</tete>
+    <corps>
+        <gauche>
+            <containerGauche>
+                <entree>1
+                </entree>
+                <entreeDroite>2
+                </entreeDroite>
+                <entree>3
+                </entree>
+                <entreeDroite>4
+                </entreeDroite>
+                <entree>5
+                </entree>
+                <entreeDroite>6
+                </entreeDroite>
+                <entree>7
+                </entree>
+                <entreeDroite>8
+                </entreeDroite>
+                <entree>9
+                </entree>
+                </entree>
+                <entreeDroite>10
+                </entreeDroite>
+                <entree>11
+                </entree>
+                <entreeDroite>12
+                </entreeDroite>
+                <entreeDroite>13
+                </entreeDroite>
+                <entree>14
+                </entree>
+                <entreeDroite>15
+                </entreeDroite>
+                <entree>16
+                </entree>
+            </containerGauche>
+        </gauche>
+        <droite>
+            <containerDroit>
+                <entree>11
+                </entree>
+                <entree>12
+                </entree>
+                <entree>13
+                </entree>
+                <entree>14
+                </entree>
+                <entree>15
+                </entree>
+                <entree>16
+                </entree>
+            </containerDroit>
+        </droite>
+    </corps>
+    <pied>Les pieds
+        <pied>
+</body>

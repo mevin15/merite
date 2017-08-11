@@ -1,0 +1,419 @@
+<!doctype html>
+<title>Tchat avec Flexbox</title>
+<meta charset="UTF-8" />
+</head>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        display: -webkit-       ;
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        margin: 0;
+        background: #e5e5e5;
+        font-family: "Helvetica Neue", "Lucida Grande", "Lucida Sans Unicode", Helvetica, Arial, sans-serif !important;
+    }
+
+    a {
+        color: rgba(82, 179, 217, 0.9);
+    }
+
+    body>corps {
+        display: -webkit-flex;        
+        display: flex;
+        flex: 3;
+        /* header et footer ayant une hauteur fixée, toute valeur non nulle est correcte : 3/3. */
+        order: 2;
+        min-height:0;
+    }
+
+    body>corps>vue {
+        /* enveloppe de messages à cause d'un bug overflow/justify-content */
+        flex: 3 3 75vw;
+        /* Fixe la largeur */
+        order: 1;
+        overflow: auto;
+        max-height: calc(100vh - 14ex);
+        max-width: 75vw;
+        /* hauteur pour le dépassement */
+        min-width: 90ex;
+        margin: 0;
+    }
+
+    body>corps>vue>messages {
+        display: -webkit-flex;        
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: flex-start;
+        height:100%;
+        /* à préciser pour le placement */
+    }
+
+    body>corps>vue>messages>messageG {
+        background: rgb(256, 256, 256);
+        box-shadow: 10px 10px 5px rgb(170, 170, 170);
+        border-radius: 1ex;
+        flex: none;
+        padding: 1ex 1ex 1ex 1ex;
+        margin: 1em 0 1em 1em;
+        display: -webkit-flex;        
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        max-width: 50vw;
+        min-width:50ex;
+    }
+
+    body>corps>vue>messages>messageG>interlocuteur {
+        flex: none;
+        text-align: center;
+        color: #777;
+        margin: 0 1em 0 1em;
+        padding: 0 1ex 0 1ex;
+        border-radius: 1ex;
+        cursor: default;
+        min-width: 7em;
+    }
+
+
+    body>corps>vue>messages>messageG>contenu {
+        flex: 1;
+        text-align: justify;
+        color: #777;
+        margin: 0 1em 0 1em;
+        cursor: default;
+    }
+
+    body>corps>vue>messages>messageD {
+        background: rgb(256, 256, 256);
+        box-shadow: 10px 10px 5px #aaaaaa;
+        border-radius: 1ex;
+        flex: none;
+        align-self: flex-end;
+        padding: 1ex 1ex 1ex 1ex;
+        margin: 1em 0 1em 1em;
+        display: -webkit-flex;        
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        max-width: 50vw;
+    }
+
+    body>corps>vue>messages>messageD>interlocuteur {
+        flex: none;
+        text-align: center;
+        color: #777;
+        margin: 0 1em 0 1em;
+        padding: 0 1ex 0 1ex;
+        border-radius: 1ex;
+        cursor: default;
+        min-width: 7em;
+    }
+
+
+    body>corps>vue>messages>messageD>contenu {
+        flex: 1;
+        text-align: justify;
+        color: #777;
+        margin: 0 1em 0 1em;
+        cursor: default;
+    }
+
+    .cachet {
+        font-family: 'Helvetica';
+        font-size: 1ex;
+        font-weight: 300;
+        color: rgb(50, 50, 50);
+        text-align: right;
+    }
+
+    body>corps>config {
+        flex: 1 1 25vw;
+        /* fixe la largeur */
+        order: 2;
+        overflow: auto;
+        max-height: calc(100vh - 14ex);
+        margin: 0;
+        border: 5px solid rgb(170, 170, 170);
+    }
+
+    body>corps>config>entrees {
+        display: -webkit-flex;        
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        height: 100%;
+        /* à préciser pour le placement */
+    }
+
+    body>corps>config>entrees>entree {
+        background: rgb(82, 179, 217);
+        border-radius: 1ex;
+        flex: initial;
+        padding: 1ex 1ex 1ex 1ex;
+        margin: 1em 0 1em 1em;
+        display: -webkit-flex;        
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        max-width: 20vw;
+        width: 12em;
+    }
+
+    body>corps>config>entrees>entree>pastilleDestinataire {
+        flex: none;
+        margin: 0 1em 0 1em;
+        width: 4ex;
+        height: 4ex;
+        border-radius: 100%;
+        background-color: rgb(225, 225, 0);
+    }
+
+    body>corps>config>entrees>entree>pastilleDestinataire img {
+        background-color: rgb(255, 255, 255);
+        border-radius: 100%;
+        width: 4ex;
+        height: 4ex;
+    }
+
+
+    body>corps>config>entrees>entree>nomDestinataire {
+        flex: 1;
+        font-family: 'Helvetica';
+        font-size: 3ex;
+        font-weight: 300;
+        color: rgb(255, 255, 255);
+        cursor: default;
+        padding: 0 1em 0 1ex;
+        text-align: center;
+    }
+
+
+    header {
+        order: 1;
+    }
+
+    footer {
+        order: 3;
+    }
+
+    header,
+    footer {
+        background: rgb(82, 179, 217);
+        height: 7ex;
+        /* hauteur fixée - cf. hauteur de config et vue */
+        margin: 0;
+    }
+
+    header,
+    footer,
+    menu,
+    vue,
+    config {
+        padding: 1em;
+    }
+
+    header>menu {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 7ex;
+        /* Sinon : 0 ! */
+        padding: 0 0 0 1em;
+        border: 0;
+        margin: 0;
+        display: -webkit-flex;        
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    header>menu>retour {
+        flex: none;
+        width: 4ex;
+        height: 4ex;
+        margin-right: 1em;
+    }
+
+    header>menu>retour img {
+        background-color: rgb(255, 255, 255);
+        border-radius: 100%;
+    }
+
+    header>menu>pastilleIdentite {
+        flex: none;
+        margin-right: 0;
+        width: 4ex;
+        height: 4ex;
+        border-radius: 100%;
+        background-color: rgb(225, 0, 0);
+    }
+
+
+    header>menu>nom {
+        flex: none;
+        font-family: 'Helvetica';
+        font-size: 3ex;
+        font-weight: 300;
+        color: rgb(255, 255, 255);
+        cursor: default;
+        padding: 0 1em 0 1ex;
+    }
+
+    header>menu>nom>dateDernierMessage {
+        font-family: 'Helvetica';
+        font-size: 1ex;
+        font-weight: 300;
+        color: rgb(255, 255, 255);
+        cursor: default;
+    }
+</style>
+
+<body>
+    <header>
+        <menu>
+            <retour>
+                <img src="chevronGauche.svg"
+                    draggable="false" />
+            </retour>
+            <pastilleIdentite>
+            </pastilleIdentite>
+            <nom>momo
+                <dateDernierMessage>14:47</dateDernierMessage>
+            </nom>
+        </menu>
+    </header>
+    <corps>
+        <vue>
+            <messages>
+                <messageG>
+                    <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                        De : momo
+                    </interlocuteur>
+
+                    <contenu>
+                        coucou zaza. Cette ligne est très longue et mérite d'être étendue vers la droite. Cela se fait automatiquement.<br>                        A bientôt. <br> momo.
+                        <div class="cachet">12:43</div>
+                    </contenu>
+
+
+                    <interlocuteur style="background-color: rgb(225, 225, 0);color: rgb(0, 0, 0);">
+                        A : zaza
+                    </interlocuteur>
+                </messageG>
+                <messageD>
+                    <interlocuteur style="background-color: rgb(225, 225, 0);color: rgb(0, 0, 0);">
+                        De : zaza
+                    </interlocuteur>
+                    <contenu>
+                        Effectivement, cette ligne est très longue et mérite d'être étendue vers la droite.<br> A bientôt.
+                        <br> A+
+                        <div class="cachet">12:47</div>
+                    </contenu>
+                    <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                        A : momo
+                    </interlocuteur>
+                </messageD>
+                <messageG>
+                    <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                        De : momo
+                    </interlocuteur>
+
+                    <contenu>
+                        coucou sissi. Ligne courte sans extension.<br> A bientôt. <br> A+
+                        <div class="cachet">12:49</div>
+                    </contenu>
+
+
+                    <interlocuteur style="background-color: rgb(0, 225, 0); color: rgb(0, 0, 0);">
+                        A : sissi
+                    </interlocuteur>
+                </messageG>
+                <messageG>
+                    <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                        De : momo
+                    </interlocuteur>
+                    <contenu>
+                        coucou toto. On peut écrire un long texte avec extension et passage à la ligne automatique. Pour forcer la passage à la ligne,
+                        on utilise la balise br.<br> A bientôt.
+                        <div class="cachet">12:56</div>
+                    </contenu>
+                    <interlocuteur style="background-color: rgb(128, 0, 128);color: rgb(255, 255, 255);">
+                        A : toto
+                    </interlocuteur>
+                </messageG>
+                <messageD>
+                    <interlocuteur style="background-color: rgb(128, 0, 128);color: rgb(255, 255, 255);">
+                        De : toto
+                    </interlocuteur>
+                    <contenu>
+                        coucou momo. <br> Messages envoyés : à gauche. <br> Messages reçus : à droite. <br> Les couleurs
+                        permettent de distinguer les différents interlocuteurs.
+                        <div class="cachet">13:09</div>
+                    </contenu>
+                    <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                        A : momo
+                    </interlocuteur>
+
+                </messageD>
+                <messageG>
+                    <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                        De : momo
+                    </interlocuteur>
+
+                    <contenu>
+                        coucou titi. C'est une pastille rouge que j'utilise. <br> La tienne est une sorte de bleu canard.
+                        <br> Le temps augmente vers le bas : les messages les plus récents sont en bas, les plus anciens
+                        en haut. Lorsque la pile des messages émis et reçus grandit, elle s'étend vers le haut ; quand elle
+                        dépasse les limites de sa fenêtre, un ascenseur apparaît à droite, pour permettre le défilement.
+                        <div class="cachet">14:47</div>
+                    </contenu>
+
+
+                    <interlocuteur style="background-color: rgb(0, 128, 128); color: rgb(255, 255, 255);">
+                        A : titi
+                    </interlocuteur>
+
+                </messageG>
+            </messages>
+        </vue>
+        <config>
+            <entrees>
+                Choissisez un destinataire :
+                <entree>
+                    <pastilleDestinataire>
+                    </pastilleDestinataire>
+                    <nomDestinataire>zaza</nomDestinataire>
+                </entree>
+                <entree>
+                    <pastilleDestinataire style="background-color: rgb(128, 0, 128);">
+                    </pastilleDestinataire>
+                    <nomDestinataire>toto</nomDestinataire>
+                </entree>
+                <entree>
+                    <pastilleDestinataire style="background-color: rgb(0, 128, 128);">
+                    </pastilleDestinataire>
+                    <nomDestinataire>titi</nomDestinataire>
+                </entree>
+                <entree>
+                    <pastilleDestinataire style="background-color: rgb(0, 225, 0);">
+                    </pastilleDestinataire>
+                    <nomDestinataire>sissi</nomDestinataire>
+                </entree>
+                ou tous les destinataires :
+                <entree>
+                    <pastilleDestinataire style="background-color: rgb(0, 225, 0);">
+                        <img src="roueChromatique.jpg" draggable="false" />
+                    </pastilleDestinataire>
+                    <nomDestinataire>tous</nomDestinataire>
+                </entree>
+            </entrees>
+        </config>
+    </corps>
+    <footer>Footer</footer>
+</body>

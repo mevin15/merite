@@ -1,0 +1,130 @@
+<!doctype html>
+<title>Example</title>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+        margin: 0;
+    }
+
+    body>corps {
+        display: flex;
+        flex: 3; /* header et footer ayant une hauteur fixée, toute valeur non nulle est correcte : 3/3. */
+        order: 2;
+    }
+
+    body>corps>vue { /* enveloppe de messages à cause d'un bug overflow/justify-content */
+        flex: 0 0 75vw; /* Fixe la largeur */
+        order: 1;
+        overflow: auto;
+        max-height: calc(100vh - 14ex); /* hauteur pour le dépassement */
+        margin:0;
+    }
+
+    body>corps>vue>messages {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: flex-start;
+    }
+
+    body>corps>vue>messages>messageG {
+        background: rgb(256, 0, 0);
+        height: 3cm;
+        margin: 1ex;
+        padding: 1ex;
+        flex: none; /* taille fixée */
+    }
+
+    body>corps>vue>messages>messageD {
+        background: rgb(256, 0, 0);
+        height: 3cm;
+        margin: 1ex;
+        padding: 1ex;
+        align-self: flex-end;
+        flex: none;
+    }
+
+
+    body>corps>config {
+        flex: 0 0 25vw; /* fixe la largeur */
+        background: beige;
+        order: 2;
+        overflow: auto;
+        max-height: calc(100vh - 14ex);
+        margin:0;
+    }
+
+    body>corps>config>entrees {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    body>corps>config>entrees>entree {
+        background: rgb(256, 256, 0);
+        height: 2cm;
+        margin: 1ex;
+        padding: 1ex;
+        flex: none;
+    }
+
+
+    header {
+        order: 1;
+    }
+
+    footer {
+        order: 3;
+    }
+
+    header,
+    footer {
+        background: yellowgreen;
+        height: 7ex; /* hauteur fixée - cf. hauteur de config et vue */
+        margin:0;
+    }
+
+    header,
+    footer,
+    vue,
+    config {
+        padding: 1em;
+    }
+</style>
+
+<body>
+    <header>Header</header>
+    <corps>
+        <vue>
+            <messages>
+                <messageG>message 1</messageG>
+                <messageD>message 2</messageD>
+                <messageG>message 3</messageG>
+            </messages>
+        </vue>
+        <config>
+            <entrees>
+                <entree>entrée </entree>
+               <entree>entrée </entree>
+               <entree>entrée </entree>
+               <entree>entrée </entree>
+                <entree>entrée </entree>
+               <entree>entrée </entree>
+               <entree>entrée </entree>
+               <entree>entrée </entree>
+                <entree>entrée </entree>
+               <entree>entrée </entree>
+               <entree>entrée </entree>
+               <entree>entrée </entree>                                              
+            </entrees>
+        </config>
+    </corps>
+    <footer>Footer</footer>
+</body>
