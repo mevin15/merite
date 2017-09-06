@@ -432,6 +432,9 @@ var TableImmutable = (function (_super) {
     TableImmutable.prototype.selectionCleSuivantCritere = function (prop) {
         return MODULE_TABLE.selectionCleSuivantCritere(this.in(), prop);
     };
+    TableImmutable.prototype.application = function (f) {
+        return new TableImmutable(MODULE_TABLE.foncteur(this.in(), f));
+    };
     return TableImmutable;
 }(Enveloppe));
 exports.TableImmutable = TableImmutable;

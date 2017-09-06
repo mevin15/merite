@@ -1,0 +1,405 @@
+<!doctype html>
+<title>Tchat avec Flexbox - v1</title>
+<meta charset="UTF-8" />
+<style>
+    /* Boîtes flexibles en ligne : marge container + merge 1 + element 1 + marge 2 + élément 2 + etc. */
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        display: flex;
+        min-height: 100vh;
+        min-width: 100vw;
+        flex-direction: column;
+        margin: 0;
+        font-family: Verdana, Geneva, sans serif;
+    }
+
+    body>sujet {
+        flex: none;
+        height: 7ex;
+        width: 100vw;
+        background: rgb(82, 179, 217);
+        margin: 0;
+    }
+
+    body>sujet>containerSujet {
+        background: rgb(82, 179, 217);
+        height: 7ex;
+        margin: 0 0 0 1ex;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    retour {
+        flex: none;
+        width: 4ex;
+        height: 4ex;
+        margin-right: 1em;
+    }
+
+    retour img {
+        background-color: rgb(255, 255, 255);
+        border-radius: 100%;
+    }
+
+    pastille {
+        flex: none;
+        margin: 1ex;
+        width: 4ex;
+        height: 4ex;
+        border-radius: 100%;
+        background-color: rgb(225, 0, 0);
+    }
+
+    fixeLXHIV {
+        flex: none;
+        background: rgb(82, 179, 217);
+        color: rgb(255, 255, 255);
+        text-align: left;
+        font-size: x-large;
+        padding: 1ex;
+        height: 4ex;
+        width: 14ex;
+        margin: 0 1ex 0 0;
+    }
+
+    body>corps {
+        flex: none;
+        height: calc(100vh - 14ex);
+        width: 100vw;
+        background: rgb(255, 0, 0);
+        margin: 0;
+        display: flex;
+        flex-direction: row;
+    }
+
+    body>corps>vue {
+        flex: none;
+        height: calc(100vh - 14ex);
+        width: 75vw;
+        margin: 0;
+        overflow-y: auto;
+        max-height: calc(100vh - 14ex);
+    }
+
+    body>corps>vue>containerVue {
+        min-height: calc(100vh - 14ex - 2em);
+        width: calc(75vw - 2em);
+        min-width: 72ex;
+        background: rgb(0, 255, 255);
+        margin: 1em;
+        /* Contrainte : marge plus grande que la largeur des ascenseurs. */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: flex-start;
+    }
+
+    body>corps>config {
+        flex: none;
+        height: calc(100vh - 14ex);
+        width: 25vw;
+        margin: 0;
+        overflow: auto;
+        max-height: calc(100vh - 14ex);
+    }
+
+    body>corps>config>containerConfig {
+        min-height: calc(100vh - 14ex - 2em);
+        width: calc(25vw - 2em);
+        min-width: 24ex;
+        background: rgb(0, 255, 0);
+        margin: 1em;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    interlocuteur {
+        flex: none;
+        /* Couleurs à fixer en ligne dans le html */
+        text-align: center;
+        padding: 1ex;
+        height: 4ex;
+        width: 18ex;
+        margin: 1ex;
+        border-radius: 1ex;
+    }
+
+    fixe {
+        flex: none;
+        background: rgb(255, 255, 255);
+        color: rgb(0, 0, 0);
+        text-align: center;
+        padding: 1ex;
+        height: 2cm;
+        width: 2cm;
+        margin: 1ex;
+    }
+
+    variable {
+        flex: auto;
+        background: rgb(255, 255, 255);
+        color: rgb(0, 0, 0);
+        text-align: justify;
+        padding: 1ex;
+        min-height: 8ex;
+        min-width: 24ex;
+        max-width: 72ex;
+        margin: 1ex;
+    }
+
+    .cachet {
+        font-size: x-small;
+        color: rgb(50, 50, 50);
+        text-align: right;
+    }
+
+    body>corps>vue>containerVue>containerEmission {
+        flex: auto;
+        background: rgb(256, 256, 256);
+        box-shadow: 10px 10px 5px rgb(170, 170, 170);
+        border-radius: 1ex;
+        margin: 1ex;
+        align-self: flex-start;
+        /* Contrainte : marge plus grande que la largeur des ascenseurs. */
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-start;
+        min-width: 60ex;
+    }
+
+
+    body>corps>vue>containerVue>containerReception {
+        flex: auto;
+        background: rgb(256, 256, 256);
+        box-shadow: 10px 10px 5px rgb(170, 170, 170);
+        border-radius: 1ex;
+        margin: 1ex;
+        align-self: flex-end;
+        /* Contrainte : marge plus grande que la largeur des ascenseurs. */
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-start;
+        min-width: 60ex;
+    }
+
+
+    body>corps>config>containerConfig>containerDonnee {
+        flex: none;
+        /*background: rgb(82, 179, 217);*/
+        background: rgb(0, 0, 255);
+        /*box-shadow: 10px 10px 5px rgb(170, 170, 170);
+        border-radius: 1ex;*/
+        margin: 1ex;
+        align-self: center;
+        height: 7ex;
+        width: 20ex;
+        min-width: 20ex;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: flex-start;
+    }
+
+
+    body>action {
+        flex: none;
+        height: 7ex;
+        width: 100vw;
+        background: rgb(0, 0, 255);
+        margin: 0;
+    }
+
+    body>action>container-action {
+        background: rgb(82, 179, 217);
+        height: 7ex;
+        width: calc(100vw - 2ex);
+        min-width: calc(100vw - 2ex);
+        margin: 0 1ex 0 1ex;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+    }
+</style>
+
+<body>
+    <sujet>
+        <containerSujet>
+            <retour>
+                <img src="chevronGauche.svg" draggable="false" />
+            </retour>
+            <pastille></pastille>
+            <fixeLXHIV>Momo</fixeLXHIV>
+        </containerSujet>
+    </sujet>
+    <corps>
+        <vue>
+            <containerVue>
+                <containerEmission>
+                    <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                        De : momo
+                    </interlocuteur>
+
+                    <variable>
+                        coucou zaza. Cette ligne est très longue et mérite d'être étendue vers la droite. Cela se fait automatiquement.<br>                        A bientôt. <br> momo.
+                        <div class="cachet">12:43</div>
+                    </variable>
+
+                    <interlocuteur style="background-color: rgb(225, 225, 0);color: rgb(0, 0, 0);">
+                        A : zaza
+                    </interlocuteur>
+
+                </containerEmission>
+                <containerReception>
+                    <interlocuteur style="background-color: rgb(225, 225, 0);color: rgb(0, 0, 0);">
+                        De : zaza
+                    </interlocuteur>
+                    <variable>
+                        Effectivement, cette ligne est très longue et mérite d'être étendue vers la droite.<br> A bientôt.
+                        <br> A+
+                        <div class="cachet">12:47</div>
+                    </variable>
+                    <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                        A : momo
+                    </interlocuteur>
+                </containerReception>
+                <containerEmission>
+                    <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                        De : momo
+                    </interlocuteur>
+
+                    <variable>
+                        coucou sissi. Ligne courte sans extension.<br> A bientôt. <br> A+
+                        <div class="cachet">12:49</div>
+                    </variable>
+
+                    <interlocuteur style="background-color: rgb(0, 225, 0); color: rgb(0, 0, 0);">
+                        A : sissi
+                    </interlocuteur>
+
+                </containerEmission>
+                <containerEmission>
+                    <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                        De : momo
+                    </interlocuteur>
+                    <variable>
+                        coucou toto. On peut écrire un long texte avec extension et passage à la ligne automatique. Pour forcer la passage à la ligne,
+                        on utilise la balise br.<br> A bientôt.
+                        <div class="cachet">12:56</div>
+                    </variable>
+                    <interlocuteur style="background-color: rgb(128, 0, 128);color: rgb(255, 255, 255);">
+                        A : toto
+                    </interlocuteur>
+
+                </containerEmission>
+                <containerReception>
+                    <interlocuteur style="background-color: rgb(128, 0, 128);color: rgb(255, 255, 255);">
+                        De : toto
+                    </interlocuteur>
+                    <variable>
+                        coucou momo. <br> Messages envoyés : à gauche. <br> Messages reçus : à droite. <br> Les couleurs
+                        permettent de distinguer les différents interlocuteurs.
+                        <div class="cachet">13:09</div>
+                    </variable>
+                    <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                        A : momo
+                    </interlocuteur>
+                </containerReception>
+                <containerEmission>
+                    <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                        De : momo
+                    </interlocuteur>
+
+                    <variable>
+                        coucou toto. La longueur des lignes est ajustée automtiquement entre une valeur min et une max. <br>                        A bientôt. <br> A+
+                        <div class="cachet">12:49</div>
+                    </variable>
+                    <interlocuteur style="background-color: rgb(128, 0, 128);color: rgb(255, 255, 255);">
+                        A : toto
+                    </interlocuteur>
+                </containerEmission>
+                <containerEmission>
+                    <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                        De : momo
+                    </interlocuteur>
+
+                    <variable>
+                        coucou titi. C'est une pastille rouge que j'utilise. <br> La tienne est une sorte de bleu canard.
+                        <br> Le temps augmente vers le bas : les messages les plus récents sont en bas, les plus anciens
+                        en haut. Lorsque la pile des messages émis et reçus grandit, elle s'étend vers le haut ; quand elle
+                        dépasse les limites de sa fenêtre, un ascenseur apparaît à droite, pour permettre le défilement.
+                        <div class="cachet">14:47</div>
+                    </variable>
+
+
+                    <interlocuteur style="background-color: rgb(0, 128, 128); color: rgb(255, 255, 255);">
+                        A : titi
+                    </interlocuteur>
+
+                </containerEmission>
+                <containerEmission>
+                    <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                        De : momo
+                    </interlocuteur>
+                    <variable>
+                        Fin
+                        <br> A bientôt. <br> momo.
+                        <div class="cachet">18:45</div>
+                    </variable>
+                    <interlocuteur style="background-color: rgb(0, 225, 0); color: rgb(0, 0, 0);">
+                        A : sissi
+                    </interlocuteur>
+                </containerEmission>
+            </containerVue>
+        </vue>
+        <config>
+            <containerConfig>
+                Choisissez un destinataire :
+                <containerDonnee>
+                    <pastille style="background-color: rgb(225, 225, 0)"></pastille>
+                    <fixeLXHIV style="flex:auto; text-align:center;">Zaza</fixeLXHIV>
+                </containerDonnee>
+                <containerDonnee>
+                    <pastille style="background-color:rgb(128, 0, 128);"></pastille>
+                    <fixeLXHIV style="flex:auto; text-align:center;">Toto</fixeLXHIV>
+                </containerDonnee>
+                <containerDonnee>
+                    <pastille style="background-color: rgb(0, 128, 128);"></pastille>
+                    <fixeLXHIV style="flex:auto; text-align:center;">Titi</fixeLXHIV>
+                </containerDonnee>
+                <containerDonnee>
+                    <pastille style="background-color: rgb(0, 225, 0);"></pastille>
+                    <fixeLXHIV style="flex:auto; text-align:center;">Sissi</fixeLXHIV>
+                </containerDonnee>
+                ou tous les destinataires :
+                <containerDonnee>
+                    <pastille style="background-color: rgb(100, 100, 100);"></pastille>
+                    <fixeLXHIV style="flex:auto; text-align:center;">tous</fixeLXHIV>
+                </containerDonnee>
+            </containerConfig>
+        </config>
+    </corps>
+    <action>
+        <container-action>
+            Envoyez un message à
+            <pastille style="background-color: rgb(0, 225, 0);"></pastille>
+            Sissi :
+            <textarea cols="72" placeholder="Message 1 à envoyer." style="align-self: flex-end;flex:auto;resize: vertical;overflow:visible;margin:1ex;max-height:6cm;">
+                </textarea>
+            <div style="align-self: flex-end;flex:auto;resize: vertical;overflow:visible;margin:1ex;max-height:6cm;">
+                <textarea cols="72" placeholder="Message à envoyer.">
+                </textarea>
+            </div>
+        </container-action>
+    </action>
+</body>

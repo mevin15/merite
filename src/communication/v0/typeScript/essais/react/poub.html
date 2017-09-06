@@ -150,3 +150,332 @@ line-height: 38px;
                     </contenu>
                     A :
                     <interlocuteur style="background-color:rgb(0,256,0)" />
+
+
+                            overflow-y: auto;
+        /* TODO vérifier */
+        background: rgb(82, 179, 217);
+        height: 7ex;
+        min-height: 7ex;
+        width: calc(25vw - 2em);
+        min-width: 24ex;
+        /* TODO à vérifier */
+        margin: 0;
+        align-self: flex-start;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+
+                <container-admin>
+
+                    <container-voisins>
+                        <fixe>11
+                        </fixe>
+                        <fixe>12
+                        </fixe>
+                        <fixe>13
+                        </fixe>
+                        <fixe>14
+                        </fixe>
+                        <fixe>15
+                        </fixe>
+                        <fixe>16
+                        </fixe>
+                        <fixe>11
+                        </fixe>
+                        <fixe>12
+                        </fixe>
+                        <fixe>13
+                        </fixe>
+                        <fixe>14
+                        </fixe>
+                        <fixe>15
+                        </fixe>
+                        <fixe>16
+                        </fixe>
+                    </container-voisins>
+                </container-admin>
+
+
+
+
+                x <br> x <br>x <br> x <br>x <br> x <br>x <br>
+                x <br> x <br>x <br> x <br>x <br> x <br>x <br>
+                x <br> x <br>x <br> x <br>x <br> x <br>x <br>
+                x <br> x <br>x <br> x <br>x <br> x <br>x <br>
+                x <br> x <br>x <br> x <br>x <br> x <br>x <br>
+                x <br> x <br>x <br> x <br>x <br> x <br>x <br>
+                x <br> x <br>x <br> x <br>x <br> x <br>x <br>
+                x <br> x <br>x <br> x <br>x <br> x <br>x <br>
+                x <br> x <br>x <br> x <br>x <br> x <br>x <br>
+                x <br> x <br>x <br> x <br>x <br> x <br>x <br>
+                x <br> x <br>x <br> x <br>x <br> x <br>x <br>
+                x <br> x <br>x <br> x <br>x <br> x <br>x <br>
+
+
+
+            <container-emission>
+                <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                    De : momo
+                </interlocuteur>
+
+                <message-fixe>
+                    coucou zaza. Cette ligne est très longue et mérite d'être étendue vers la droite. Cela se fait automatiquement.<br>                    A bientôt. <br> momo.
+                    <div class="cachet">12:43</div>
+                </message-fixe>
+
+                <interlocuteur style="background-color: rgb(225, 225, 0);color: rgb(0, 0, 0);">
+                    A : zaza
+                </interlocuteur>
+
+            </container-emission>
+            <container-reception>
+                <interlocuteur style="background-color: rgb(225, 225, 0);color: rgb(0, 0, 0);">
+                    De : zaza
+                </interlocuteur>
+                <message-fixe>
+                    Effectivement, cette ligne est très longue et mérite d'être étendue vers la droite.<br> A bientôt.
+                    <br> A+
+                    <div class="cachet">12:47</div>
+                </message-fixe>
+                <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                    A : momo
+                </interlocuteur>
+            </container-reception>
+
+
+
+
+
+
+            <container-emission>
+                <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                    De : momo
+                </interlocuteur>
+
+                <message-fixe>
+                    coucou sissi. Ligne courte sans extension.<br> A bientôt. <br> A+
+                    <div class="cachet">12:49</div>
+                </message-fixe>
+
+                <interlocuteur style="background-color: rgb(0, 225, 0); color: rgb(0, 0, 0);">
+                    A : sissi
+                </interlocuteur>
+
+            </container-emission>
+            <container-emission>
+                <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                    De : momo
+                </interlocuteur>
+                <message-fixe>
+                    coucou toto. On peut écrire un long texte avec extension et passage à la ligne automatique. Pour forcer la passage à la ligne,
+                    on utilise la balise br.<br> A bientôt.
+                    <div class="cachet">12:56</div>
+                </message-fixe>
+                <interlocuteur style="background-color: rgb(128, 0, 128);color: rgb(255, 255, 255);">
+                    A : toto
+                </interlocuteur>
+
+            </container-emission>
+            <container-reception>
+                <interlocuteur style="background-color: rgb(128, 0, 128);color: rgb(255, 255, 255);">
+                    De : toto
+                </interlocuteur>
+                <message-fixe>
+                    coucou momo. <br> Messages envoyés : à gauche. <br> Messages reçus : à droite. <br> Les couleurs permettent
+                    de distinguer les différents interlocuteurs.
+                    <div class="cachet">13:09</div>
+                </message-fixe>
+                <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                    A : momo
+                </interlocuteur>
+            </container-reception>
+
+
+
+
+
+
+
+            <container-emission>
+                <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                    De : momo
+                </interlocuteur>
+
+                <message-fixe>
+                    coucou toto. La longueur des lignes est ajustée automtiquement entre une valeur min et une max. <br>                    A bientôt. <br> A+
+                    <div class="cachet">12:49</div>
+                </message-fixe>
+                <interlocuteur style="background-color: rgb(128, 0, 128);color: rgb(255, 255, 255);">
+                    A : toto
+                </interlocuteur>
+            </container-emission>
+            <container-emission>
+                <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                    De : momo
+                </interlocuteur>
+
+                <message-fixe>
+                    coucou titi. C'est une pastille rouge que j'utilise. <br> La tienne est une sorte de bleu canard.
+                    <br> Le temps augmente vers le bas : les messages les plus récents sont en bas, les plus anciens en haut.
+                    Lorsque la pile des messages émis et reçus grandit, elle s'étend vers le haut ; quand elle dépasse les
+                    limites de sa fenêtre, un ascenseur apparaît à droite, pour permettre le défilement.
+                    <div class="cachet">14:47</div>
+                </message-fixe>
+
+
+                <interlocuteur style="background-color: rgb(0, 128, 128); color: rgb(255, 255, 255);">
+                    A : titi
+                </interlocuteur>
+
+            </container-emission>
+
+
+
+
+
+
+            
+            <container-emission>
+                <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                    De : momo
+                </interlocuteur>
+                <message-fixe>
+                    Fin
+                    <br> A bientôt. <br> momo.
+                    <div class="cachet">18:45</div>
+                </message-fixe>
+                <interlocuteur style="background-color: rgb(0, 225, 0); color: rgb(0, 0, 0);">
+                    A : sissi
+                </interlocuteur>
+            </container-emission>
+            <container-emission>
+                <interlocuteur style="background-color:rgb(225,0,0);color:rgb(255,255,255);">
+                    De : momo
+                </interlocuteur>
+                <textarea cols="72" rows="2" placeholder="Message à envoyer." style="align-self: flex-end;flex:auto;resize: vertical;overflow:auto;margin:1ex;    ">   
+                </textarea>
+
+                <interlocuteur style="background-color: rgb(0, 225, 0); color: rgb(0, 0, 0);">
+                    A : sissi
+                </interlocuteur>
+            </container-emission>
+                
+
+
+
+                            <ContainerEmission>
+                    <Interlocuteur fond={ROUGE} encre={BLANC} nom="Momo" role={Role.Emetteur} />
+
+                    <MessageFixe>
+                        coucou zaza. Cette ligne est très longue et mérite d'être étendue vers la droite. Cela se fait automatiquement.
+                        <br />
+                        A bientôt.
+                        <br />
+                        momo.
+                        <Cachet>12:43</Cachet>
+                    </MessageFixe>
+
+                    <Interlocuteur fond={JAUNE} encre={NOIR} nom="Zaza" role={Role.Recepteur} />
+
+                </ContainerEmission>
+
+                <ContainerReception>
+                    <Interlocuteur fond={JAUNE} encre={NOIR} nom="Zaza" role={Role.Emetteur} />
+                    <MessageFixe>
+                        Effectivement. La longueur des lignes est ajustée automatiquement entre une valeur min et une max.
+                        <br />
+                        A bientôt.
+                        <br />
+                        A+
+                        <Cachet>12:47</Cachet>
+                    </MessageFixe>
+                    <Interlocuteur fond={ROUGE} encre={BLANC} nom="Momo" role={Role.Recepteur} />
+                </ContainerReception>
+
+                <ContainerEmission>
+                    <Interlocuteur fond={ROUGE} encre={BLANC} nom="Momo" role={Role.Emetteur} />
+                    <MessageFixe>
+                        coucou sissi. Ligne courte sans extension.
+                        <br />
+                        A bientôt.
+                        <br />
+                        A+
+                        <Cachet>12:49</Cachet>
+                    </MessageFixe>
+                    <Interlocuteur fond={VERT} encre={NOIR} nom="Sissi" role={Role.Recepteur} />
+                </ContainerEmission>
+
+                <ContainerEmission>
+                    <Interlocuteur fond={ROUGE} encre={BLANC} nom="Momo" role={Role.Emetteur} />
+                    <MessageFixe>
+                        coucou toto. On peut écrire un long texte avec extension et passage à la ligne automatique. Pour forcer la passage à la ligne en html, on utilise la balise br.
+                        <br />
+                        A bientôt.
+                        <Cachet>12:56</Cachet>
+                    </MessageFixe>
+                    <Interlocuteur fond={VIOLET} encre={BLANC} nom="Toto" role={Role.Recepteur} />
+                </ContainerEmission>
+
+                <ContainerReception>
+                    <Interlocuteur fond={VIOLET} encre={BLANC} nom="Toto" role={Role.Emetteur} />
+                    <MessageFixe>
+                        coucou momo.
+                        <br />
+                        Messages envoyés : à gauche.
+                        <br />
+                        Messages reçus : à droite.
+                        <br />
+                        Les couleurs permettent de distinguer les différents interlocuteurs.
+                        <Cachet>13:09</Cachet>
+                    </MessageFixe>
+                    <Interlocuteur fond={ROUGE} encre={BLANC} nom="Momo" role={Role.Recepteur} />
+                </ContainerReception>
+
+                <ContainerEmission>
+                    <Interlocuteur fond={ROUGE} encre={BLANC} nom="Momo" role={Role.Emetteur} />
+                    <MessageFixe>
+                        J'utilise une pastille rouge. Mais peut-être tout émetteur l'utilisera. A voir !
+                        <br />
+                        Titi utilise le bleu canard, Toto le violet et le gris est réservé à la diffusion à tous.
+                        <br />
+                        A+
+                        <Cachet>12:49</Cachet>
+                    </MessageFixe>
+                    <Interlocuteur fond={TOUS} encre={NOIR} nom="tous" role={Role.Recepteur} />
+                </ContainerEmission>
+                <ContainerEmission>
+                    <Interlocuteur fond={ROUGE} encre={BLANC} nom="Momo" role={Role.Emetteur} />
+                    <MessageFixe>
+                        coucou titi.
+                        <br />
+                        Le temps augmente vers le bas : les messages les plus récents sont en bas, les plus anciens en haut.
+                        Lorsque la pile des messages émis et reçus grandit, elle s'étend vers le haut ; quand elle dépasse les limites de sa fenêtre, un ascenseur apparaît à droite, pour permettre le défilement.
+                        <Cachet>14:47</Cachet>
+                    </MessageFixe>
+                    <Interlocuteur fond={BLEU_CANARD} encre={BLANC} nom="Titi" role={Role.Recepteur} />
+                </ContainerEmission>
+
+                <ContainerEmission>
+                    <Interlocuteur fond={ROUGE} encre={BLANC} nom="Momo" role={Role.Emetteur} />
+                    <MessageFixe>
+                        Fin
+                        <br />
+                        Si je voulais écrire un nouveau message, je sélectionnerais à gauche mon destinataire puis écrirais le message dans le cadre noir. Sa hauteur s'ajuste automatiquement à celle du texte.
+                        <br />
+                        momo.
+                        <Cachet>18:45</Cachet>
+                    </MessageFixe>
+                    <Interlocuteur fond={VERT} encre={NOIR} nom="Sissi" role={Role.Recepteur} />
+                </ContainerEmission>
+
+                <ContainerEmission>
+                    <Interlocuteur fond={ROUGE} encre={BLANC} nom="Momo" role={Role.Emetteur} />
+                    <TextareaAutosize
+                        placeholder="Entrez le texte de votre message."
+                        minRows={3} cols={48}
+                        style={styleTexteBrut as any}>
+                    </TextareaAutosize>
+                    <Interlocuteur fond={VERT} encre={NOIR} nom="Sissi" role={Role.Recepteur} />
+                </ContainerEmission>

@@ -39,7 +39,7 @@ var serveurAppli = new serveurApplications_1.ServeurApplications(tchat_1.hote, t
 serveurAppli.specifierRepertoireScriptsEmbarques("build");
 {
     var racine_1 = "/";
-    var ressource_1 = "clientTchat1.html";
+    var ressource_1 = "interfaceTchat.html";
     serveurAppli.enregistrerReponseARequeteGET(racine_1, function (i) {
         console.log("* " + types_2.creerDateMaintenant().representationLog() + " - Service de " + ressource_1 + " en " + racine_1);
         i.servirFichier(repertoireHtml, ressource_1);

@@ -1,0 +1,220 @@
+<!doctype html>
+<title>Admin + action - v2</title>
+<meta charset="UTF-8" />
+<style>
+    /* Boîtes flexibles en ligne : marge container + merge 1 + element 1 + marge 2 + élément 2 + etc. */
+
+    * {
+        box-sizing: border-box;
+        font-family: Verdana, Geneva, sans serif;
+    }
+
+    separateur {
+        margin: 0 0 0 1em;
+    }
+
+    retour {
+        flex: none;
+        width: 4ex;
+        height: 4ex;
+    }
+
+    pastille {
+        flex: none;
+        width: 4ex;
+        height: 4ex;
+        border-radius: 100%;
+        background-color: rgb(225, 0, 0);
+    }
+
+    pseudo {
+        flex: initial;
+        background: rgb(82, 179, 217);
+        color: rgb(255, 255, 255);
+        text-align: left;
+        padding: 1ex;
+        height: 4ex;
+        width: 10ex;
+        margin: 0;
+    }
+
+
+    body {
+        background: rgb(255, 0, 0);
+    }
+
+    colonne-admin {
+        margin: 0 0 0 0;
+        background: rgb(255, 127, 255);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: calc(25vw);
+        overflow-x: auto;
+        min-width: 10ex;
+        /* Largeur minimale possible. Tout autre min-width devient inutile car ratio fixé gauche/droite */
+        height: calc(100vh);
+        /* min-height semble sans effet */
+    }
+
+    admin-sujet {
+        margin: 0;
+        background: rgb(100, 100, 100);
+        position: absolute;
+        top: 0;
+        left: 0;
+        min-width: calc(25vw);
+        height: 7ex;
+
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
+    admin-objet {
+        margin: 0 0 1em 0;
+        background: rgb(0, 0, 255);
+        position: fixed;
+        top: calc(7ex);
+        left: 0;
+        min-width: calc(25vw);
+        height: calc(100vh - 7ex - 1em);
+        overflow-y: auto;
+    }
+
+    admin-objet-container {
+        margin: 0 1em 0 0;
+        background: rgb(100, 100, 100);
+        position: absolute;
+        top: 0;
+        left: 0;
+        /* important / overflow : deux sens haut vers bas et gauche vers droite pour le dépassement */
+        min-width: calc(25vw - 1em);
+        min-height: calc(100vh - 7ex - 1em);
+        /* occupe au moins la place du container */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    objet-admin {
+        margin: 1em 1em 1em 1em;
+        flex: none;
+        align-self: center;
+        height: 2cm;
+        width: 2cm;
+        background: rgb(0, 0, 0);
+        color: rgb(255, 255, 255);
+    }
+
+
+    colonne-action {
+        margin: 0 0 0 0;
+        background: rgb(0, 0, 255);
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: calc(75vw);
+        height: 100vh;
+        overflow: auto;
+    }
+
+    colonne-action-container {
+        margin: 0 1em 1em 0;
+        background: rgb(100, 100, 100);
+        position: absolute;
+        top: 0;
+        left: 0;
+        /* important / overflow : deux sens haut vers bas et gauche vers droite pour le dépassement */
+        min-width: calc(75vw - 1em);
+        min-height: calc(100vh - 1em);
+        /* occupe au moins la place du container */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+    }
+
+    action-gauche {
+        margin: 1em 1em 1em 1em;
+        flex: none;
+        align-self: flex-start;
+        height: 2cm;
+        width: 60ex;
+        background: rgb(255, 0, 0);
+    }
+
+    action-droite {
+        margin: 1em 1em 1em 1em;
+        flex: none;
+        align-self: flex-end;
+        height: 2cm;
+        width: 60ex;
+        background: rgb(0, 255, 0);
+    }
+</style>
+
+<body>
+    <colonne-admin>
+        <admin-sujet>
+            <separateur></separateur>
+            <retour>
+                <img src="chevronGauche.svg" draggable="false" />
+            </retour>
+            <separateur></separateur>
+            <pastille></pastille>
+            <separateur></separateur>
+            <pseudo style="font-size: x-large;">
+                Momo
+            </pseudo>
+        </admin-sujet>
+        <admin-objet>
+            <admin-objet-container>
+                <objet-admin>
+                    1
+                </objet-admin>
+                <objet-admin>
+                    2
+                </objet-admin>
+                <objet-admin>
+                    3
+                </objet-admin>
+                <objet-admin>
+                    4
+                </objet-admin>
+                <objet-admin>
+                    5
+                </objet-admin>
+                <objet-admin>
+                    6
+                </objet-admin>
+
+            </admin-objet-container>
+        </admin-objet>
+    </colonne-admin>
+
+    <colonne-action>
+        <colonne-action-container>
+            <action-gauche>
+                1
+            </action-gauche>
+            <action-droite>
+                2
+            </action-droite>
+            <action-gauche>
+                3
+            </action-gauche>
+            <action-droite>
+                4
+            </action-droite>
+
+            <action-gauche>
+                5
+            </action-gauche>
+            <action-droite>
+                6
+            </action-droite>
+        </colonne-action-container>
+    </colonne-action>
+
+</body>

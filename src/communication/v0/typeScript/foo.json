@@ -1,0 +1,18 @@
+{
+    "configurationInitiale":0,
+    "population":
+    {"table":
+     {"UTIL-DOM-0-0":
+      {"ID":{"val":"UTIL-DOM-0-0","sorte":"utilisateur"},
+       "pseudo":[0]},
+      "UTIL-DOM-0-1":
+      {"ID":{"val":"UTIL-DOM-0-1","sorte":"utilisateur"},
+       "pseudo":[1]}}},
+    "centre":{"ID":{"val":"DOM-0","sorte":"sommet"},"domaine":[0]},
+    "voisins":
+    {"table":
+     {"DOM-1":{"ID":{"val":"DOM-1","sorte":"sommet"},
+	       "domaine":[1]},
+      "DOM-3":{"ID":{"val":"DOM-3","sorte":"sommet"},
+	       "domaine":[1,1]}}},
+    "date":"2017-08-04T13:06:15.087Z"}

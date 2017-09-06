@@ -526,6 +526,12 @@ export class TableImmutable<TEX>
     selectionCleSuivantCritere(prop: (x: TEX) => boolean): string {
         return MODULE_TABLE.selectionCleSuivantCritere(this.in(), prop);
     }
+
+    application<T>(f: (x : TEX) => T) : TableImmutable<T> {
+        return new TableImmutable<T>(
+            MODULE_TABLE.foncteur(this.in(), f)
+        );
+    }
 }
 
 export function creerTableImmutable<TEX>(t: FormatTableEX<TEX>)

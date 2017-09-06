@@ -23,7 +23,7 @@ export class Entree extends React.Component<
     render() {
         return <div>
             <label>sélection : {this.props.selection.index} - {this.props.selection.voisin} </label>
-            <input type="text" placeholder="message à envoyer" />
+            <input type="text" placeholder="message à envoyer !!!" />
         </div>;
     }
 }

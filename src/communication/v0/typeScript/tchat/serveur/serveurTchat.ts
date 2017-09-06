@@ -51,7 +51,7 @@ serveurAppli.specifierRepertoireScriptsEmbarques("build");
 
 {
     let racine = "/";
-    let ressource = "clientTchat1.html";
+    let ressource = "interfaceTchat.html";
 
     serveurAppli.enregistrerReponseARequeteGET(racine, (i: Interaction) => {
         console.log("* " + creerDateMaintenant().representationLog() + " - Service de " + ressource + " en " + racine);

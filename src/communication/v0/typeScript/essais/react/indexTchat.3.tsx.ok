@@ -1,0 +1,73 @@
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+
+import Scrollbars from "react-custom-scrollbars";
+
+
+import styled from "styled-components";
+import { injectGlobal } from "styled-components";
+
+import {COULEUR_SEPARATION, FOND, BLANC} from "./couleur";
+
+import { Admin } from "./admin";
+import { Action } from "./action";
+
+injectGlobal`
+    * { 
+        margin: 0; 
+        padding: 0; 
+        box-sizing: border-box;
+        font-family: Verdana, Geneva, sans serif;
+    }
+`;
+
+const Corps = styled.div`
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: ${FOND}
+`;
+
+
+const ApresAdmin = styled.div`
+    background: ${COULEUR_SEPARATION};
+    position: fixed;
+    top: 0;
+    left: 24vw;
+    width: calc(1vw);
+    height: calc(100vh);
+    border-style: solid;
+    border-width: 0 0.33vw;
+    border-top-color: ${BLANC};
+    border-right-color: ${BLANC};
+    border-bottom-color: ${BLANC};
+    border-left-color: ${BLANC};
+`;
+
+const ApresAction = styled.div`
+    background: ${COULEUR_SEPARATION};
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 1vw;
+    height: 100vh;
+    border-style: solid;
+    border-width: 0 0.33vw;
+    border-top-color: ${BLANC};
+    border-right-color: ${BLANC};
+    border-bottom-color: ${BLANC};
+    border-left-color: ${BLANC};
+`;
+
+ReactDOM.render(
+    <Corps>
+        <Admin />
+        <ApresAdmin />
+        <Action />
+        <ApresAction />
+    </Corps>,
+    document.getElementById("conteneur")
+);
+

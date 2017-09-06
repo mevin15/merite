@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Unite } from "../../bibliotheque/types"
 
 export interface ProprietesSalut { compilateur: string; framework: string; }
 

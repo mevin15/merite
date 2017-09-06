@@ -1,8 +1,9 @@
 var config = {
     entry: {
         tchat: "./build/tchat/client/clientTchat.js",
+        tchatReact: "./build/tchat/client/renduTchat.js",
         jeu1: "./build/jeu1_adressageRoutage/client/clientJeu1_adressageRoutage.js",
-        react: "./build/essais/react/index.js"
+        react: "./build/essais/react/indexTchat.js",
     }, // Les clés remplacent name ci-dessous.
     output: {
         path: __dirname + "/build",
