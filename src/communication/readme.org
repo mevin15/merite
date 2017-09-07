@@ -1,3 +1,5 @@
+A revoir entièrement.
+
 * Recommandations concernant Javascript
 
 - Utiliser ECMAscript 2015.

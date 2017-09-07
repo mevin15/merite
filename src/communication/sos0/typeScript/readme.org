@@ -1,0 +1,21 @@
+- https://www.typescriptlang.org/docs/handbook
+
+* Système de types 
+
+** questions
+
+- typeof
+- champ privé : _x vs x (/ x())
+
+** Conversions
+
+- vers String : String(x)
+
+
+* Node et typescript
+
+** Typage
+
+> npm install @types/node --save-dev
+> npm install --save @types/paquetNode
+

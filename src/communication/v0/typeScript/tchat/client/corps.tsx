@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { Individu, Message } from "./typesInterface";
 import { Admin } from "./admin";
 import { Action } from "./action";
-import { Couleur, COUPLE_FOND_ENCRE, SuiteCouplesFondEncre, FOND, COULEUR_SEPARATION, BLANC, NOIR, ROUGE, JAUNE, VIOLET, BLEU_CANARD, VERT, TOUS } from "./couleur";
+import { Couleur, COUPLE_FOND_ENCRE_SUJET, COUPLE_FOND_ENCRE_TOUS, SuiteCouplesFondEncre, FOND, CADRE, SEPARATION_CADRE, TEXTE_ERREUR } from "./couleur";
 
 import {
   TableImmutable, creerTableImmutable, Identifiant, creerIdentifiant,
@@ -39,7 +39,7 @@ type CanalTchat
   FormatMessageTchatEX, FormatMessageTchatEX, EtiquetteMessageTchat>;
 
 const ApresAdmin = styled.div`
-    background: ${COULEUR_SEPARATION};
+    background: ${CADRE};
     position: fixed;
     top: 0;
     left: 24vw;
@@ -47,14 +47,11 @@ const ApresAdmin = styled.div`
     height: calc(100vh);
     border-style: solid;
     border-width: 0 0.33vw;
-    border-top-color: ${BLANC};
-    border-right-color: ${BLANC};
-    border-bottom-color: ${BLANC};
-    border-left-color: ${BLANC};
+    border-color: ${SEPARATION_CADRE};
 `;
 
 const ApresAction = styled.div`
-    background: ${COULEUR_SEPARATION};
+    background: ${CADRE};
     position: fixed;
     top: 0;
     right: 0;
@@ -62,10 +59,7 @@ const ApresAction = styled.div`
     height: 100vh;
     border-style: solid;
     border-width: 0 0.33vw;
-    border-top-color: ${BLANC};
-    border-right-color: ${BLANC};
-    border-bottom-color: ${BLANC};
-    border-left-color: ${BLANC};
+    border-color: ${SEPARATION_CADRE};
 `;
 
 function cachetDate(d: FormatDateFrEX): string {
@@ -98,7 +92,7 @@ interface EtatCorps {
 const ID_TOUS: string = "TOUS";
 
 /*
- * Degré du graphe limité à 4
+ * Degré du graphe limité à 4 - Cf. la liste des couples de couleurs.
  */
 class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
 
@@ -121,8 +115,8 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
     this.toutIndividu = {
       id: creerIdentifiant('sommet', ID_TOUS),
       nom: "tous",
-      fond: TOUS,
-      encre: NOIR,
+      fond: COUPLE_FOND_ENCRE_TOUS.fond,
+      encre: COUPLE_FOND_ENCRE_TOUS.encre
     };
 
     this.state = {
@@ -178,7 +172,7 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
         return (
           <div>
             <h1>Fin de l'application après l'erreur suivante : </h1>
-            <div style={{color: ROUGE}}>
+            <div style={{color: TEXTE_ERREUR}}>
               {this.messageErreur}
             </div>
           </div>
@@ -232,8 +226,8 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
       this.individuSujet = {
         id: this.noeud.ex().centre.ID,
         nom: this.noeud.ex().centre.pseudo,
-        fond: COUPLE_FOND_ENCRE.fond,
-        encre: COUPLE_FOND_ENCRE.encre
+        fond: COUPLE_FOND_ENCRE_SUJET.fond,
+        encre: COUPLE_FOND_ENCRE_SUJET.encre
       };
       let suite = new SuiteCouplesFondEncre();
       this.individusObjets =

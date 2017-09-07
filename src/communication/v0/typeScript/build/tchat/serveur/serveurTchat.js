@@ -149,7 +149,7 @@ serveurCanaux.enregistrerTraitementFermeture(function (l, r, desc) {
     console.log(" * " + types_2.creerDateMaintenant().representationLog()
         + " - Déconnexion du client " + ID_centre.val
         + " utilisant l'adresse " + l.adresseClient() + ".");
-    console.log("- identité : " + l.configuration().ex().centre.ID);
+    console.log("- identité : " + l.configuration().ex().centre.ID.val);
     console.log("- raison : " + r + " ; description : " + desc);
     var n = reseauConnecte.noeud(ID_centre);
     reseauConnecte.retirerNoeud(n);

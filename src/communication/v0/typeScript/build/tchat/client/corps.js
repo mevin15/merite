@@ -18,8 +18,8 @@ var couleur_1 = require("./couleur");
 var types_1 = require("../../bibliotheque/types");
 var client_1 = require("../../bibliotheque/client");
 var tchat_1 = require("../commun/tchat");
-var ApresAdmin = (_a = ["\n    background: ", ";\n    position: fixed;\n    top: 0;\n    left: 24vw;\n    width: calc(1vw);\n    height: calc(100vh);\n    border-style: solid;\n    border-width: 0 0.33vw;\n    border-top-color: ", ";\n    border-right-color: ", ";\n    border-bottom-color: ", ";\n    border-left-color: ", ";\n"], _a.raw = ["\n    background: ", ";\n    position: fixed;\n    top: 0;\n    left: 24vw;\n    width: calc(1vw);\n    height: calc(100vh);\n    border-style: solid;\n    border-width: 0 0.33vw;\n    border-top-color: ", ";\n    border-right-color: ", ";\n    border-bottom-color: ", ";\n    border-left-color: ", ";\n"], styled_components_1.default.div(_a, couleur_1.COULEUR_SEPARATION, couleur_1.BLANC, couleur_1.BLANC, couleur_1.BLANC, couleur_1.BLANC));
-var ApresAction = (_b = ["\n    background: ", ";\n    position: fixed;\n    top: 0;\n    right: 0;\n    width: 1vw;\n    height: 100vh;\n    border-style: solid;\n    border-width: 0 0.33vw;\n    border-top-color: ", ";\n    border-right-color: ", ";\n    border-bottom-color: ", ";\n    border-left-color: ", ";\n"], _b.raw = ["\n    background: ", ";\n    position: fixed;\n    top: 0;\n    right: 0;\n    width: 1vw;\n    height: 100vh;\n    border-style: solid;\n    border-width: 0 0.33vw;\n    border-top-color: ", ";\n    border-right-color: ", ";\n    border-bottom-color: ", ";\n    border-left-color: ", ";\n"], styled_components_1.default.div(_b, couleur_1.COULEUR_SEPARATION, couleur_1.BLANC, couleur_1.BLANC, couleur_1.BLANC, couleur_1.BLANC));
+var ApresAdmin = (_a = ["\n    background: ", ";\n    position: fixed;\n    top: 0;\n    left: 24vw;\n    width: calc(1vw);\n    height: calc(100vh);\n    border-style: solid;\n    border-width: 0 0.33vw;\n    border-color: ", ";\n"], _a.raw = ["\n    background: ", ";\n    position: fixed;\n    top: 0;\n    left: 24vw;\n    width: calc(1vw);\n    height: calc(100vh);\n    border-style: solid;\n    border-width: 0 0.33vw;\n    border-color: ", ";\n"], styled_components_1.default.div(_a, couleur_1.CADRE, couleur_1.SEPARATION_CADRE));
+var ApresAction = (_b = ["\n    background: ", ";\n    position: fixed;\n    top: 0;\n    right: 0;\n    width: 1vw;\n    height: 100vh;\n    border-style: solid;\n    border-width: 0 0.33vw;\n    border-color: ", ";\n"], _b.raw = ["\n    background: ", ";\n    position: fixed;\n    top: 0;\n    right: 0;\n    width: 1vw;\n    height: 100vh;\n    border-style: solid;\n    border-width: 0 0.33vw;\n    border-color: ", ";\n"], styled_components_1.default.div(_b, couleur_1.CADRE, couleur_1.SEPARATION_CADRE));
 function cachetDate(d) {
     return types_1.creerDate(d).representation();
 }
@@ -32,7 +32,7 @@ var EtatInterfaceTchat;
 ;
 var ID_TOUS = "TOUS";
 /*
- * Degré du graphe limité à 4
+ * Degré du graphe limité à 4 - Cf. la liste des couples de couleurs.
  */
 var CorpsBrut = (function (_super) {
     __extends(CorpsBrut, _super);
@@ -43,8 +43,8 @@ var CorpsBrut = (function (_super) {
         _this.toutIndividu = {
             id: types_1.creerIdentifiant('sommet', ID_TOUS),
             nom: "tous",
-            fond: couleur_1.TOUS,
-            encre: couleur_1.NOIR,
+            fond: couleur_1.COUPLE_FOND_ENCRE_TOUS.fond,
+            encre: couleur_1.COUPLE_FOND_ENCRE_TOUS.encre
         };
         _this.state = {
             selection: _this.toutIndividu,
@@ -89,7 +89,7 @@ var CorpsBrut = (function (_super) {
             case EtatInterfaceTchat.ERRONE:
                 return (React.createElement("div", null,
                     React.createElement("h1", null, "Fin de l'application apr\u00E8s l'erreur suivante : "),
-                    React.createElement("div", { style: { color: couleur_1.ROUGE } }, this.messageErreur)));
+                    React.createElement("div", { style: { color: couleur_1.TEXTE_ERREUR } }, this.messageErreur)));
         }
     };
     /* TODO */
@@ -137,8 +137,8 @@ var CorpsBrut = (function (_super) {
             _this.individuSujet = {
                 id: _this.noeud.ex().centre.ID,
                 nom: _this.noeud.ex().centre.pseudo,
-                fond: couleur_1.COUPLE_FOND_ENCRE.fond,
-                encre: couleur_1.COUPLE_FOND_ENCRE.encre
+                fond: couleur_1.COUPLE_FOND_ENCRE_SUJET.fond,
+                encre: couleur_1.COUPLE_FOND_ENCRE_SUJET.encre
             };
             var suite = new couleur_1.SuiteCouplesFondEncre();
             _this.individusObjets =

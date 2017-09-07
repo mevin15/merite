@@ -1,0 +1,45 @@
+#+SETUPFILE: /home/hgrall/Public/siteWeb/src/css/config.orgcss 
+
+#+HTML_LINK_UP: https://web.emn.fr/x-de/projet-merite/index.php
+
+#+DESCRIPTION: projet Mérite, communication entre machines, tests des web sockets
+#+KEYWORDS: IMTA, informatique, communication entre machines, réseau, routage, Internet, Mérite
+
+#+OPTIONS: H:5 num:t
+
+
+#+TITLE: Projet Mérite - La communication entre machines
+#+SUBTITLE: Test des Web Sockets - Websocket io
+
+#+DATE: v1: 2017-06-27
+
+
+* Chat - Client
+
+#+BEGIN_EXPORT html
+<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<script type="text/javascript">
+const socket = io();
+
+function sendMessage(message){
+  socket.emit('chat message', message);
+}
+
+socket.on('chat message', function(msg){
+  document.getElementById('chatlog').innerHTML += '<br>' + msg;
+});
+ 
+</script>
+
+<div id="chatlog">coucou</div>
+
+<form id="envoi">
+
+  <input type="text" id="message"> 
+      
+  <input class="button" type="button" id="boutonEnvoi" value="Envoyer un message."
+     onClick="sendMessage(this.form.message.value)">
+</form>
+
+#+END_EXPORT
+

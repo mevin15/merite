@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import { Individu, Message } from "./typesInterface";
 
-import { Couleur, BLANC, NOIR, GRIS_NOIR, OMBRE_RECEPTION, OMBRE_EMISSION, FOND_NOIR } from "./couleur";
+import { Couleur, COUPLE_FOND_ENCRE_SUJET, FOND_TEXTE, TEXTE, FOND_TEXTE_INV, TEXTE_INV, TEXTE_PALE } from "./couleur";
 
 import TextareaAutosize from 'react-textarea-autosize';
 
@@ -41,7 +41,7 @@ const Interlocuteur = styled(InterlocuteurBrut) `
         color : ${(props: ProprietesInterlocuteur) => props.encre};                
         text-align: center;
         padding: 1ex;
-        height: 4ex;
+        
         width: 18ex;
         margin: 1ex;
         border-radius: 1ex;
@@ -49,20 +49,21 @@ const Interlocuteur = styled(InterlocuteurBrut) `
 
 const MessageFixe = styled.div`
     flex: auto;
-    background: ${BLANC}
-    color: ${NOIR}
+    background: ${FOND_TEXTE};
+    color: ${TEXTE};
     text-align: justify;
     padding: 1ex;
-    min-height: 8ex;
+    
     min-width: 24ex;
     max-width: 72ex;
     margin: 1ex;
     white-space: pre-wrap;
+    overflow-wrap: break-word;
 `;
 
 const Cachet = styled.div`
     font-size: x-small;
-    color: ${GRIS_NOIR};
+    color: ${TEXTE_PALE};
     text-align: right;
 `;
 
@@ -93,7 +94,7 @@ class ContainerMessageBrut extends React.Component<ProprietesMessage, {}> {
 
 export const ContainerMessageRecu = styled(ContainerMessageBrut) `
     flex: initial;
-    background: ${BLANC};
+    background: ${FOND_TEXTE};
     box-shadow: -1ex 1ex 3ex -1ex ${(props) => props.message.emetteur.fond};
     border-radius: 1ex; 
     margin: 1ex 1em 1ex 1ex;
@@ -108,8 +109,8 @@ export const ContainerMessageRecu = styled(ContainerMessageBrut) `
 
 export const ContainerMessageEmis = styled(ContainerMessageBrut) `
     flex: initial;
-    background: ${BLANC};
-    box-shadow: 1ex 1ex 3ex -1ex ${OMBRE_EMISSION};
+    background: ${FOND_TEXTE};
+    box-shadow: 1ex 1ex 3ex -1ex ${COUPLE_FOND_ENCRE_SUJET.fond};
     border-radius: 1ex;
     margin: 1ex 1ex 1ex 1em;
     align-self: flex-start;
@@ -139,8 +140,8 @@ const styleTexteBrut = {
     resize: "vertical",
     overflow: "auto",
     margin: "1ex",
-    background: FOND_NOIR,
-    color: BLANC,
+    background: FOND_TEXTE_INV,
+    color: TEXTE_INV,
     fontSize: "medium"
 };
 
@@ -229,8 +230,8 @@ class EntreeMessageBrut extends React.Component<ProprietesEntreeMessage, EtatEnt
 
 export const EntreeMessage = styled(EntreeMessageBrut) `
     flex: initial;
-    background: ${BLANC};
-    box-shadow: 1ex 1ex 3ex -1ex ${OMBRE_EMISSION};
+    background: ${FOND_TEXTE};
+    box-shadow: 1ex 1ex 3ex -1ex ${COUPLE_FOND_ENCRE_SUJET.fond};
     border-radius: 1ex;
     margin: 1ex 1ex 1ex 1em;
     align-self: flex-start;

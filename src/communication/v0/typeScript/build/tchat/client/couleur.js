@@ -1,27 +1,33 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BLEU_TURQUIN = "rgb(66, 91, 138)";
-exports.BLANC = "rgb(255, 255, 255)";
-exports.NOIR = "rgb(0,0,0)";
-exports.FOND_NOIR = "rgb(17, 17, 17)";
-exports.GRIS_NOIR = "rgb(50, 50, 50)";
-exports.ROUGE = "rgb(255, 0, 0)";
-exports.JAUNE = "rgb(225, 225, 0)";
-exports.VIOLET = "rgb(128, 0, 128)";
-exports.BLEU_CANARD = "rgb(0, 128, 128)";
-exports.BLEU_CIEL = "rgb(119, 181, 254)";
-exports.VERT = "rgb(0, 225, 0)";
-exports.GRIS = "rgb(135, 135, 135)";
-exports.GRIS_CLAIR = "rgb(229, 229, 229)";
-exports.TOUS = exports.GRIS;
-exports.FOND = exports.GRIS_CLAIR;
-exports.COULEUR_SEPARATION = exports.BLEU_CIEL;
-exports.OMBRE_RECEPTION = exports.TOUS;
-exports.OMBRE_EMISSION = exports.ROUGE;
+var BLEU_TURQUIN = "rgb(66, 91, 138)";
+var BLANC = "rgb(255, 255, 255)";
+var NOIR = "rgb(0,0,0)";
+var NOIR_CARBONE = "rgb(19, 14, 10)";
+var ANTHRACITE = "rgb(48, 48, 48)";
+var FRAISE = "rgb(191, 48, 48)";
+var JAUNE_OR = "rgb(239, 216, 7)";
+var ZINZOLIN = "rgb(108, 2, 119)";
+var BLEU_CANARD = "rgb(0, 128, 128)";
+var BLEU_CIEL = "rgb(119, 181, 254)";
+var VERT_PRINTEMPS = "rgb(0, 255, 127)";
+var GRIS_FER = "rgb(127, 127, 127)";
+var LIN = "rgb(250, 240, 230)";
+var ROUGE_FEU = "rgb(254, 27, 0)";
+exports.FOND = LIN;
+exports.CADRE = BLEU_CIEL;
+exports.SELECTION = BLEU_TURQUIN;
+exports.SEPARATION_CADRE = BLANC;
+exports.TEXTE = NOIR;
+exports.TEXTE_PALE = ANTHRACITE;
+exports.TEXTE_INV = BLANC;
+exports.TEXTE_ERREUR = ROUGE_FEU;
+exports.FOND_TEXTE = BLANC;
+exports.FOND_TEXTE_INV = NOIR_CARBONE;
 var SuiteCouplesFondEncre = (function () {
     function SuiteCouplesFondEncre() {
-        this.fonds = [exports.JAUNE, exports.BLEU_CANARD, exports.VIOLET, exports.VERT]; /* TODO etendre ! */
-        this.encres = [exports.NOIR, exports.BLANC, exports.BLANC, exports.NOIR]; /* TODO etendre ! */
+        this.fonds = [JAUNE_OR, BLEU_CANARD, ZINZOLIN, VERT_PRINTEMPS]; /* TODO etendre ! */
+        this.encres = [NOIR, BLANC, BLANC, NOIR]; /* TODO etendre ! */
         this.pos = 0;
     }
     SuiteCouplesFondEncre.prototype.courant = function () {
@@ -32,8 +38,12 @@ var SuiteCouplesFondEncre = (function () {
     return SuiteCouplesFondEncre;
 }());
 exports.SuiteCouplesFondEncre = SuiteCouplesFondEncre;
-exports.COUPLE_FOND_ENCRE = {
-    fond: exports.ROUGE,
-    encre: exports.BLANC
+exports.COUPLE_FOND_ENCRE_TOUS = {
+    fond: GRIS_FER,
+    encre: BLANC
+};
+exports.COUPLE_FOND_ENCRE_SUJET = {
+    fond: FRAISE,
+    encre: BLANC
 };
 //# sourceMappingURL=couleur.js.map

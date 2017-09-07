@@ -2,6 +2,8 @@ var config = {
     entry: {
         tchat: "./build/tchat/client/clientTchat.js",
         tchatReact: "./build/tchat/client/renduTchat.js",
+        tchatReact_1m0: "./build/tchat_1.0/client/renduTchat.js",
+        tchatReact_1m1: "./build/tchat_1.1/client/renduTchat.js",
         jeu1: "./build/jeu1_adressageRoutage/client/clientJeu1_adressageRoutage.js",
         react: "./build/essais/react/indexTchat.js",
     }, // Les clés remplacent name ci-dessous.

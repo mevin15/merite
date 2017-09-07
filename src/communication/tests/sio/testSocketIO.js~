@@ -1,0 +1,39 @@
+var app = require('express')();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+var port = process.env.PORT || 3000;
+
+app.get('/', function(req, res){
+  res.sendFile(__dirname + '/testSocketIO.html');
+});
+
+var index = 0;
+var clients = {};
+
+io.on('connection', function(socket){
+
+    // Store the connection method so we can loop through & contact all clients
+    clients[index] = socket; 
+    console.log((new Date()) + ' Connexion acceptée [' + index + ']');
+
+    socket.on('chat message', function(msg){
+	// Loop through all clients
+	for(var i in clients){
+            // Send a message to the client with the message
+
+	    if(i == index){
+		
+	    }else{
+		console.log("Diffusion de " + index + " vers " + i);
+		clients[i].send(msg);
+	    }
+	}
+    });
+    index++;
+});
+
+http.listen(port, function(){
+  console.log('listening on *:' + port);
+});
+
+

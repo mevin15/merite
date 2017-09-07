@@ -1,0 +1,84 @@
+#+SETUPFILE: /home/hgrall/Public/siteWeb/src/css/config.orgcss 
+
+#+HTML_LINK_UP: https://web.emn.fr/x-de/projet-merite/index.php
+
+#+DESCRIPTION: projet Mérite, communication entre machines, tests des web sockets
+#+KEYWORDS: IMTA, informatique, communication entre machines, réseau, routage, Internet, Mérite
+
+#+OPTIONS: H:5 num:t
+
+
+#+TITLE: Projet Mérite - La communication entre machines
+#+SUBTITLE: Test des Web Sockets
+
+#+DATE: v1: 2017-06-26
+
+
+* Chat - Client
+
+#+BEGIN_EXPORT html
+<script type="text/javascript">
+
+class Message {
+    constructor(emetteur, destinataire, type, contenu) {
+	this.emetteur = emetteur; // String
+	this.destinataire = destinataire; // String
+	this.type = type; // String
+	this.contenu = contenu; // TODO abstraction
+    }
+    enJSON(){
+	return {
+	    "emetteur" : this.emetteur,
+	    "destinataire" : this.destinataire,
+	    "type" : this.type,
+	    "contenu" : this.contenu
+	};
+    }
+    enSerie(){
+        //return JSON.stringify(this); // meme resultat !
+	return JSON.stringify(this.enJSON()); 
+    }
+}
+
+var x = new Message("1", "1", "1", "1");
+console.log(x.enJSON());
+console.log(x.enSerie()); 
+
+var canal = new WebSocket('ws://localhost:1234', 'echo-protocol');
+
+function envoyerMessage(message){
+   var msg = {
+    "type": "message",
+    "contenu": message,
+    "date": Date.now()
+    };
+    msg = JSON.stringify(msg);
+    console.log("message json : " + msg);
+    // Send the msg object as a JSON-formatted string.
+    canal.send(msg);
+  
+    // Blank the text input element, ready to receive the next line of text from the user.
+    document.getElementById("message").value = "";
+}
+
+canal.addEventListener("message", function(e) {
+    var msg = e.data;
+    // Ajouter le message.
+    document.getElementById('chatlog').innerHTML += '<br>' + msg;
+});
+
+
+</script>
+
+<div id="chatlog">coucou <br></div>
+
+<form id="envoi">
+
+  <input type="text" id="message"> 
+      
+  <input class="button" type="button" id="boutonEnvoi" value="Envoyer un message."
+     onClick="envoyerMessage(this.form.message.value)">
+</form>
+
+#+END_EXPORT
+

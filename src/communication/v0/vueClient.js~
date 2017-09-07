@@ -1,0 +1,5 @@
+// Document -> String
+function adresseServeur(doc){
+    return document.getElementById('adresseServeur').innerHTML;
+}
+    

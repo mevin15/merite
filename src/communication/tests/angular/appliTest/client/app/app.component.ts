@@ -7,6 +7,7 @@ import { noms, couleurs } from "../../commun/liste"
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+
 export class AppComponent {
   title = 'la page unique';
   noms = JSON.stringify(noms);
