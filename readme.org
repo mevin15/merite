@@ -1,0 +1,32 @@
+* Configuration
+
+cf. http://blog.wolksoftware.com/setting-up-your-typescript-vs-code-development-environment
+
+- Visual studio code
+  - version : cf. preferences/fichier de config pour l'espace de travail
+- node js
+
+- install extensions : tslint
+- npm install -g tslint
+
+* Projet
+
+> npm init
+
+> npm install  --save-dev browser-sync
+> npm install  --save-dev browserify
+> npm install  --save-dev gulp
+> npm install  --save-dev gulp-sourcemaps
+> npm install  --save-dev gulp-tslint
+> npm install  --save-dev gulp-typescript
+> npm install  --save-dev run-sequence
+> npm install  --save-dev tslint
+> npm install  --save-dev typescript
+> npm install  --save-dev vinyl-buffer
+> npm install  --save-dev vinyl-source-stream
+
+
+
+
+
+
