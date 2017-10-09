@@ -1,12 +1,12 @@
 import * as chai from 'chai';
 import * as mocha from 'mocha';
 
-import { DateImmutable, creerDate, creerDateMaintenant } from "../../bibliotheque/types";
+import { DateImmutable, creerDateEnveloppe, creerDateMaintenant } from "../../bibliotheque/types";
 
 describe('creerDate', () => {
     let r = creerDateMaintenant();
-    console.log("Date : " + JSON.stringify(r.ex()));
-    let oracle = creerDate(r.ex());
+    console.log("Date : " + JSON.stringify(r.val()));
+    let oracle = creerDateEnveloppe(r.val());
 
     it('renvoie ' + r.representation(), () => {
         chai.expect(r.representation()).to.equal(oracle.representation());

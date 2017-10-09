@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var chai = require("chai");
 var types_1 = require("../../bibliotheque/types");
 describe('classe Table', function () {
-    var table = types_1.creerTableVide(function (x) { return x; });
+    var table = types_1.creerTableMutableVide(function (x) { return x; });
     table.ajouter("a1", { a: 1, b: "coco1" });
     table.ajouter("a2", { a: 2, b: "coco2" });
     var oracle = 2;

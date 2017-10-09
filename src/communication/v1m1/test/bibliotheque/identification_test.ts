@@ -1,13 +1,13 @@
 import * as chai from 'chai';
 import * as mocha from 'mocha';
 
-import { Unite, Identification, IdentificationParCompteur, FormatIdentifiableIN, creerIdentificationParCompteur } from "../../bibliotheque/types";
+import { Unite, Identification, FormatIdentifiableMutable, creerIdentificationParCompteur } from "../../bibliotheque/types";
 
 
 describe('classe IdentificationParCompteur', () => {
     let identification: Identification<'test'>
         = creerIdentificationParCompteur("pref-");
-    let val: FormatIdentifiableIN<'test'> = {
+    let val: FormatIdentifiableMutable<'test'> = {
         ID: identification.identifier('test'), mutable: Unite.ZERO
     };
 

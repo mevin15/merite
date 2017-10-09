@@ -33,7 +33,7 @@ var LienTchat = /** @class */ (function (_super) {
 }(serveurConnexions_1.LienWebSocket));
 var anneau = tchat_1.creerAnneauTchat(["titi", "toto", "coco", "sissi"]);
 var reseauConnecte = communication_1.creerReseauVide();
-var connexions = types_1.creerTableIdentificationVide('sommet', function (x) { return x; });
+var connexions = types_1.creerTableIdentificationMutableVide('sommet', function (x) { return x; });
 var repertoireHtml = shell.pwd() + "/build";
 var serveurAppli = new serveurApplications_1.ServeurApplications(tchat_1.hote, tchat_1.port1);
 serveurAppli.specifierRepertoireScriptsEmbarques("build");
@@ -56,13 +56,13 @@ serveurCanaux.enregistrerTraitementConnexion(function (l) {
         var d_1 = types_2.creerDateMaintenant();
         console.log("* " + d_1.representationLog() + " - " + e.message);
         console.log("* " + d_1.representationLog() + " - Connexion impossible d'un client : le réseau est complet.");
-        l.envoyerMessageErreur(tchat_1.composerErreurTchat("Tchat - Réseau complet ! Il est impossible de se connecter : le réseau est complet.", d_1.ex()));
+        l.envoyerMessageErreur(tchat_1.composerErreurTchat("Tchat - Réseau complet ! Il est impossible de se connecter : le réseau est complet.", d_1.val()));
         return false;
     }
     if (connexions.contient(ID_sommet) || reseauConnecte.possedeNoeud(ID_sommet)) {
         var d_2 = types_2.creerDateMaintenant();
         console.log("* " + d_2.representationLog() + " - Connexion impossible d'un client : le réseau est corrompu.");
-        l.envoyerMessageErreur(tchat_1.composerErreurTchat("Tchat - Réseau corrompu ! Il est impossible de se connecter : le réseau est corrompu. Contacter l'administrateur.", d_2.ex()));
+        l.envoyerMessageErreur(tchat_1.composerErreurTchat("Tchat - Réseau corrompu ! Il est impossible de se connecter : le réseau est corrompu. Contacter l'administrateur.", d_2.val()));
         return false;
     }
     // Cas où la sélection d'un noeud a réussi
@@ -70,7 +70,7 @@ serveurCanaux.enregistrerTraitementConnexion(function (l) {
     console.log("* " + d.representationLog() + " - Connexion de " + ID_sommet.val + " par Web socket.");
     connexions.ajouter(ID_sommet, l);
     var n = anneau.noeud(ID_sommet);
-    var config = tchat_1.composerConfigurationTchat(n, d.ex());
+    var config = tchat_1.composerConfigurationTchat(n, d.val());
     console.log("- envoi au client d'adresse " + l.adresseClient());
     console.log("  - de la configuration brute " + config.brut());
     console.log("  - de la configuration nette " + config.representation());
@@ -86,7 +86,7 @@ serveurCanaux.enregistrerTraitementMessages(function (l, m) {
     console.log("- net : " + msg.representation());
     switch (m.type) {
         case tchat_1.TypeMessageTchat.COM:
-            var ID_emetteurUrl = l.configuration().ex().centre.ID;
+            var ID_emetteurUrl = l.configuration().val().centre.ID;
             var ID_emetteurMsg = m.ID_emetteur;
             var ID_destinataireMsg = m.ID_destinataire;
             // Contrôle de l'émetteur et du destinataire
@@ -141,7 +141,7 @@ serveurCanaux.enregistrerTraitementMessages(function (l, m) {
     }
 });
 serveurCanaux.enregistrerTraitementFermeture(function (l, r, desc) {
-    var ID_centre = l.configuration().ex().centre.ID;
+    var ID_centre = l.configuration().val().centre.ID;
     if ((connexions.valeur(ID_centre) === undefined) || (!reseauConnecte.possedeNoeud(ID_centre))) {
         console.log("* Impossibilité de fermer la connexion par Web socket : " + ID_centre.val + " est déjà déconnecté.");
         connexions.ajouter(ID_centre, l);
@@ -150,7 +150,7 @@ serveurCanaux.enregistrerTraitementFermeture(function (l, r, desc) {
     console.log(" * " + types_2.creerDateMaintenant().representationLog()
         + " - Déconnexion du client " + ID_centre.val
         + " utilisant l'adresse " + l.adresseClient() + ".");
-    console.log("- identité : " + l.configuration().ex().centre.ID.val);
+    console.log("- identité : " + l.configuration().val().centre.ID.val);
     console.log("- raison : " + r + " ; description : " + desc);
     var n = reseauConnecte.noeud(ID_centre);
     reseauConnecte.retirerNoeud(n);

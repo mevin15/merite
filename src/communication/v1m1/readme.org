@@ -67,7 +67,7 @@ Voir le readme dans le répertoire parent.
 * TODO Améliorations
 
 - Diffusion sans répétition des messages
-- Entréedes messages en position fixe
+- Entrée des messages en position fixe
 - Ajout de tests
 - Génération d'une version livrable (dite de production)
 - Déploiement sur un serveur externe

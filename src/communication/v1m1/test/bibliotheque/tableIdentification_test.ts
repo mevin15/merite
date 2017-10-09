@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import * as mocha from 'mocha';
 
-import { TableIdentification, creerTableIdentificationVide } from "../../bibliotheque/types";
+import { TableIdentificationMutable, creerTableIdentificationMutableVide } from "../../bibliotheque/types";
 
 
 interface IN {
@@ -16,8 +16,8 @@ interface OUT {
 
 
 describe('classe TableIdentification', () => {
-    let table: TableIdentification<'test', IN, OUT>
-        = creerTableIdentificationVide('test', (x) => x);
+    let table: TableIdentificationMutable<'test', IN, OUT>
+        = creerTableIdentificationMutableVide('test', (x) => x);
     table.ajouter({ val: "id1", sorte: 'test' }, { a: 1, b: "coco1" });
     table.ajouter({ val: "id2", sorte: 'test' }, { a: 2, b: "coco2" });
     let oracle = 2;

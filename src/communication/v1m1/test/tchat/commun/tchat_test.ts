@@ -6,7 +6,7 @@ import { Identifiant } from "../../../bibliotheque/types";
 import {  } from "../../../bibliotheque/communication";
 import {
     creerMessageErreurConnexion, creerMessageRetourErreur,
-    TypeMessageTchat, FormatMessageTchatEX, MessageTchat, creerAnneauTchat, 
+    TypeMessageTchat, FormatMessageTchat, MessageTchat, creerAnneauTchat, 
     ReseauTchat
 } from '../../../tchat/commun/tchat';
 

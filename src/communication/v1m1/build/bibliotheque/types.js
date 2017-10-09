@@ -1,4 +1,6 @@
 "use strict";
+// Revue 02/08 - Testé.
+// Revue 18/09 - Renommage - Testé.
 var __extends = (this && this.__extends) || (function () {
     var extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
@@ -10,7 +12,6 @@ var __extends = (this && this.__extends) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-// Revue 02/08 - Testé.
 var outils_1 = require("./outils");
 // Les enum sont des sous-types de number.
 var Unite;
@@ -36,32 +37,37 @@ var Deux;
 // E : étiquettes utiles pour une représentation (cf. méthode net)
 // La différence entre TIN et TEX permet de gérer les effets de bord sur l'état, souvent au format JSON.
 // Une fonction de conversion de TIN vers TEX est requise.
-// Toute méthode ayant une occurrence positive de TIN est protected. En effet, elle est susceptible
-//   de permettre un effet de bord sur l'état s'il est mutable.
+// Toute méthode ayant une occurrence positive de TIN est protected. En effet, elle peut permettre d'obtenir l'état mutable
+// et de réaliser un effet de bord sur l'état s'il est mutable.
 // Cette classe abstraite doit être étedue ;
 // - implémentation de net et représenter,
-// - extension par de méthodes modifiant ou observant l'état.
+// - extension par des méthodes modifiant ou observant l'état.
+// Sérialisation
+// C'est le type interne TIN qui est utilisé pour la sérilisation (via la méthode brut()). 
+// En conséquence, un format sérialisable doit être utilisé : types primitifs, 
+// et comme contructeurs de types les tableaux et les structures indexées.
+// Enveloppe de l'état qui est donc partagé.
 var Enveloppe = /** @class */ (function () {
-    function Enveloppe(inEnEx, etat) {
-        this.etat = etat;
-        this.inEnEx = inEnEx;
+    function Enveloppe(etatEnVal, etat) {
+        this.structure = etat;
+        this.etatEnVal = etatEnVal;
     }
-    Enveloppe.prototype.in = function () {
-        return this.etat;
+    Enveloppe.prototype.etat = function () {
+        return this.structure;
     };
-    Enveloppe.prototype.ex = function () {
-        return this.inEnEx(this.etat);
+    Enveloppe.prototype.val = function () {
+        return this.etatEnVal(this.structure);
     };
     // transformation brute du json de type TIN en string
     Enveloppe.prototype.brut = function () {
-        return JSON.stringify(this.etat);
+        return JSON.stringify(this.structure);
     };
     ;
     return Enveloppe;
 }());
 exports.Enveloppe = Enveloppe;
 /* ***********************************************************************************************
-*
+* Dates
 */
 var Semaine;
 (function (Semaine) {
@@ -107,16 +113,16 @@ var DateFrEnveloppe = /** @class */ (function (_super) {
     }
     DateFrEnveloppe.prototype.net = function (e) {
         // A déplacer sous les cas.
-        var s = outils_1.normalisationNombre(this.in().seconde, 2);
-        var min = outils_1.normalisationNombre(this.in().minute, 2);
-        var h = outils_1.normalisationNombre(this.in().heure, 2);
-        var js = this.in().jourSemaine;
+        var s = outils_1.normalisationNombre(this.etat().seconde, 2);
+        var min = outils_1.normalisationNombre(this.etat().minute, 2);
+        var h = outils_1.normalisationNombre(this.etat().heure, 2);
+        var js = this.etat().jourSemaine;
         var jsL = Semaine[js].toLowerCase();
-        var jm = outils_1.normalisationNombre(this.in().jourMois, 2);
-        var mo = this.in().mois;
+        var jm = outils_1.normalisationNombre(this.etat().jourMois, 2);
+        var mo = this.etat().mois;
         var moL = Mois[mo].toLowerCase();
         var moN = outils_1.normalisationNombre(mo + 1, 2);
-        var a = this.in().annee.toString();
+        var a = this.etat().annee.toString();
         switch (e) {
             case 'heure': return h + ":" + min + ":" + s;
             case 'jourSemaine': return jsL;
@@ -130,7 +136,7 @@ var DateFrEnveloppe = /** @class */ (function (_super) {
         return outils_1.jamais(e);
     };
     DateFrEnveloppe.prototype.detail = function (e) {
-        return this.detail(e);
+        return this.net(e); // Simple renommage
     };
     DateFrEnveloppe.prototype.representation = function () {
         return this.net('heure') + ", le " + this.net('date');
@@ -143,19 +149,40 @@ var DateFrEnveloppe = /** @class */ (function (_super) {
     };
     return DateFrEnveloppe;
 }(Enveloppe));
-exports.DateFrEnveloppe = DateFrEnveloppe;
 function creerDateMaintenant() {
     return new DateFrEnveloppe(function (x) { return x; }, conversionDate(new Date()));
 }
 exports.creerDateMaintenant = creerDateMaintenant;
-function creerDate(d) {
+function creerDateEnveloppe(d) {
     return new DateFrEnveloppe(function (x) { return x; }, d);
 }
-exports.creerDate = creerDate;
+exports.creerDateEnveloppe = creerDateEnveloppe;
+/*
+* Module définissant les fonctions utiles pour les structures JSON
+* représentant les tableaux (FormatTableauX).
+*/
+var FabriqueTableau = /** @class */ (function () {
+    function FabriqueTableau() {
+    }
+    FabriqueTableau.prototype.videMutable = function () {
+        return { taille: 0, tableau: [], mutable: Unite.ZERO };
+    };
+    FabriqueTableau.prototype.videImmutable = function () {
+        return { taille: 0, tableau: [] };
+    };
+    FabriqueTableau.prototype.enveloppeMutable = function (tab) {
+        return { taille: tab.length, tableau: tab, mutable: Unite.ZERO };
+    };
+    FabriqueTableau.prototype.enveloppeImmutable = function (tab) {
+        return { taille: tab.length, tableau: tab };
+    };
+    return FabriqueTableau;
+}());
+var FABRIQUE_TABLEAU = new FabriqueTableau();
 var ModuleTableau = /** @class */ (function () {
     function ModuleTableau() {
     }
-    ModuleTableau.prototype.pourChaque = function (f, t) {
+    ModuleTableau.prototype.iterer = function (f, t) {
         t.tableau.forEach(function (v, i, t) { return f(i, v, t); });
     };
     ModuleTableau.prototype.valeur = function (t, index) {
@@ -166,14 +193,14 @@ var ModuleTableau = /** @class */ (function () {
     };
     ModuleTableau.prototype.foncteur = function (t, f) {
         var r = [];
-        this.pourChaque(function (i, v) {
+        this.iterer(function (i, v) {
             r[i] = f(v);
         }, t);
-        return { taille: r.length, tableau: r, mutable: Unite.ZERO };
+        return FABRIQUE_TABLEAU.enveloppeMutable(r);
     };
     ModuleTableau.prototype.reduction = function (t, neutre, op) {
         var r = neutre;
-        this.pourChaque(function (i, v) {
+        this.iterer(function (i, v) {
             r = op(r, v);
         }, t);
         return r;
@@ -189,16 +216,15 @@ var ModuleTableau = /** @class */ (function () {
     };
     return ModuleTableau;
 }());
-exports.ModuleTableau = ModuleTableau;
 var MODULE_TABLEAU = new ModuleTableau();
-// Conversion pour les tables 
+// Conversion pour les tableaux
 function conversionFormatTableau(conv) {
     return (function (t) {
         var r = new Array(t.taille);
-        MODULE_TABLEAU.pourChaque(function (i, v) {
+        MODULE_TABLEAU.iterer(function (i, v) {
             r[i] = conv(v);
         }, t);
-        return { taille: t.taille, tableau: r };
+        return FABRIQUE_TABLEAU.enveloppeImmutable(r);
     });
 }
 exports.conversionFormatTableau = conversionFormatTableau;
@@ -211,27 +237,27 @@ var TableauImmutable = /** @class */ (function (_super) {
     TableauImmutable.prototype.net = function (e) {
         switch (e) {
             case 'taille': return this.taille().toString();
-            case 'valeurs': return this.in().tableau.toString();
+            case 'valeurs': return this.etat().tableau.toString();
         }
         return outils_1.jamais(e);
     };
     TableauImmutable.prototype.representation = function () {
         return "[" + this.net('valeurs') + "]";
     };
-    TableauImmutable.prototype.pourChaque = function (f) {
-        MODULE_TABLEAU.pourChaque(f, this.in());
+    TableauImmutable.prototype.iterer = function (f) {
+        MODULE_TABLEAU.iterer(f, this.etat());
     };
     TableauImmutable.prototype.foncteur = function (f) {
-        return new TableauImmutable(MODULE_TABLEAU.foncteur(this.in(), f));
+        return new TableauImmutable(MODULE_TABLEAU.foncteur(this.etat(), f));
     };
     TableauImmutable.prototype.reduction = function (neutre, op) {
-        return MODULE_TABLEAU.reduction(this.in(), neutre, op);
+        return MODULE_TABLEAU.reduction(this.etat(), neutre, op);
     };
     TableauImmutable.prototype.valeur = function (index) {
-        return MODULE_TABLEAU.valeur(this.in(), index);
+        return MODULE_TABLEAU.valeur(this.etat(), index);
     };
     TableauImmutable.prototype.taille = function () {
-        return MODULE_TABLEAU.taille(this.in());
+        return MODULE_TABLEAU.taille(this.etat());
     };
     TableauImmutable.prototype.estVide = function () {
         return this.taille() === 0;
@@ -240,70 +266,99 @@ var TableauImmutable = /** @class */ (function (_super) {
 }(Enveloppe));
 exports.TableauImmutable = TableauImmutable;
 function creerTableauImmutable(t) {
-    return new TableauImmutable({
-        taille: t.length,
-        tableau: t
-    });
+    return new TableauImmutable(FABRIQUE_TABLEAU.enveloppeImmutable(t));
 }
 exports.creerTableauImmutable = creerTableauImmutable;
 // Tableau mutable - TIN peut être différent de TEX.
 //   Recommandé : TEX immutable.
-// Attention : la méthode ex() requiert un parcours du tableau formant l'état.
-var Tableau = /** @class */ (function (_super) {
-    __extends(Tableau, _super);
-    function Tableau(valInVersEx, etat) {
-        if (etat === void 0) { etat = { taille: 0, tableau: [], mutable: Unite.ZERO }; }
-        var _this = _super.call(this, conversionFormatTableau(valInVersEx), etat) || this;
-        _this.valInVersEx = valInVersEx;
+// Attention : la méthode val() requiert un parcours du tableau formant l'état.
+var TableauMutable = /** @class */ (function (_super) {
+    __extends(TableauMutable, _super);
+    function TableauMutable(etatVersVal, etat) {
+        if (etat === void 0) { etat = FABRIQUE_TABLEAU.videMutable(); }
+        var _this = _super.call(this, conversionFormatTableau(etatVersVal), etat) || this;
+        _this.etatVersVal = etatVersVal;
         return _this;
     }
-    Tableau.prototype.net = function (e) {
+    TableauMutable.prototype.net = function (e) {
         switch (e) {
             case 'taille': return this.taille().toString();
-            case 'valeurs': return this.in().tableau.toString();
+            case 'valeurs': return this.etat().tableau.toString();
         }
         return outils_1.jamais(e);
     };
-    Tableau.prototype.representation = function () {
+    TableauMutable.prototype.representation = function () {
         return "[" + this.net('valeurs') + "]";
     };
-    Tableau.prototype.pourChaqueIn = function (f) {
-        MODULE_TABLEAU.pourChaque(f, this.in());
+    TableauMutable.prototype.itererEtat = function (f) {
+        MODULE_TABLEAU.iterer(f, this.etat());
     };
-    Tableau.prototype.pourChaque = function (f) {
+    TableauMutable.prototype.iterer = function (f) {
         var _this = this;
-        this.pourChaqueIn(function (i, v, t) { return f(i, _this.valInVersEx(v)); });
+        this.itererEtat(function (i, v, t) { return f(i, _this.etatVersVal(v)); });
     };
-    Tableau.prototype.valeurIn = function (i) {
-        return MODULE_TABLEAU.valeur(this.in(), i);
+    TableauMutable.prototype.valeurEtat = function (i) {
+        return MODULE_TABLEAU.valeur(this.etat(), i);
     };
-    Tableau.prototype.valeur = function (i) {
-        return this.valInVersEx(this.valeurIn(i));
+    TableauMutable.prototype.valeur = function (i) {
+        return this.etatVersVal(this.valeurEtat(i));
     };
-    Tableau.prototype.taille = function () {
-        return MODULE_TABLEAU.taille(this.in());
+    TableauMutable.prototype.taille = function () {
+        return MODULE_TABLEAU.taille(this.etat());
     };
-    Tableau.prototype.estVide = function () {
+    TableauMutable.prototype.estVide = function () {
         return this.taille() === 0;
     };
-    Tableau.prototype.ajouterEnFin = function (x) {
-        MODULE_TABLEAU.ajouterEnFin(this.in(), x);
+    TableauMutable.prototype.ajouterEnFin = function (x) {
+        MODULE_TABLEAU.ajouterEnFin(this.etat(), x);
     };
-    Tableau.prototype.retirerEnFin = function () {
-        MODULE_TABLEAU.retirerEnFin(this.in());
+    TableauMutable.prototype.retirerEnFin = function () {
+        MODULE_TABLEAU.retirerEnFin(this.etat());
     };
-    return Tableau;
+    return TableauMutable;
 }(Enveloppe));
-exports.Tableau = Tableau;
-function creerTableauVide(valInVersEx) {
-    return new Tableau(valInVersEx);
+exports.TableauMutable = TableauMutable;
+function creerTableauMutableVide(etatVersVal) {
+    return new TableauMutable(etatVersVal);
 }
-exports.creerTableauVide = creerTableauVide;
+exports.creerTableauMutableVide = creerTableauMutableVide;
+// Partage du tableau passé en argument.
+function creerTableauMutableEnveloppe(etatVersVal, t) {
+    return new TableauMutable(etatVersVal, FABRIQUE_TABLEAU.enveloppeMutable(t));
+}
+exports.creerTableauMutableEnveloppe = creerTableauMutableEnveloppe;
+/*
+* Création par copie du tableau.
+*/
+function creerTableauMutable(etatVersVal, t) {
+    var r = creerTableauMutableVide(etatVersVal);
+    MODULE_TABLEAU.iterer(function (c, v) { return r.ajouterEnFin(v); }, FABRIQUE_TABLEAU.enveloppeMutable(t));
+    return r;
+}
+exports.creerTableauMutable = creerTableauMutable;
 // Un module réservoir de fonctions utiles sur les tables.
+var FabriqueTable = /** @class */ (function () {
+    function FabriqueTable() {
+    }
+    FabriqueTable.prototype.videMutable = function () {
+        return { table: {}, mutable: Unite.ZERO };
+    };
+    FabriqueTable.prototype.videImmutable = function () {
+        return { table: {} };
+    };
+    FabriqueTable.prototype.enveloppeMutable = function (tab) {
+        return { table: tab, mutable: Unite.ZERO };
+    };
+    FabriqueTable.prototype.enveloppeImmutable = function (tab) {
+        return { table: tab };
+    };
+    return FabriqueTable;
+}());
+exports.FABRIQUE_TABLE = new FabriqueTable();
 var ModuleTable = /** @class */ (function () {
     function ModuleTable() {
     }
-    ModuleTable.prototype.pourChaque = function (f, t) {
+    ModuleTable.prototype.iterer = function (f, t) {
         for (var c in t.table) {
             f(c, t.table[c], t.table);
         }
@@ -320,35 +375,35 @@ var ModuleTable = /** @class */ (function () {
     };
     ModuleTable.prototype.image = function (t) {
         var tab = [];
-        this.pourChaque(function (c, v) {
+        this.iterer(function (c, v) {
             tab.push(v);
         }, t);
         return tab;
     };
     ModuleTable.prototype.domaine = function (t) {
         var tab = [];
-        this.pourChaque(function (c, v) {
+        this.iterer(function (c, v) {
             tab.push(c);
         }, t);
         return tab;
     };
     ModuleTable.prototype.taille = function (t) {
         var n = 0;
-        this.pourChaque(function (c, v) {
+        this.iterer(function (c, v) {
             n++;
         }, t);
         return n;
     };
     ModuleTable.prototype.foncteur = function (t, f) {
         var r = {};
-        this.pourChaque(function (c, v) {
+        this.iterer(function (c, v) {
             r[c] = f(v);
         }, t);
-        return { table: r, mutable: Unite.ZERO };
+        return exports.FABRIQUE_TABLE.enveloppeMutable(r);
     };
     ModuleTable.prototype.transformationTableVersTableau = function (t, f) {
         var r = [];
-        this.pourChaque(function (c, v) {
+        this.iterer(function (c, v) {
             r.push(f(c, v));
         }, t);
         return r;
@@ -377,16 +432,15 @@ var ModuleTable = /** @class */ (function () {
     };
     return ModuleTable;
 }());
-exports.ModuleTable = ModuleTable;
 var MODULE_TABLE = new ModuleTable();
 // Conversion pour les tables 
 function conversionFormatTable(conv) {
     return (function (t) {
         var r = {};
-        MODULE_TABLE.pourChaque(function (c, v) {
+        MODULE_TABLE.iterer(function (c, v) {
             r[c] = conv(v);
         }, t);
-        return { table: r };
+        return exports.FABRIQUE_TABLE.enveloppeImmutable(r);
     });
 }
 exports.conversionFormatTable = conversionFormatTable;
@@ -401,39 +455,39 @@ var TableImmutable = /** @class */ (function (_super) {
             case 'taille': return this.taille().toString();
             case 'domaine': return this.domaine().toString();
             case 'image': return this.image().map(function (v, i, t) { return JSON.stringify(v); }).toString();
-            case 'graphe': return this.brut();
+            case 'graphe': return JSON.stringify(this.etat().table);
         }
         return outils_1.jamais(e);
     };
     TableImmutable.prototype.representation = function () {
         return this.net('graphe');
     };
-    TableImmutable.prototype.pourChaque = function (f) {
-        MODULE_TABLE.pourChaque(f, this.in());
+    TableImmutable.prototype.iterer = function (f) {
+        MODULE_TABLE.iterer(f, this.etat());
     };
     TableImmutable.prototype.valeur = function (cle) {
-        return MODULE_TABLE.valeur(this.in(), cle);
+        return MODULE_TABLE.valeur(this.etat(), cle);
     };
     TableImmutable.prototype.contient = function (cle) {
-        return MODULE_TABLE.contient(this.in(), cle);
+        return MODULE_TABLE.contient(this.etat(), cle);
     };
     TableImmutable.prototype.image = function () {
-        return MODULE_TABLE.image(this.in());
+        return MODULE_TABLE.image(this.etat());
     };
     TableImmutable.prototype.domaine = function () {
-        return MODULE_TABLE.domaine(this.in());
+        return MODULE_TABLE.domaine(this.etat());
     };
     TableImmutable.prototype.taille = function () {
-        return MODULE_TABLE.taille(this.in());
+        return MODULE_TABLE.taille(this.etat());
     };
     TableImmutable.prototype.selectionCle = function () {
-        return MODULE_TABLE.selectionCle(this.in());
+        return MODULE_TABLE.selectionCle(this.etat());
     };
     TableImmutable.prototype.selectionCleSuivantCritere = function (prop) {
-        return MODULE_TABLE.selectionCleSuivantCritere(this.in(), prop);
+        return MODULE_TABLE.selectionCleSuivantCritere(this.etat(), prop);
     };
     TableImmutable.prototype.application = function (f) {
-        return new TableImmutable(MODULE_TABLE.foncteur(this.in(), f));
+        return new TableImmutable(MODULE_TABLE.foncteur(this.etat(), f));
     };
     return TableImmutable;
 }(Enveloppe));
@@ -444,15 +498,16 @@ function creerTableImmutable(t) {
 exports.creerTableImmutable = creerTableImmutable;
 // Table mutable - TIN peut être différent de TEX.
 //   Recommandé : TEX immutable.
-// Attention : la méthode ex() requiert un parcours de la table formant l'état.
-var Table = /** @class */ (function (_super) {
-    __extends(Table, _super);
-    function Table(valInVersEx, etat) {
-        var _this = _super.call(this, conversionFormatTable(valInVersEx), etat) || this;
-        _this.valInVersEx = valInVersEx;
+// Attention : la méthode val() requiert un parcours de la table formant l'état.
+var TableMutable = /** @class */ (function (_super) {
+    __extends(TableMutable, _super);
+    function TableMutable(etatVersVal, table) {
+        if (table === void 0) { table = exports.FABRIQUE_TABLE.videMutable(); }
+        var _this = _super.call(this, conversionFormatTable(etatVersVal), table) || this;
+        _this.etatVersVal = etatVersVal;
         return _this;
     }
-    Table.prototype.net = function (e) {
+    TableMutable.prototype.net = function (e) {
         switch (e) {
             case 'taille': return this.taille().toString();
             case 'domaine': return this.domaine().toString();
@@ -461,68 +516,82 @@ var Table = /** @class */ (function (_super) {
         }
         return outils_1.jamais(e);
     };
-    Table.prototype.representation = function () {
+    TableMutable.prototype.representation = function () {
         return this.net('graphe');
     };
-    Table.prototype.pourChaqueIn = function (f) {
-        MODULE_TABLE.pourChaque(f, this.in());
+    TableMutable.prototype.itererEtat = function (f) {
+        MODULE_TABLE.iterer(f, this.etat());
     };
-    Table.prototype.pourChaque = function (f) {
+    TableMutable.prototype.iterer = function (f) {
         var _this = this;
-        this.pourChaqueIn(function (c, v, t) { return f(c, _this.valInVersEx(v)); });
-        // moins efficace (deux parcours) : MODULE_TABLE.pourChaque(f, this.ex());
+        this.itererEtat(function (c, v, t) { return f(c, _this.etatVersVal(v)); });
+        // moins efficace (deux parcours) : MODULE_TABLE.iterer(f, this.ex());
     };
-    Table.prototype.valeurIn = function (cle) {
-        return MODULE_TABLE.valeur(this.in(), cle);
+    TableMutable.prototype.valeurEtat = function (cle) {
+        return MODULE_TABLE.valeur(this.etat(), cle);
     };
-    Table.prototype.valeur = function (cle) {
-        return this.valInVersEx(this.valeurIn(cle));
-        // moins efficace : MODULE_TABLE.valeur(this.ex(), cle);
+    TableMutable.prototype.valeur = function (cle) {
+        return this.etatVersVal(this.valeurEtat(cle));
+        // moins efficace : MODULE_TABLE.valeur(this.val(), cle);
     };
-    Table.prototype.contient = function (cle) {
-        return MODULE_TABLE.contient(this.in(), cle);
+    TableMutable.prototype.contient = function (cle) {
+        return MODULE_TABLE.contient(this.etat(), cle);
     };
-    Table.prototype.imageIn = function () {
-        return MODULE_TABLE.image(this.in());
+    TableMutable.prototype.imageEtat = function () {
+        return MODULE_TABLE.image(this.etat());
     };
-    Table.prototype.image = function () {
+    TableMutable.prototype.image = function () {
         var _this = this;
-        return MODULE_TABLE.transformationTableVersTableau(this.in(), function (c, v) { return _this.valInVersEx(v); });
-        // moins efficace : MODULE_TABLE.image(this.ex());
+        return MODULE_TABLE.transformationTableVersTableau(this.etat(), function (c, v) { return _this.etatVersVal(v); });
+        // moins efficace : MODULE_TABLE.image(this.val());
     };
-    Table.prototype.domaine = function () {
-        return MODULE_TABLE.domaine(this.in());
+    TableMutable.prototype.domaine = function () {
+        return MODULE_TABLE.domaine(this.etat());
     };
-    Table.prototype.taille = function () {
-        return MODULE_TABLE.taille(this.in());
+    TableMutable.prototype.taille = function () {
+        return MODULE_TABLE.taille(this.etat());
     };
-    Table.prototype.estVide = function () {
+    TableMutable.prototype.estVide = function () {
         return this.taille() === 0;
     };
-    Table.prototype.selectionCle = function () {
-        return MODULE_TABLE.selectionCle(this.in());
+    TableMutable.prototype.selectionCle = function () {
+        return MODULE_TABLE.selectionCle(this.etat());
     };
-    Table.prototype.selectionCleSuivantCritereIn = function (prop) {
-        return MODULE_TABLE.selectionCleSuivantCritere(this.in(), prop);
+    TableMutable.prototype.selectionCleSuivantCritereEtat = function (prop) {
+        return MODULE_TABLE.selectionCleSuivantCritere(this.etat(), prop);
     };
-    Table.prototype.selectionCleSuivantCritere = function (prop) {
+    TableMutable.prototype.selectionCleSuivantCritere = function (prop) {
         var _this = this;
-        return this.selectionCleSuivantCritereIn(function (x) { return prop(_this.valInVersEx(x)); });
-        // moins efficace : MODULE_TABLE.selectionCleSuivantCritere(this.ex(), prop);
+        return this.selectionCleSuivantCritereEtat(function (x) { return prop(_this.etatVersVal(x)); });
+        // moins efficace : MODULE_TABLE.selectionCleSuivantCritere(this.val(), prop);
     };
-    Table.prototype.ajouter = function (cle, x) {
-        MODULE_TABLE.ajouter(this.in(), cle, x);
+    TableMutable.prototype.ajouter = function (cle, x) {
+        MODULE_TABLE.ajouter(this.etat(), cle, x);
     };
-    Table.prototype.retirer = function (cle) {
-        MODULE_TABLE.retirer(this.in(), cle);
+    TableMutable.prototype.retirer = function (cle) {
+        MODULE_TABLE.retirer(this.etat(), cle);
     };
-    return Table;
+    return TableMutable;
 }(Enveloppe));
-exports.Table = Table;
-function creerTableVide(valInVersEx) {
-    return new Table(valInVersEx, { table: {}, mutable: Unite.ZERO });
+exports.TableMutable = TableMutable;
+function creerTableMutableVide(etatVersVal) {
+    return new TableMutable(etatVersVal);
 }
-exports.creerTableVide = creerTableVide;
+exports.creerTableMutableVide = creerTableMutableVide;
+// Partage de la  table passée en argument.
+function creerTableMutableEnveloppe(etatVersVal, t) {
+    return new TableMutable(etatVersVal, exports.FABRIQUE_TABLE.enveloppeMutable(t));
+}
+exports.creerTableMutableEnveloppe = creerTableMutableEnveloppe;
+/*
+* Création par copie de la table.
+*/
+function creerTableMutable(etatVersVal, t) {
+    var r = creerTableMutableVide(etatVersVal);
+    MODULE_TABLE.iterer(function (c, v) { return r.ajouter(c, v); }, exports.FABRIQUE_TABLE.enveloppeMutable(t));
+    return r;
+}
+exports.creerTableMutable = creerTableMutable;
 var IdentificationParCompteur = /** @class */ (function () {
     function IdentificationParCompteur(prefixe) {
         this.prefixe = prefixe;
@@ -535,7 +604,6 @@ var IdentificationParCompteur = /** @class */ (function () {
     };
     return IdentificationParCompteur;
 }());
-exports.IdentificationParCompteur = IdentificationParCompteur;
 function creerIdentificationParCompteur(prefixe) {
     return new IdentificationParCompteur(prefixe);
 }
@@ -549,101 +617,113 @@ function creerIdentifiant(s, cle) {
 exports.creerIdentifiant = creerIdentifiant;
 /*
 * Table utilisant des identificateurs comme clé.
-* Remarque : les tables précédentes fondées sur les tables en JSON utilisent nécessdairement le type string pour les clés.
+* Remarque : les tables précédentes fondées sur les tables en JSON utilisent nécessairement le type string pour les clés.
 */
-var TableIdentification = /** @class */ (function (_super) {
-    __extends(TableIdentification, _super);
-    function TableIdentification(sorte, valInVersEx, pop) {
-        if (pop === void 0) { pop = { table: {} }; }
-        var _this = _super.call(this, conversionFormatTable(valInVersEx), { table: pop.table, mutable: Unite.ZERO }) || this;
+var TableIdentificationMutable = /** @class */ (function (_super) {
+    __extends(TableIdentificationMutable, _super);
+    function TableIdentificationMutable(sorte, etatVersVal, table) {
+        if (table === void 0) { table = exports.FABRIQUE_TABLE.videMutable(); }
+        var _this = _super.call(this, conversionFormatTable(etatVersVal), table) || this;
         _this.sorte = sorte;
-        _this.valInVersEx = valInVersEx;
+        _this.etatVersVal = etatVersVal;
         return _this;
     }
-    TableIdentification.prototype.net = function (e) {
+    TableIdentificationMutable.prototype.net = function (e) {
         switch (e) {
             case 'taille': return this.taille().toString();
             case 'domaine': return this.domaine().map(function (v, i, t) { return JSON.stringify(v); }).toString();
             case 'image': return this.image().map(function (v, i, t) { return JSON.stringify(v); }).toString();
-            case 'graphe': return JSON.stringify(this.ex().table);
+            case 'graphe': return JSON.stringify(this.val().table);
         }
         return outils_1.jamais(e);
     };
-    TableIdentification.prototype.representation = function () {
+    TableIdentificationMutable.prototype.representation = function () {
         return this.net('graphe');
     };
-    TableIdentification.prototype.pourChaqueIn = function (f) {
+    TableIdentificationMutable.prototype.itererEtat = function (f) {
         var _this = this;
-        MODULE_TABLE.pourChaque(function (id, v, t) { return f(creerIdentifiant(_this.sorte, id), v, t); }, this.in());
+        MODULE_TABLE.iterer(function (id, v, t) { return f(creerIdentifiant(_this.sorte, id), v, t); }, this.etat());
     };
-    TableIdentification.prototype.pourChaque = function (f) {
+    TableIdentificationMutable.prototype.iterer = function (f) {
         var _this = this;
-        this.pourChaqueIn(function (c, v, t) { return f(c, _this.valInVersEx(v)); });
-        // moins efficace (deux parcours) : MODULE_TABLE.pourChaque(f, this.ex());
+        this.itererEtat(function (c, v, t) { return f(c, _this.etatVersVal(v)); });
+        // moins efficace (deux parcours) : MODULE_TABLE.iterer(f, this.ex());
     };
-    TableIdentification.prototype.valeurIN = function (ID_sorte) {
-        return MODULE_TABLE.valeur(this.in(), ID_sorte.val);
+    TableIdentificationMutable.prototype.valeurEtat = function (ID_sorte) {
+        return MODULE_TABLE.valeur(this.etat(), ID_sorte.val);
     };
-    TableIdentification.prototype.valeur = function (ID_sorte) {
-        return this.valInVersEx(this.valeurIN(ID_sorte));
+    TableIdentificationMutable.prototype.valeur = function (ID_sorte) {
+        return this.etatVersVal(this.valeurEtat(ID_sorte));
     };
-    TableIdentification.prototype.contient = function (ID_sorte) {
-        return MODULE_TABLE.contient(this.in(), ID_sorte.val);
+    TableIdentificationMutable.prototype.contient = function (ID_sorte) {
+        return MODULE_TABLE.contient(this.etat(), ID_sorte.val);
     };
-    TableIdentification.prototype.imageIn = function () {
-        return MODULE_TABLE.image(this.in());
+    TableIdentificationMutable.prototype.imageEtat = function () {
+        return MODULE_TABLE.image(this.etat());
     };
-    TableIdentification.prototype.image = function () {
+    TableIdentificationMutable.prototype.image = function () {
         var _this = this;
-        return MODULE_TABLE.transformationTableVersTableau(this.in(), function (c, v) { return _this.valInVersEx(v); });
-        // moins efficace : MODULE_TABLE.image(this.ex());
+        return MODULE_TABLE.transformationTableVersTableau(this.etat(), function (c, v) { return _this.etatVersVal(v); });
+        // moins efficace : MODULE_TABLE.image(this.val());
     };
-    TableIdentification.prototype.domaine = function () {
+    TableIdentificationMutable.prototype.domaine = function () {
         var _this = this;
-        return MODULE_TABLE.transformationTableVersTableau(this.in(), function (c, v) { return creerIdentifiant(_this.sorte, c); });
-        // moins efficace : return MODULE_TABLE.domaine(this.in()).
+        return MODULE_TABLE.transformationTableVersTableau(this.etat(), function (c, v) { return creerIdentifiant(_this.sorte, c); });
+        // moins efficace : return MODULE_TABLE.domaine(this.etat()).
         //    map((s) => { return { val: s, sorte: this.sorte } });
     };
-    TableIdentification.prototype.selectionCle = function () {
-        return creerIdentifiant(this.sorte, MODULE_TABLE.selectionCle(this.in()));
+    TableIdentificationMutable.prototype.selectionCle = function () {
+        return creerIdentifiant(this.sorte, MODULE_TABLE.selectionCle(this.etat()));
     };
-    TableIdentification.prototype.selectionCleSuivantCritereIn = function (prop) {
-        return creerIdentifiant(this.sorte, MODULE_TABLE.selectionCleSuivantCritere(this.in(), prop));
+    TableIdentificationMutable.prototype.selectionCleSuivantCritereEtat = function (prop) {
+        return creerIdentifiant(this.sorte, MODULE_TABLE.selectionCleSuivantCritere(this.etat(), prop));
     };
-    TableIdentification.prototype.selectionCleSuivantCritere = function (prop) {
+    TableIdentificationMutable.prototype.selectionCleSuivantCritere = function (prop) {
         var _this = this;
-        return this.selectionCleSuivantCritereIn(function (x) { return prop(_this.valInVersEx(x)); });
+        return this.selectionCleSuivantCritereEtat(function (x) { return prop(_this.etatVersVal(x)); });
         // moins efficace : MODULE_TABLE.selectionCleSuivantCritere(this.ex(), prop);
     };
-    TableIdentification.prototype.taille = function () {
-        return MODULE_TABLE.taille(this.in());
+    TableIdentificationMutable.prototype.taille = function () {
+        return MODULE_TABLE.taille(this.etat());
     };
-    TableIdentification.prototype.estVide = function () {
+    TableIdentificationMutable.prototype.estVide = function () {
         return this.taille() === 0;
     };
-    TableIdentification.prototype.ajouter = function (ID_sorte, x) {
-        MODULE_TABLE.ajouter(this.in(), ID_sorte.val, x);
+    TableIdentificationMutable.prototype.ajouter = function (ID_sorte, x) {
+        MODULE_TABLE.ajouter(this.etat(), ID_sorte.val, x);
     };
-    TableIdentification.prototype.retirer = function (ID_sorte) {
-        MODULE_TABLE.retirer(this.in(), ID_sorte.val);
+    TableIdentificationMutable.prototype.retirer = function (ID_sorte) {
+        MODULE_TABLE.retirer(this.etat(), ID_sorte.val);
     };
-    return TableIdentification;
+    return TableIdentificationMutable;
 }(Enveloppe));
-exports.TableIdentification = TableIdentification;
-function creerTableIdentificationVide(sorte, valInVersEx) {
-    return new TableIdentification(sorte, valInVersEx);
+exports.TableIdentificationMutable = TableIdentificationMutable;
+function creerTableIdentificationMutableVide(sorte, etatVersVal) {
+    return new TableIdentificationMutable(sorte, etatVersVal);
 }
-exports.creerTableIdentificationVide = creerTableIdentificationVide;
-function creerTableIdentification(sorte, valInVersEx, pop) {
-    return new TableIdentification(sorte, valInVersEx, pop);
+exports.creerTableIdentificationMutableVide = creerTableIdentificationMutableVide;
+/*
+* Création par copie de la table.
+*/
+function creerTableIdentificationMutable(sorte, etatVersVal, table) {
+    var r = creerTableIdentificationMutableVide(sorte, etatVersVal);
+    MODULE_TABLE.iterer(function (c, v) { return r.ajouter(creerIdentifiant(sorte, c), v); }, table);
+    return r;
 }
-exports.creerTableIdentification = creerTableIdentification;
+exports.creerTableIdentificationMutable = creerTableIdentificationMutable;
+/*
+ *  Création d'une enveloppe de la table passée en argument (qui est donc partagée).
+ */
+function creerTableIdentificationMutableEnveloppe(sorte, etatVersVal, table) {
+    return new TableIdentificationMutable(sorte, etatVersVal, table);
+}
+exports.creerTableIdentificationMutableEnveloppe = creerTableIdentificationMutableEnveloppe;
 // Version immutable
 var TableIdentificationImmutable = /** @class */ (function (_super) {
     __extends(TableIdentificationImmutable, _super);
-    function TableIdentificationImmutable(sorte, pop) {
-        if (pop === void 0) { pop = { table: {} }; }
-        var _this = _super.call(this, conversionFormatTable(function (x) { return x; }), pop) || this;
+    function TableIdentificationImmutable(sorte, table) {
+        if (table === void 0) { table = exports.FABRIQUE_TABLE.videImmutable(); }
+        var _this = _super.call(this, conversionFormatTable(function (x) { return x; }), table) || this;
         _this.sorte = sorte;
         return _this;
     }
@@ -652,38 +732,38 @@ var TableIdentificationImmutable = /** @class */ (function (_super) {
             case 'taille': return this.taille().toString();
             case 'domaine': return this.domaine().map(function (v, i, t) { return JSON.stringify(v); }).toString();
             case 'image': return this.image().map(function (v, i, t) { return JSON.stringify(v); }).toString();
-            case 'graphe': return JSON.stringify(this.ex().table);
+            case 'graphe': return JSON.stringify(this.val().table);
         }
         return outils_1.jamais(e);
     };
     TableIdentificationImmutable.prototype.representation = function () {
         return this.net('graphe');
     };
-    TableIdentificationImmutable.prototype.pourChaque = function (f) {
+    TableIdentificationImmutable.prototype.iterer = function (f) {
         var _this = this;
-        MODULE_TABLE.pourChaque(function (id, v, t) { return f(creerIdentifiant(_this.sorte, id), v, t); }, this.in());
+        MODULE_TABLE.iterer(function (id, v, t) { return f(creerIdentifiant(_this.sorte, id), v, t); }, this.etat());
     };
     TableIdentificationImmutable.prototype.valeur = function (ID_sorte) {
-        return MODULE_TABLE.valeur(this.in(), ID_sorte.val);
+        return MODULE_TABLE.valeur(this.etat(), ID_sorte.val);
     };
     TableIdentificationImmutable.prototype.contient = function (ID_sorte) {
-        return MODULE_TABLE.contient(this.in(), ID_sorte.val);
+        return MODULE_TABLE.contient(this.etat(), ID_sorte.val);
     };
     TableIdentificationImmutable.prototype.image = function () {
-        return MODULE_TABLE.image(this.in());
+        return MODULE_TABLE.image(this.etat());
     };
     TableIdentificationImmutable.prototype.domaine = function () {
         var _this = this;
-        return MODULE_TABLE.transformationTableVersTableau(this.in(), function (c, v) { return creerIdentifiant(_this.sorte, c); });
+        return MODULE_TABLE.transformationTableVersTableau(this.etat(), function (c, v) { return creerIdentifiant(_this.sorte, c); });
     };
     TableIdentificationImmutable.prototype.selectionCle = function () {
-        return creerIdentifiant(this.sorte, MODULE_TABLE.selectionCle(this.in()));
+        return creerIdentifiant(this.sorte, MODULE_TABLE.selectionCle(this.etat()));
     };
     TableIdentificationImmutable.prototype.selectionCleSuivantCritere = function (prop) {
-        return creerIdentifiant(this.sorte, MODULE_TABLE.selectionCleSuivantCritere(this.in(), prop));
+        return creerIdentifiant(this.sorte, MODULE_TABLE.selectionCleSuivantCritere(this.etat(), prop));
     };
     TableIdentificationImmutable.prototype.taille = function () {
-        return MODULE_TABLE.taille(this.in());
+        return MODULE_TABLE.taille(this.etat());
     };
     TableIdentificationImmutable.prototype.estVide = function () {
         return this.taille() === 0;
@@ -691,12 +771,8 @@ var TableIdentificationImmutable = /** @class */ (function (_super) {
     return TableIdentificationImmutable;
 }(Enveloppe));
 exports.TableIdentificationImmutable = TableIdentificationImmutable;
-function creerTableIdentificationImmutableVide(sorte) {
-    return new TableIdentificationImmutable(sorte);
-}
-exports.creerTableIdentificationImmutableVide = creerTableIdentificationImmutableVide;
-function creerTableIdentificationImmutable(sorte, pop) {
-    return new TableIdentificationImmutable(sorte, pop);
+function creerTableIdentificationImmutable(sorte, table) {
+    return new TableIdentificationImmutable(sorte, table);
 }
 exports.creerTableIdentificationImmutable = creerTableIdentificationImmutable;
 //# sourceMappingURL=types.js.map

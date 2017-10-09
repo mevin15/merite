@@ -22,7 +22,7 @@ class Test extends Enveloppe<IN, OUT, Etiquette> {
     }
 
     net(e: Etiquette): string {
-        let s = this.in();
+        let s = this.etat();
         switch (e) {
             case 'rep': return s.a.toString() + " - " + s.b;
         }

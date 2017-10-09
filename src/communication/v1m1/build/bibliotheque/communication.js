@@ -71,11 +71,11 @@ var ReseauTableDeNoeuds = /** @class */ (function (_super) {
     };
     // Précondition : id1 et id2 sont deux noeuds du réseau.
     ReseauTableDeNoeuds.prototype.sontVoisins = function (ID_sommet1, ID_sommet2) {
-        return types_1.creerTableIdentificationImmutable('sommet', this.valeurIN(ID_sommet1).voisins).
+        return types_1.creerTableIdentificationImmutable('sommet', this.valeurEtat(ID_sommet1).voisins).
             contient(ID_sommet2);
     };
-    ReseauTableDeNoeuds.prototype.pourChaqueNoeud = function (f) {
-        this.pourChaqueIn(f);
+    ReseauTableDeNoeuds.prototype.iterer = function (f) {
+        this.itererEtat(f);
     };
     ReseauTableDeNoeuds.prototype.noeud = function (ID_sommet) {
         return this.valeur(ID_sommet);
@@ -93,55 +93,59 @@ var ReseauTableDeNoeuds = /** @class */ (function (_super) {
         this.retirer(n.centre.ID);
     };
     return ReseauTableDeNoeuds;
-}(types_1.TableIdentification));
+}(types_1.TableIdentificationMutable));
 exports.ReseauTableDeNoeuds = ReseauTableDeNoeuds;
 function creerReseauVide() {
     return new ReseauTableDeNoeuds();
 }
 exports.creerReseauVide = creerReseauVide;
+function creerCentreSansVoisins(centre) {
+    return { centre: centre, voisins: types_1.FABRIQUE_TABLE.videMutable() };
+}
+exports.creerCentreSansVoisins = creerCentreSansVoisins;
 function conversionFormatNoeud(n) {
     return { centre: n.centre, voisins: types_1.conversionFormatTable(function (s) { return s; })(n.voisins) };
+    // return n; correct mais conserve le champ mutable.
 }
-var NoeudIN = /** @class */ (function (_super) {
-    __extends(NoeudIN, _super);
-    function NoeudIN(etat) {
+var NoeudEnveloppeMutable = /** @class */ (function (_super) {
+    __extends(NoeudEnveloppeMutable, _super);
+    function NoeudEnveloppeMutable(etat) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
-    NoeudIN.prototype.aPourVoisin = function (ID_sommet) {
-        return types_1.creerTableIdentificationImmutable('sommet', this.in().voisins).
+    NoeudEnveloppeMutable.prototype.aPourVoisin = function (ID_sommet) {
+        return types_1.creerTableIdentificationImmutable('sommet', this.etat().voisins).
             contient(ID_sommet);
     };
-    NoeudIN.prototype.pourChaqueVoisin = function (proc) {
-        types_1.creerTableIdentificationImmutable('sommet', this.in().voisins).pourChaque(proc);
+    NoeudEnveloppeMutable.prototype.itererVoisins = function (proc) {
+        types_1.creerTableIdentificationImmutable('sommet', this.etat().voisins).iterer(proc);
     };
-    NoeudIN.prototype.ajouterVoisin = function (v) {
-        return types_1.creerTableIdentification('sommet', function (x) { return x; }, this.in().voisins)
-            .ajouter(v.ID, v);
+    NoeudEnveloppeMutable.prototype.ajouterVoisin = function (v) {
+        types_1.creerTableIdentificationMutableEnveloppe('sommet', function (x) { return x; }, this.etat().voisins).ajouter(v.ID, v);
     };
-    return NoeudIN;
+    return NoeudEnveloppeMutable;
 }(types_1.Enveloppe));
-exports.NoeudIN = NoeudIN;
-var NoeudEX = /** @class */ (function (_super) {
-    __extends(NoeudEX, _super);
-    function NoeudEX(etat) {
+exports.NoeudEnveloppeMutable = NoeudEnveloppeMutable;
+var NoeudEnveloppeImmutable = /** @class */ (function (_super) {
+    __extends(NoeudEnveloppeImmutable, _super);
+    function NoeudEnveloppeImmutable(etat) {
         return _super.call(this, conversionFormatNoeud, etat) || this;
     }
-    NoeudEX.prototype.aPourVoisin = function (ID_sommet) {
-        return types_1.creerTableIdentificationImmutable('sommet', this.in().voisins).
+    NoeudEnveloppeImmutable.prototype.aPourVoisin = function (ID_sommet) {
+        return types_1.creerTableIdentificationImmutable('sommet', this.etat().voisins).
             contient(ID_sommet);
     };
-    NoeudEX.prototype.pourChaqueVoisin = function (proc) {
-        types_1.creerTableIdentificationImmutable('sommet', this.in().voisins).pourChaque(proc);
+    NoeudEnveloppeImmutable.prototype.itererVoisins = function (proc) {
+        types_1.creerTableIdentificationImmutable('sommet', this.etat().voisins).iterer(proc);
     };
-    return NoeudEX;
+    return NoeudEnveloppeImmutable;
 }(types_1.Enveloppe));
-exports.NoeudEX = NoeudEX;
+exports.NoeudEnveloppeImmutable = NoeudEnveloppeImmutable;
 var AssemblageReseauEnAnneau = /** @class */ (function (_super) {
     __extends(AssemblageReseauEnAnneau, _super);
-    function AssemblageReseauEnAnneau(nombreSommets, fabriqueNoeud) {
+    function AssemblageReseauEnAnneau(nombreSommets, fabriqueNoeudSansVoisins) {
         var _this = _super.call(this, function (x) { return x; }) || this;
         _this.nombreSommets = nombreSommets;
-        _this.fabriqueNoeud = fabriqueNoeud;
+        _this.fabriqueNoeudSansVoisins = fabriqueNoeudSansVoisins;
         console.log("* Construction d'un réseau en anneau de " + nombreSommets.toString() + " éléments.");
         return _this;
     }
@@ -163,18 +167,18 @@ var AssemblageReseauEnAnneau = /** @class */ (function (_super) {
         }
         // Définition du réseau
         var reseau = creerReseauVide();
-        this.pourChaque(function (i, s) {
-            var n = _this.fabriqueNoeud({ centre: s, voisins: { table: {}, mutable: types_1.Unite.ZERO } });
-            n.ajouterVoisin(_this.valeurIn((i + 1) % _this.nombreSommets));
-            n.ajouterVoisin(_this.valeurIn((i + (_this.nombreSommets - 1)) % _this.nombreSommets));
-            reseau.ajouterNoeud(n.ex());
+        this.iterer(function (i, s) {
+            var n = _this.fabriqueNoeudSansVoisins(s);
+            n.ajouterVoisin(_this.valeurEtat((i + 1) % _this.nombreSommets));
+            n.ajouterVoisin(_this.valeurEtat((i + (_this.nombreSommets - 1)) % _this.nombreSommets));
+            reseau.ajouterNoeud(n.val());
         });
         return reseau;
     };
     return AssemblageReseauEnAnneau;
-}(types_1.Tableau));
-function creerAssemblageReseauEnAnneau(taille, fabriqueNoeud) {
-    return new AssemblageReseauEnAnneau(taille, fabriqueNoeud);
+}(types_1.TableauMutable));
+function creerAssemblageReseauEnAnneau(taille, fabriqueNoeudSansVoisins) {
+    return new AssemblageReseauEnAnneau(taille, fabriqueNoeudSansVoisins);
 }
 exports.creerAssemblageReseauEnAnneau = creerAssemblageReseauEnAnneau;
 //# sourceMappingURL=communication.js.map

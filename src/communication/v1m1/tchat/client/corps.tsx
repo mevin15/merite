@@ -15,7 +15,7 @@ import {
   Identification, creerIdentificationParCompteur,
   TableIdentificationImmutable, creerTableIdentificationImmutable,
   creerTableImmutable, Identifiant, creerIdentifiant,
-  FormatDateFrEX, creerDate, DateImmutable
+  FormatDateFr, creerDateEnveloppe, DateImmutable
 } from "../../bibliotheque/types";
 
 import {
@@ -25,22 +25,22 @@ import { CanalClient, creerCanalClient } from "../../bibliotheque/client";
 
 import {
   hote, port2,
-  NoeudTchatImmutable, creerNoeudTchatEX,
+  NoeudTchatImmutable, creerNoeudTchatImmutable,
   SommetTchat, creerSommetTchat,
   creerMessageCommunication,
-  TypeMessageTchat, FormatMessageTchatEX, EtiquetteMessageTchat, MessageTchat,
-  FormatConfigurationTchatEX, EtiquetteConfigurationTchat,
+  TypeMessageTchat, FormatMessageTchat, EtiquetteMessageTchat, MessageTchat,
+  FormatConfigurationTchat, EtiquetteConfigurationTchat,
   ConfigurationTchat, creerConfigurationTchat,
-  FormatErreurTchatEX, EtiquetteErreurTchat,
+  FormatErreurTchat, EtiquetteErreurTchat,
   ErreurTchat, creerErreurTchat,
   decomposerConfiguration
 } from '../commun/tchat';
 
 type CanalTchat
   = CanalClient<
-  FormatErreurTchatEX,
-  FormatConfigurationTchatEX,
-  FormatMessageTchatEX, FormatMessageTchatEX, EtiquetteMessageTchat>;
+  FormatErreurTchat,
+  FormatConfigurationTchat,
+  FormatMessageTchat, FormatMessageTchat, EtiquetteMessageTchat>;
 
 const ApresAdmin = styled.div`
     background: ${CADRE};
@@ -183,15 +183,15 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
     this.ajouterMessage(m);
     if (m.destinataire.ID.val === ID_TOUS) {
       console.log("* Diffusion du message")
-      this.individusObjets.pourChaque((c, v) => {
-        let msg: MessageTchat = creerMessageCommunication(m.ID, m.emetteur.ID, v.ID, m.contenu, d.ex());
+      this.individusObjets.iterer((c, v) => {
+        let msg: MessageTchat = creerMessageCommunication(m.ID, m.emetteur.ID, v.ID, m.contenu, d.val());
         console.log("- brut : " + msg.brut());
         console.log("- net : " + msg.representation());
         this.canal.envoyerMessage(msg);
       });
       return;
     }
-    let msg: MessageTchat = creerMessageCommunication(m.ID, m.emetteur.ID, m.destinataire.ID, m.contenu, d.ex());
+    let msg: MessageTchat = creerMessageCommunication(m.ID, m.emetteur.ID, m.destinataire.ID, m.contenu, d.val());
     console.log("* Envoi du message");
     console.log("- brut : " + msg.brut());
     console.log("- net : " + msg.representation());
@@ -234,7 +234,7 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
     this.canal = creerCanalClient(this.adresseServeur);
 
     console.log("- du traitement des messages");
-    this.canal.enregistrerTraitementMessageRecu((m: FormatMessageTchatEX) => {
+    this.canal.enregistrerTraitementMessageRecu((m: FormatMessageTchat) => {
       let msg = new MessageTchat(m);
       console.log("* Réception");
       console.log("- du message brut : " + msg.brut());
@@ -258,7 +258,7 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
           ID: m.ID,
           emetteur: emetteur,
           destinataire: destinataire,
-          cachet: creerDate(m.date).representation(),
+          cachet: creerDateEnveloppe(m.date).representation(),
           contenu: contenu,
           accuses: []
         });
@@ -287,7 +287,7 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
         ID: this.generateur.identifier('message'),
         emetteur: this.individu(m.ID_emetteur),
         destinataire: this.individu(m.ID_destinataire),
-        cachet: creerDate(m.date).representation(),
+        cachet: creerDateEnveloppe(m.date).representation(),
         contenu: contenu,
         accuses: []
       });
@@ -295,16 +295,16 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
     });
 
     console.log("- du traitement de la configuration");
-    this.canal.enregistrerTraitementConfigurationRecue((c: FormatConfigurationTchatEX) => {
+    this.canal.enregistrerTraitementConfigurationRecue((c: FormatConfigurationTchat) => {
       let config = creerConfigurationTchat(c);
       console.log("* Réception");
       console.log("- de la configuration brute : " + config.brut());
       console.log("- de la configuration nette : " + config.representation());
       console.log("* Initialisation du noeud du réseau");
-      this.noeud = creerNoeudTchatEX(decomposerConfiguration(config));
+      this.noeud = creerNoeudTchatImmutable(decomposerConfiguration(config));
       this.individuSujet = {
-        ID: this.noeud.ex().centre.ID,
-        nom: this.noeud.ex().centre.pseudo,
+        ID: this.noeud.val().centre.ID,
+        nom: this.noeud.val().centre.pseudo,
         fond: COUPLE_FOND_ENCRE_SUJET.fond,
         encre: COUPLE_FOND_ENCRE_SUJET.encre
       };
@@ -312,7 +312,7 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
       let suite = new SuiteCouplesFondEncre();
       this.individusObjets =
         creerTableIdentificationImmutable('sommet',
-          creerTableImmutable(this.noeud.ex().voisins).application(s => {
+          creerTableImmutable(this.noeud.val().voisins).application(s => {
             let c = suite.courant();
             return {
               ID: s.ID,
@@ -320,7 +320,7 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
               fond: c.fond,
               encre: c.encre
             };
-          }).ex());
+          }).val());
       this.setState({
         etatInterface: EtatInterfaceTchat.NORMAL
       });
@@ -328,7 +328,7 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
     });
 
     console.log("- du traitement d'une erreur rédhibitoire");
-    this.canal.enregistrerTraitementErreurRecue((err: FormatErreurTchatEX) => {
+    this.canal.enregistrerTraitementErreurRecue((err: FormatErreurTchat) => {
       let erreur = creerErreurTchat(err);
       console.log("* Réception");
       console.log("- de l'erreur rédhibitoire brute : " + erreur.brut());

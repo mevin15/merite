@@ -1,11 +1,12 @@
 import {
     Unite,
-    FormatIdentifiableIN, FormatIdentifiableEX, Identifiant,
+    FormatIdentifiableMutable, FormatIdentifiableImmutable, Identifiant,
     Enveloppe,
-    Tableau, creerTableauVide,
-    TableIdentification, creerTableIdentification,
-    FormatTableIN,
-    FormatTableEX, conversionFormatTable,
+    TableauMutable, creerTableauMutableVide,
+    FABRIQUE_TABLE,
+    TableIdentificationMutable, creerTableIdentificationMutable, creerTableIdentificationMutableEnveloppe,
+    FormatTableMutable,
+    FormatTableImmutable, conversionFormatTable,
     TableIdentificationImmutable, creerTableIdentificationImmutable
 } from "./types"
 
@@ -67,11 +68,11 @@ export abstract class ErreurRedhibitoire<
 
 // La sorte pour les identifiants de sommets est 'sommet'. 
 export abstract class Sommet<
-    SIN extends FormatIdentifiableEX<'sommet'>,
-    SEX extends FormatIdentifiableEX<'sommet'>,
+    TIN extends FormatIdentifiableImmutable<'sommet'>,
+    TEX extends FormatIdentifiableImmutable<'sommet'>,
     E extends string
     >
-    extends Enveloppe<SIN, SEX, E> {
+    extends Enveloppe<TIN, TEX, E> {
 
 }
 
@@ -82,25 +83,25 @@ export abstract class Sommet<
 //   Conséquence : un seul format est utilisé, pour les sommets et pour les noeuds respectivement.
 
 
-export interface ReseauImmutable<S extends FormatIdentifiableEX<'sommet'>> {
+export interface ReseauImmutable<S extends FormatIdentifiableImmutable<'sommet'>> {
     representation(): string;
     possedeNoeud(ID_sommet: Identifiant<'sommet'>): boolean;
     sontVoisins(ID_sommet1: Identifiant<'sommet'>, ID_sommet2: Identifiant<'sommet'>): boolean;
-    pourChaqueNoeud(f: (id: Identifiant<'sommet'>, n: FormatNoeudEX<S>) => void): void;
-    noeud(ID_sommet: Identifiant<'sommet'>): FormatNoeudEX<S>;
+    iterer(f: (id: Identifiant<'sommet'>, n: FormatNoeudImmutable<S>) => void): void;
+    noeud(ID_sommet: Identifiant<'sommet'>): FormatNoeudImmutable<S>;
     identifiantsNoeuds(): Identifiant<'sommet'>[];
     selectionNoeud(): Identifiant<'sommet'>;
 }
 
 
-export interface ReseauMutable<S extends FormatIdentifiableEX<'sommet'>> extends
+export interface ReseauMutable<S extends FormatIdentifiableImmutable<'sommet'>> extends
     ReseauImmutable<S> {
-    ajouterNoeud(n: FormatNoeudEX<S>): void;
-    retirerNoeud(n: FormatNoeudEX<S>): void;
+    ajouterNoeud(n: FormatNoeudImmutable<S>): void;
+    retirerNoeud(n: FormatNoeudImmutable<S>): void;
 }
 
-export class ReseauTableDeNoeuds<S extends FormatIdentifiableEX<'sommet'>>
-    extends TableIdentification<'sommet', FormatNoeudEX<S>, FormatNoeudEX<S>>
+export class ReseauTableDeNoeuds<S extends FormatIdentifiableImmutable<'sommet'>>
+    extends TableIdentificationMutable<'sommet', FormatNoeudImmutable<S>, FormatNoeudImmutable<S>>
     implements ReseauMutable<S> {
 
     constructor() {
@@ -117,13 +118,13 @@ export class ReseauTableDeNoeuds<S extends FormatIdentifiableEX<'sommet'>>
     }
     // Précondition : id1 et id2 sont deux noeuds du réseau.
     sontVoisins(ID_sommet1: Identifiant<'sommet'>, ID_sommet2: Identifiant<'sommet'>): boolean {
-        return creerTableIdentificationImmutable('sommet', this.valeurIN(ID_sommet1).voisins).
+        return creerTableIdentificationImmutable('sommet', this.valeurEtat(ID_sommet1).voisins).
             contient(ID_sommet2);
     }
-    pourChaqueNoeud(f: (id: Identifiant<'sommet'>, n: FormatNoeudEX<S>) => void) {
-        this.pourChaqueIn(f);
+    iterer(f: (id: Identifiant<'sommet'>, n: FormatNoeudImmutable<S>) => void) {
+        this.itererEtat(f);
     }
-    noeud(ID_sommet: Identifiant<'sommet'>): FormatNoeudEX<S> {
+    noeud(ID_sommet: Identifiant<'sommet'>): FormatNoeudImmutable<S> {
         return this.valeur(ID_sommet);
     }
     identifiantsNoeuds(): Identifiant<'sommet'>[] {
@@ -132,106 +133,112 @@ export class ReseauTableDeNoeuds<S extends FormatIdentifiableEX<'sommet'>>
     selectionNoeud() {
         return this.selectionCle();
     }
-    ajouterNoeud(n: FormatNoeudEX<S>): void {
+    ajouterNoeud(n: FormatNoeudImmutable<S>): void {
         this.ajouter(n.centre.ID, n);
     }
-    retirerNoeud(n: FormatNoeudEX<S>): void {
+    retirerNoeud(n: FormatNoeudImmutable<S>): void {
         this.retirer(n.centre.ID);
     }
 }
 
-export function creerReseauVide<
-    S extends FormatIdentifiableEX<'sommet'>
-    >(): ReseauMutable<S> {
+export function creerReseauVide<S extends FormatIdentifiableImmutable<'sommet'>>(): ReseauMutable<S> {
     return new ReseauTableDeNoeuds();
 }
 
 // - noeud ::= (sommet, sommet*)
 // Hypothèse : un noeud ne modifie pas les sommets.
 //    Conséquence : un seul format (sortie) est utilisé pour les sommets.
-export interface FormatNoeudIN<S extends FormatIdentifiableEX<'sommet'>> {
+export interface FormatNoeudMutable<S extends FormatIdentifiableImmutable<'sommet'>> {
     readonly centre: S;
-    readonly voisins: FormatTableIN<S>
+    readonly voisins: FormatTableMutable<S>
 }
 
-export interface FormatNoeudEX<S extends FormatIdentifiableEX<'sommet'>> {
+export interface FormatNoeudImmutable<S extends FormatIdentifiableImmutable<'sommet'>> {
     readonly centre: S;
-    readonly voisins: FormatTableEX<S>
+    readonly voisins: FormatTableImmutable<S>
 }
 
-function conversionFormatNoeud<S extends FormatIdentifiableEX<'sommet'>>(
-    n: FormatNoeudIN<S>): FormatNoeudEX<S> {
-    return { centre: n.centre, voisins: conversionFormatTable<S, S>((s) => s)(n.voisins) };
+export function creerCentreSansVoisins<S extends FormatIdentifiableImmutable<'sommet'>>(centre : S)
+    : FormatNoeudMutable<S>
+{
+    return {centre : centre, voisins: FABRIQUE_TABLE.videMutable()};
 }
+
+function conversionFormatNoeud<S extends FormatIdentifiableImmutable<'sommet'>>(
+    n: FormatNoeudMutable<S>): FormatNoeudImmutable<S> {
+    return { centre: n.centre, voisins: conversionFormatTable<S, S>((s) => s)(n.voisins) }; 
+    // return n; correct mais conserve le champ mutable.
+}
+
+
 
 export type EtiquetteNoeud = 'centre' | 'voisins';
 
 
-export interface NoeudImmutable<S extends FormatIdentifiableEX<'sommet'>> {
+export interface NoeudImmutable<S extends FormatIdentifiableImmutable<'sommet'>> {
     aPourVoisin(ID_sommet: Identifiant<'sommet'>): boolean;
-    pourChaqueVoisin(proc: (ID_sommet: Identifiant<'sommet'>, v: S) => void): void;
-    ex() : FormatNoeudEX<S>
+    itererVoisins(proc: (ID_sommet: Identifiant<'sommet'>, v: S) => void): void;
+    val() : FormatNoeudImmutable<S>
 }
 
-export interface NoeudMutable<S extends FormatIdentifiableEX<'sommet'>>
+export interface NoeudMutable<S extends FormatIdentifiableImmutable<'sommet'>>
     extends NoeudImmutable<S> {
     ajouterVoisin(v: S): void;
 }
 
 
-export abstract class NoeudIN<S extends FormatIdentifiableEX<'sommet'>>
-    extends Enveloppe<FormatNoeudIN<S>, FormatNoeudEX<S>, EtiquetteNoeud>
+export abstract class NoeudEnveloppeMutable<S extends FormatIdentifiableImmutable<'sommet'>>
+    extends Enveloppe<FormatNoeudMutable<S>, FormatNoeudImmutable<S>, EtiquetteNoeud>
     implements NoeudMutable<S> {
 
-    constructor(etat: FormatNoeudIN<S>) {
+    constructor(etat: FormatNoeudMutable<S>) {
         super(conversionFormatNoeud, etat);
     }
 
     aPourVoisin(ID_sommet: Identifiant<'sommet'>): boolean {
-        return creerTableIdentificationImmutable('sommet', this.in().voisins).
+        return creerTableIdentificationImmutable('sommet', this.etat().voisins).
             contient(ID_sommet);
     }
-    pourChaqueVoisin(proc: (ID_sommet: Identifiant<'sommet'>, v: S) => void) {
-        creerTableIdentificationImmutable('sommet', this.in().voisins).pourChaque(proc);
+    itererVoisins(proc: (ID_sommet: Identifiant<'sommet'>, v: S) => void) {
+        creerTableIdentificationImmutable('sommet', this.etat().voisins).iterer(proc);
     }
 
     ajouterVoisin(v: S): void {
-        return creerTableIdentification('sommet', x => x, this.in().voisins)
-            .ajouter(v.ID, v);
+        creerTableIdentificationMutableEnveloppe('sommet', (x) => x, this.etat().voisins).ajouter(v.ID, v);
     }
 
 }
 
-export abstract class NoeudEX<S extends FormatIdentifiableEX<'sommet'>>
-    extends Enveloppe<FormatNoeudEX<S>, FormatNoeudEX<S>, EtiquetteNoeud>
+export abstract class NoeudEnveloppeImmutable<S extends FormatIdentifiableImmutable<'sommet'>>
+    extends Enveloppe<FormatNoeudImmutable<S>, FormatNoeudImmutable<S>, EtiquetteNoeud>
     implements NoeudImmutable<S> {
 
-    constructor(etat: FormatNoeudEX<S>) {
+    constructor(etat: FormatNoeudImmutable<S>) {
         super(conversionFormatNoeud, etat);
     }
 
     aPourVoisin(ID_sommet: Identifiant<'sommet'>): boolean {
-        return creerTableIdentificationImmutable('sommet', this.in().voisins).
+        return creerTableIdentificationImmutable('sommet', this.etat().voisins).
             contient(ID_sommet);
     }
-    pourChaqueVoisin(proc: (ID_sommet: Identifiant<'sommet'>, v: S) => void) {
-        creerTableIdentificationImmutable('sommet', this.in().voisins).pourChaque(proc);
+    itererVoisins(proc: (ID_sommet: Identifiant<'sommet'>, v: S) => void) {
+        creerTableIdentificationImmutable('sommet', this.etat().voisins).iterer(proc);
     }
 
 }
 
-export interface AssemblageReseau<S extends FormatIdentifiableEX<'sommet'>> {
+export interface AssemblageReseau<S extends FormatIdentifiableImmutable<'sommet'>> {
     ajouterSommet(s: S): void;
     assembler(): ReseauMutable<S>;
 }
 
-class AssemblageReseauEnAnneau<S extends FormatIdentifiableEX<'sommet'>>
-    extends Tableau<S, S>
+class AssemblageReseauEnAnneau<S extends FormatIdentifiableImmutable<'sommet'>>
+    extends TableauMutable<S, S>
     implements AssemblageReseau<S> {
 
     constructor(
         private nombreSommets: number,
-        private fabriqueNoeud: (n: FormatNoeudIN<S>) => NoeudIN<S>
+        private fabriqueNoeudSansVoisins: (centre: S) => NoeudMutable<S>
     ) {
         super(x => x)
         console.log("* Construction d'un réseau en anneau de " + nombreSommets.toString() + " éléments.");
@@ -253,19 +260,19 @@ class AssemblageReseauEnAnneau<S extends FormatIdentifiableEX<'sommet'>>
         }
         // Définition du réseau
         let reseau: ReseauMutable<S> = creerReseauVide();
-        this.pourChaque((i: number, s: S) => {
-            let n: NoeudIN<S> = this.fabriqueNoeud({ centre: s, voisins: { table: {}, mutable: Unite.ZERO } });
-            n.ajouterVoisin(this.valeurIn((i + 1) % this.nombreSommets));
-            n.ajouterVoisin(this.valeurIn((i + (this.nombreSommets - 1)) % this.nombreSommets));
-            reseau.ajouterNoeud(n.ex());
+        this.iterer((i: number, s: S) => {
+            let n: NoeudMutable<S> = this.fabriqueNoeudSansVoisins(s);
+            n.ajouterVoisin(this.valeurEtat((i + 1) % this.nombreSommets));
+            n.ajouterVoisin(this.valeurEtat((i + (this.nombreSommets - 1)) % this.nombreSommets));
+            reseau.ajouterNoeud(n.val());
         });
         return reseau;
     }
 }
 
-export function creerAssemblageReseauEnAnneau<SO extends FormatIdentifiableEX<'sommet'>>(
+export function creerAssemblageReseauEnAnneau<SO extends FormatIdentifiableImmutable<'sommet'>>(
     taille: number,
-    fabriqueNoeud: (n: FormatNoeudIN<SO>) => NoeudIN<SO>)
+    fabriqueNoeudSansVoisins: (centre: SO) => NoeudMutable<SO>)
     : AssemblageReseau<SO> {
-    return new AssemblageReseauEnAnneau<SO>(taille, fabriqueNoeud);
+    return new AssemblageReseauEnAnneau<SO>(taille, fabriqueNoeudSansVoisins);
 }

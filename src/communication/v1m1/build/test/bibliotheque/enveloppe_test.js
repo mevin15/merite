@@ -19,7 +19,7 @@ var Test = /** @class */ (function (_super) {
         return _super.call(this, function (x) { return x; }, etat) || this;
     }
     Test.prototype.net = function (e) {
-        var s = this.in();
+        var s = this.etat();
         switch (e) {
             case 'rep': return s.a.toString() + " - " + s.b;
         }

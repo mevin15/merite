@@ -100,15 +100,15 @@ var CorpsBrut = /** @class */ (function (_super) {
         this.ajouterMessage(m);
         if (m.destinataire.ID.val === ID_TOUS) {
             console.log("* Diffusion du message");
-            this.individusObjets.pourChaque(function (c, v) {
-                var msg = tchat_1.creerMessageCommunication(m.ID, m.emetteur.ID, v.ID, m.contenu, d.ex());
+            this.individusObjets.iterer(function (c, v) {
+                var msg = tchat_1.creerMessageCommunication(m.ID, m.emetteur.ID, v.ID, m.contenu, d.val());
                 console.log("- brut : " + msg.brut());
                 console.log("- net : " + msg.representation());
                 _this.canal.envoyerMessage(msg);
             });
             return;
         }
-        var msg = tchat_1.creerMessageCommunication(m.ID, m.emetteur.ID, m.destinataire.ID, m.contenu, d.ex());
+        var msg = tchat_1.creerMessageCommunication(m.ID, m.emetteur.ID, m.destinataire.ID, m.contenu, d.val());
         console.log("* Envoi du message");
         console.log("- brut : " + msg.brut());
         console.log("- net : " + msg.representation());
@@ -158,7 +158,7 @@ var CorpsBrut = /** @class */ (function (_super) {
                     ID: m.ID,
                     emetteur: emetteur_1,
                     destinataire: destinataire_1,
-                    cachet: types_1.creerDate(m.date).representation(),
+                    cachet: types_1.creerDateEnveloppe(m.date).representation(),
                     contenu: contenu,
                     accuses: []
                 });
@@ -185,7 +185,7 @@ var CorpsBrut = /** @class */ (function (_super) {
                 ID: _this.generateur.identifier('message'),
                 emetteur: _this.individu(m.ID_emetteur),
                 destinataire: _this.individu(m.ID_destinataire),
-                cachet: types_1.creerDate(m.date).representation(),
+                cachet: types_1.creerDateEnveloppe(m.date).representation(),
                 contenu: contenu,
                 accuses: []
             });
@@ -198,17 +198,17 @@ var CorpsBrut = /** @class */ (function (_super) {
             console.log("- de la configuration brute : " + config.brut());
             console.log("- de la configuration nette : " + config.representation());
             console.log("* Initialisation du noeud du réseau");
-            _this.noeud = tchat_1.creerNoeudTchatEX(tchat_1.decomposerConfiguration(config));
+            _this.noeud = tchat_1.creerNoeudTchatImmutable(tchat_1.decomposerConfiguration(config));
             _this.individuSujet = {
-                ID: _this.noeud.ex().centre.ID,
-                nom: _this.noeud.ex().centre.pseudo,
+                ID: _this.noeud.val().centre.ID,
+                nom: _this.noeud.val().centre.pseudo,
                 fond: couleur_1.COUPLE_FOND_ENCRE_SUJET.fond,
                 encre: couleur_1.COUPLE_FOND_ENCRE_SUJET.encre
             };
             _this.generateur = types_1.creerIdentificationParCompteur(_this.individuSujet.ID.val + "-ERR-");
             var suite = new couleur_1.SuiteCouplesFondEncre();
             _this.individusObjets =
-                types_1.creerTableIdentificationImmutable('sommet', types_1.creerTableImmutable(_this.noeud.ex().voisins).application(function (s) {
+                types_1.creerTableIdentificationImmutable('sommet', types_1.creerTableImmutable(_this.noeud.val().voisins).application(function (s) {
                     var c = suite.courant();
                     return {
                         ID: s.ID,
@@ -216,7 +216,7 @@ var CorpsBrut = /** @class */ (function (_super) {
                         fond: c.fond,
                         encre: c.encre
                     };
-                }).ex());
+                }).val());
             _this.setState({
                 etatInterface: EtatInterfaceTchat.NORMAL
             });

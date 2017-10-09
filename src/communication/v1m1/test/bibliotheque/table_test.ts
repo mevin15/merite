@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import * as mocha from 'mocha';
 
-import { Table, creerTableVide } from "../../bibliotheque/types";
+import { TableMutable, creerTableMutableVide } from "../../bibliotheque/types";
 
 
 interface IN {
@@ -15,8 +15,8 @@ interface OUT {
 
 
 describe('classe Table', () => {
-    let table: Table<IN, OUT> 
-        = creerTableVide((x) => x);
+    let table: TableMutable<IN, OUT> 
+        = creerTableMutableVide((x) => x);
     table.ajouter("a1", { a: 1, b: "coco1" });
     table.ajouter("a2", { a: 2, b: "coco2" });
     let oracle = 2;
