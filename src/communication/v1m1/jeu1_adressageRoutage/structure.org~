@@ -1,0 +1,28 @@
+* Sommet
+
+- ID 
+- domaine : Mot
+
+* Noeud (Mutable | Immutable)
+
+- centre : Sommet
+- voisins : Sommet*
+
+* Reseau
+
+* Protocole de communication
+
+
+| Client                  | Serveur                           |
+|-------------------------+-----------------------------------|
+| 0. Créer INIT.          |                                   |
+| 1. Transmettre INIT.    |                                   |
+|                         | Identifier INIT en TRANSIT.       |
+|                         | Transmettre TRANSIT.              |
+| 2. Transmettre TRANSIT. |                                   |
+|                         | Accuser réception TRANSIT.        |
+|                         | - Si SUCCES, transmettre TRANSIT. |
+| 3. Ignorer TRANSIT.     |                                   |
+| 4. Consulter TRANSIT.   |                                   |
+| Deviner FIN.            |                                   |
+|                         | Accuser Reception FIN.            |

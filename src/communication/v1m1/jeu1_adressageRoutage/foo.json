@@ -1,0 +1,96 @@
+{
+    "configurationInitiale":0,
+    "centre":{"ID":{"val":"DOM-0","sorte":"sommet"},"domaine":{"_etat":{"taille":1,"tableau":[0]}}},
+    "population":{
+	"table":{"UTIL-DOM-0-0":{"ID":{"val":"UTIL-DOM-0-0","sorte":"utilisateur"},
+				 "pseudo":{"_etat":{"taille":1,"tableau":[0]}}},
+		 "UTIL-DOM-0-1":{"ID":{"val":"UTIL-DOM-0-1","sorte":"utilisateur"},
+				 "pseudo":{"_etat":{"taille":1,"tableau":[1]}}}}},
+    "utilisateur":{"ID":{"val":"UTIL-DOM-0-0","sorte":"utilisateur"},
+		   "pseudo":{"_etat":{"taille":1,"tableau":[0]}}},
+    "voisins":{"table":{"DOM-1":{"ID":{"val":"DOM-1","sorte":"sommet"},
+				 "domaine":{"_etat":{"taille":1,"tableau":[1]}}},
+			"DOM-3":{"ID":{"val":"DOM-3","sorte":"sommet"},
+				 "domaine":{"_etat":{"taille":2,"tableau":[1,1]}}}}},
+    "date":{"seconde":25,"minute":24,"heure":14,"jourSemaine":0,"jourMois":18,"mois":8,"annee":2017}}
+
+
+{"configurationInitiale":0,"centre":{"ID":{"val":"DOM-0","sorte":"sommet"},"domaine":{"structure":{"taille":1,"tableau":[0]}}},"population":{"table":{"UTIL-DOM-0-0":{"ID":{"val":"UTIL-DOM-0-0","sorte":"utilisateur"},"pseudo":{"structure":{"taille":1,"tableau":[0]}}},"UTIL-DOM-0-1":{"ID":{"val":"UTIL-DOM-0-1","sorte":"utilisateur"},"pseudo":{"structure":{"taille":1,"tableau":[1]}}}}},"utilisateur":{"ID":{"val":"UTIL-DOM-0-0","sorte":"utilisateur"},"pseudo":{"structure":{"taille":1,"tableau":[0]}}},"voisins":{"table":{"DOM-1":{"ID":{"val":"DOM-1","sorte":"sommet"},"domaine":{"structure":{"taille":1,"tableau":[1]}}},"DOM-3":{"ID":{"val":"DOM-3","sorte":"sommet"},"domaine":{"structure":{"taille":2,"tableau":[1,1]}}}}},"date":{"seconde":50,"minute":41,"heure":15,"jourSemaine":0,"jourMois":18,"mois":8,"annee":2017}}
+
+
+{"configurationInitiale":0,"centre":{"ID":{"val":"DOM-0","sorte":"sommet"},"domaine":{"structure":{"taille":1,"tableau":[0]}}},"population":{"table":{"UTIL-DOM-0-0":{"ID":{"val":"UTIL-DOM-0-0","sorte":"utilisateur"},"pseudo":{"structure":{"taille":1,"tableau":[0]}}},"UTIL-DOM-0-1":{"ID":{"val":"UTIL-DOM-0-1","sorte":"utilisateur"},"pseudo":{"structure":{"taille":1,"tableau":[1]}}}}},"utilisateur":{"ID":{"val":"UTIL-DOM-0-0","sorte":"utilisateur"},"pseudo":{"structure":{"taille":1,"tableau":[0]}}},"voisins":{"table":{"DOM-1":{"ID":{"val":"DOM-1","sorte":"sommet"},"domaine":{"structure":{"taille":1,"tableau":[1]}}},"DOM-3":{"ID":{"val":"DOM-3","sorte":"sommet"},"domaine":{"structure":{"taille":2,"tableau":[1,1]}}}}},"date":{"seconde":50,"minute":41,"heure":15,"jourSemaine":0,"jourMois":18,"mois":8,"annee":2017}} 
+
+(
+    centre : [0] (DOM-0) ;
+ 
+ population : {
+     "table":{"UTIL-DOM-0-0":{"ID":{"val":"UTIL-DOM-0-0","sorte":"utilisateur"},
+			      "pseudo":{"structure":{"taille":1,"tableau":[0]}}},
+	      "UTIL-DOM-0-1":{"ID":{"val":"UTIL-DOM-0-1","sorte":"utilisateur"},
+			      "pseudo":{"structure":{"taille":1,"tableau":[1]}}}}} ;
+
+ utilisateur : [0] (UTIL-DOM-0-0) ;
+ 
+ voisins : {
+     "table":{"DOM-1":{"ID":{"val":"DOM-1","sorte":"sommet"},
+		       "domaine":{"structure":{"taille":1,"tableau":[1]}}},
+	      "DOM-3":{"ID":{"val":"DOM-3","sorte":"sommet"},
+		       "domaine":{"structure":{"taille":2,"tableau":[1,1]}}}}} ;
+
+    crée le : 15:03:55, le 18/09/2017
+)
+
+
+{
+    "configurationInitiale":0,
+    "centre":{"ID":{"val":"DOM-0","sorte":"sommet"},
+	      "domaine":{"structure":{"taille":1,"tableau":[0]}}},
+    "population":{"table":{
+	"UTIL-DOM-0-1":{"ID":{"val":"UTIL-DOM-0-1","sorte":"utilisateur"},
+			"pseudo":{"structure":{"taille":1,"tableau":[1]}}}}},
+    "utilisateur":{"ID":{"val":"UTIL-DOM-0-1","sorte":"utilisateur"},
+		   "pseudo":{"structure":{"taille":1,"tableau":[1]}}},
+    "voisins":{"table":{"DOM-1":{"ID":{"val":"DOM-1","sorte":"sommet"},
+				 "domaine":{"structure":{"taille":1,"tableau":[1]}}},
+			"DOM-3":{"ID":{"val":"DOM-3","sorte":"sommet"},
+				 "domaine":{"structure":{"taille":2,"tableau":[1,1]}}}}},
+    "date":{"seconde":13,"minute":50,"heure":15,"jourSemaine":0,"jourMois":18,"mois":8,"annee":2017}}
+
+
+(centre : xxx (DOM-0) ; population : {"table":{"UTIL-DOM-0-1":{"ID":{"val":"UTIL-DOM-0-1","sorte":"utilisateur"},"pseudo":{"structure":{"taille":1,"tableau":[1]}}}}} ; utilisateur : XXX (UTIL-DOM-0-1) ; voisins : {"table":{"DOM-1":{"ID":{"val":"DOM-1","sorte":"sommet"},"domaine":{"structure":{"taille":1,"tableau":[1]}}},"DOM-3":{"ID":{"val":"DOM-3","sorte":"sommet"},"domaine":{"structure":{"taille":2,"tableau":[1,1]}}}}} ; créé le : 15:50:13, le 18/09/2017)
+
+
+
+{
+    "configurationInitiale":0,
+    "centre":{"ID":{"val":"DOM-0","sorte":"sommet"},
+	      "domaine":{"structure":{"taille":1,"tableau":[0]}}},
+    "population":{"table":{"UTIL-DOM-0-0":{"ID":{"val":"UTIL-DOM-0-0","sorte":"utilisateur"},
+					   "pseudo":{"structure":{"taille":1,"tableau":[0]}}},
+			   "UTIL-DOM-0-1":{"ID":{"val":"UTIL-DOM-0-1","sorte":"utilisateur"},
+					   "pseudo":{"structure":{"taille":1,"tableau":[1]}}}}},
+    "utilisateur":{"ID":{"val":"UTIL-DOM-0-0","sorte":"utilisateur"},
+		   "pseudo":{"structure":{"taille":1,"tableau":[0]}}},
+    "voisins":{"table":{"DOM-1":{"ID":{"val":"DOM-1","sorte":"sommet"},
+				 "domaine":{"structure":{"taille":1,"tableau":[1]}}},
+			"DOM-3":{"ID":{"val":"DOM-3","sorte":"sommet"},
+				 "domaine":{"structure":{"taille":2,"tableau":[1,1]}}}}},
+    "date":{"seconde":0,"minute":50,"heure":15,"jourSemaine":0,"jourMois":18,"mois":8,"annee":2017}} 
+
+
+
+(centre : xxx (DOM-0) ; population : {"table":{"UTIL-DOM-0-0":{"ID":{"val":"UTIL-DOM-0-0","sorte":"utilisateur"},"pseudo":{"structure":{"taille":1,"tableau":[0]}}},"UTIL-DOM-0-1":{"ID":{"val":"UTIL-DOM-0-1","sorte":"utilisateur"},"pseudo":{"structure":{"taille":1,"tableau":[1]}}}}} ; utilisateur : XXX (UTIL-DOM-0-0) ; voisins : {"table":{"DOM-1":{"ID":{"val":"DOM-1","sorte":"sommet"},"domaine":{"structure":{"taille":1,"tableau":[1]}}},"DOM-3":{"ID":{"val":"DOM-3","sorte":"sommet"},"domaine":{"structure":{"taille":2,"tableau":[1,1]}}}}} ; créé le : 15:50:00, le 18/09/2017)
+
+
+
+
+
+
+{
+    "configurationInitiale":0,
+    "centre":{"ID":{"val":"DOM-0","sorte":"sommet"},"domaine":{"structure":{"taille":1,"tableau":[0]}}},"population":{"table":{"UTIL-DOM-0-0":{"ID":{"val":"UTIL-DOM-0-0","sorte":"utilisateur"},"pseudo":{"structure":{"taille":1,"tableau":[0]}}},"UTIL-DOM-0-1":{"ID":{"val":"UTIL-DOM-0-1","sorte":"utilisateur"},"pseudo":{"structure":{"taille":1,"tableau":[1]}}}}},"utilisateur":{"ID":{"val":"UTIL-DOM-0-0","sorte":"utilisateur"},"pseudo":{"structure":{"taille":1,"tableau":[0]}}},"voisins":{"table":{"DOM-1":{"ID":{"val":"DOM-1","sorte":"sommet"},"domaine":{"structure":{"taille":1,"tableau":[1]}}},"DOM-3":{"ID":{"val":"DOM-3","sorte":"sommet"},"domaine":{"structure":{"taille":2,"tableau":[1,1]}}}}},"date":{"seconde":0,"minute":50,"heure":15,"jourSemaine":0,"jourMois":18,"mois":8,"annee":2017}}
+
+{
+    "configurationInitiale":0,
+    "centre":{"ID":{"val":"DOM-0","sorte":"sommet"},"domaine":{"structure":{"taille":1,"tableau":[0]}}},"population":{"table":{"UTIL-DOM-0-1":{"ID":{"val":"UTIL-DOM-0-1","sorte":"utilisateur"},"pseudo":{"structure":{"taille":1,"tableau":[1]}}}}},"utilisateur":{"ID":{"val":"UTIL-DOM-0-1","sorte":"utilisateur"},"pseudo":{"structure":{"taille":1,"tableau":[1]}}},"voisins":{"table":{"DOM-1":{"ID":{"val":"DOM-1","sorte":"sommet"},"domaine":{"structure":{"taille":1,"tableau":[1]}}},"DOM-3":{"ID":{"val":"DOM-3","sorte":"sommet"},"domaine":{"structure":{"taille":2,"tableau":[1,1]}}}}},"date":{"seconde":13,"minute":50,"heure":15,"jourSemaine":0,"jourMois":18,"mois":8,"annee":2017}}
+
