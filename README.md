@@ -1,21 +1,73 @@
+Merite
+======
+
+Installation
+------------
+
+Copie du dépôt GitHub :
+```
+$ git clone https://www.github.com/LoOTW/merite
+```
+Installation de la bonne version de node avec [nvm](https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-debian-8) :
+```
+$ nvm install 6.11.0
+```
+Rajouter une des lignes suivantes au fichier /etc/hosts :
+```
+::ffff:127.0.0.1        merite
+```
+ou
+```
+127.0.0.1               merite
+```
+
+
+Exécution
+---------
+
+Installation des dépendances :
+```
+$ npm install
+```
+Le répertoire "./node_modules" est alors créé : il contient tous les
+modules externes du projet.
+
+Compilation :
+```
+$ npm run build
+```
+Lancement du serveur (bientôt plus nécessaire) :
+```
+$ node build/tchat/serveur/serveurTchat.js
+```
+Dans certains cas, une utilisation précédente du port 3000 lève une erreur. Il suffit alors d'utiliser la commande suivante :
+```
+$ fuser -k 3000/tcp
+```
+
+
+Il faut alors ouvrir 4 onglets différents à l'adresse [merite:3000](merite:3000), ces 4 "utilisateurs" sont disposés en anneau et peuvent alors commencer à communiquer.
+
+Fonctionnement - legacy
+=======================
 A revoir entièrement.
 
-* Recommandations concernant Javascript
-
+Recommandations concernant Javascript
+-
 - Utiliser ECMAscript 2015.
 
-* Gestion des modules
-
+Gestion des modules
+-
 - côté serveur : utiliser l'API de Node
 - côté client : utiliser l'API du navigateur
 
 cf. https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications
 
-* Format des données : JSON
+Format des données : JSON
+-
+**Messages**
 
-** Messages
-
-#+BEGIN_SRC js
+``` javascript
 {
  emetteur : String,
  identifiant : String,
@@ -23,10 +75,10 @@ cf. https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebS
  type : String,
  contenu : String,
 } 
-#+END_SRC
+```
 
-* Protocole de communication
-
+Protocole de communication
+-
 Côté client
 - Le client initie une WebSocket avec le serveur.
 - Le client envoie son identité (pseudo).
@@ -39,15 +91,15 @@ Côté serveur
 - Le serveur reçoit un message au format JSON spécifié.
 - Le serveur envoie un message au format JSON spécifié.
 
-** Formalisation
-
-*** données
+Formalisation
+-
+**données**
 
 - message
   - emetteur
   - destinataire
 
-*** Serveur
+**Serveur**
 
 Canaux
 - initier(rep)
@@ -62,7 +114,7 @@ Etat du serveur
   par canal 
 - Autorisation(i, j) : communication de i vers j autorisée
 
-#+BEGIN_SRC js
+``` javascript
 - initier(rep) & Port(p) -> rep(serveur_p) & Port(p+1)
 
 - serveur_p(canal) & C(i) & Nom(i, n) 
@@ -90,10 +142,10 @@ Etat du serveur
   & Description(j, msg.destinataire, canalDest) & ¬Autorisation(i, j)
   ->
   canal(ERREUR, "Interdit vers " msg.destinataire) 
- #+END_SRC
+ ```
 
 
-* Organisation
+**Organisation**
 
 Trois axes pour organiser le code
 - fonctionnalités
@@ -105,15 +157,9 @@ Cf. Express qui donne une architecture type.
 - http://expressjs.com/en/starter/generator.html
 
 
-* Travail à faire
-
-** TODO  Réaliser les fonctions de communication. BB
-   DEADLINE: <2017-06-29 jeu.>
-
-** TODO Définir les messages. HG + BB
-   DEADLINE: <2017-06-29 jeu.>
+Travail à faire
+-
+- TODO  Réaliser les fonctions de communication
+- TODO Définir les messages
+- TODO Spécifier le jeu 1
    
-** TODO Spécifier le jeu 1. HG
-   DEADLINE: <2017-06-29 jeu.>
-   
-
