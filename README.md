@@ -12,7 +12,7 @@ Installation de la bonne version de node avec [nvm](https://www.digitalocean.com
 ```
 $ nvm install 6.11.0
 ```
-Rajouter une des lignes suivantes au fichier /etc/hosts :
+Rajouter une des lignes suivantes au fichier /etc/hosts, en tapant par exemple la commande *nano* */etc/hosts* :
 ```
 ::ffff:127.0.0.1        merite
 ```
@@ -36,13 +36,10 @@ Compilation :
 ```
 $ npm run build
 ```
-Lancement du serveur (bientôt plus nécessaire) :
-```
-$ node build/tchat/serveur/serveurTchat.js
-```
+
 Dans certains cas, une utilisation précédente du port 3000 lève une erreur. Il suffit alors d'utiliser la commande suivante :
 ```
-$ fuser -k 3000/tcp
+$ sudo fuser -k 3000/tcp
 ```
 
 
@@ -50,7 +47,6 @@ Il faut alors ouvrir 4 onglets différents à l'adresse [merite:3000](merite:300
 
 Fonctionnement - legacy
 =======================
-A revoir entièrement.
 
 Recommandations concernant Javascript
 -
