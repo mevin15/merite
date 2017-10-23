@@ -4,10 +4,10 @@
   "description": "Communication via web socket avec partage d'une biliotheque.",
   "main": "webpack.config.js",
   "scripts": {
+    "start": "node build/tchat/serveur/serveurTchat.js",    
     "tsc": "tsc",
     "webpack": "webpack",
     "build": "npm run tsc && npm run verif && npm run webpack",
-    "start": "node build/tchat/serveur/serveurTchat.js",
     "test": "mocha -r ts-node/register test/general.ts",
     "verif": "tslint --exclude bibiliotheque/js **/*.ts"
   },
