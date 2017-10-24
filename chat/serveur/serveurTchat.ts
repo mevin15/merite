@@ -39,7 +39,7 @@ class LienChat extends LienWebSocket<
     > { }
 
 
-const anneau: ReseauChat = creerAnneauChat(["titi", "toto", "coco", "sissi"]);
+const anneau: ReseauChat = creerAnneauChat(["Morgane", "Elisa", "Loïc", "Jules"]);
 const reseauConnecte: ReseauChat = creerReseauVide();
 const connexions: TableIdentificationMutable<'sommet', LienChat, LienChat>
     = creerTableIdentificationMutableVide<'sommet', LienChat, LienChat>('sommet', (x) => x);
