@@ -24,6 +24,7 @@ ou
 
 Exécution
 ---------
+Il faut se placer dans le dossier où est stocké le projet.
 
 Installation des dépendances :
 ```
