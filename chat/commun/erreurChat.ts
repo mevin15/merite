@@ -1,4 +1,4 @@
-import {FormatErreurRedhibitoire, ErreurRedhibitoire} from "../../bibliotheque/communication";
+import {FormatErreurRedhibitoire, ErreurRedhibitoire} from "../../bibliotheque/communication/communication";
 import {FormatDateFr, creerDateEnveloppe, Unite} from "../../bibliotheque/types";
 import { jamais } from "../../bibliotheque/outils";
 

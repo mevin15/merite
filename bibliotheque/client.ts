@@ -2,7 +2,9 @@ import {
     FormatMessage, Message,
     FormatErreurRedhibitoire, ErreurRedhibitoire,
     FormatConfigurationInitiale, Configuration
-} from "./communication";
+} from "./communication/communication";
+
+
 
 export class CanalClient<
     FE extends FormatErreurRedhibitoire, FC extends FormatConfigurationInitiale, // Format d'entrée
