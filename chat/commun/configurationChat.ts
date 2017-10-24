@@ -1,7 +1,5 @@
-import {
-    FormatConfigurationInitiale, Configuration,
-    FormatErreurRedhibitoire, ErreurRedhibitoire
-} from "../../bibliotheque/communication";
+import {FormatConfigurationInitiale,} from "../../bibliotheque/communication/communication";
+
 import {
     Unite, FormatDateFr, creerDateEnveloppe,
     creerTableImmutable, FormatTableImmutable

@@ -1,4 +1,4 @@
-import { FormatMessage, Message} from "../../bibliotheque/communication";
+import { FormatMessage, Message} from "../../bibliotheque/communication/communication";
 import { FormatDateFr, creerDateEnveloppe, creerDateMaintenant, Identifiant } from "../../bibliotheque/types";
 import { jamais } from "../../bibliotheque/outils";
 

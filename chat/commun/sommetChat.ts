@@ -1,4 +1,4 @@
-import {Sommet} from "../../bibliotheque/communication";
+import {Sommet} from "../../bibliotheque/communication/communication";
 import { FormatIdentifiableImmutable } from "../../bibliotheque/types";
 import { jamais } from "../../bibliotheque/outils";
 
