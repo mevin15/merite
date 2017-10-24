@@ -6,13 +6,15 @@ import { Identifiant } from "../../../bibliotheque/types";
 import {  } from "../../../bibliotheque/communication";
 import {
     creerMessageErreurConnexion, creerMessageRetourErreur,
-    TypeMessageTchat, FormatMessageTchat, MessageTchat, creerAnneauTchat, 
-    ReseauTchat
-} from '../../../tchat/commun/tchat';
+    TypeMessageChat, FormatMessageChat, MessageChat
+} from '../../../chat/commun/messageChat';
+import {
+    creerAnneauChat, ReseauChat
+} from '../../../chat/commun/reseauChat';
 
 
 
-const anneau: ReseauTchat= creerAnneauTchat(["titi", "toto", "coco", "sissi"]);
+const anneau: ReseauChat= creerAnneauChat(["titi", "toto", "coco", "sissi"]);
 
 let IDs_noeuds = anneau.identifiantsNoeuds();
 

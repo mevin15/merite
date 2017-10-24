@@ -8,40 +8,41 @@ import {
 } from "../../bibliotheque/types";
 
 import { creerReseauVide } from "../../bibliotheque/communication";
+import {hote, port1, port2, ReseauChat, creerAnneauChat} from '../commun/reseauChat';
+import {SommetChat} from '../commun/sommetChat';
+import {FormatNoeudChatImmutable} from '../commun/noeudChat';
+import {composerConfigurationChat, FormatConfigurationChat, EtiquetteConfigurationChat} from '../commun/configurationChat';
 import {
-    hote, port1, port2,
-    SommetTchat,
-    ReseauTchat, creerAnneauTchat,
-    FormatNoeudTchatImmutable,
+    composerErreurChat, FormatErreurChat, EtiquetteErreurChat
+} from '../commun/erreurChat';
+import {
     creerMessageErreurConnexion, creerMessageRetourErreur,
-    TypeMessageTchat, FormatMessageTchat, EtiquetteMessageTchat,
-    MessageTchat,
-    composerConfigurationTchat, FormatConfigurationTchat, EtiquetteConfigurationTchat,
-    composerErreurTchat, FormatErreurTchat, EtiquetteErreurTchat,
+    TypeMessageChat, FormatMessageChat, EtiquetteMessageChat,
+    MessageChat
+} from '../commun/messageChat';
 
-} from '../commun/tchat';
 import { ServeurLiensWebSocket, LienWebSocket } from "../../bibliotheque/serveurConnexions";
 import { ServeurApplications, Interaction } from "../../bibliotheque/serveurApplications";
 
 import { creerDateMaintenant } from "../../bibliotheque/types"
 
-class ServeurTchat extends ServeurLiensWebSocket<
-    FormatErreurTchat, FormatErreurTchat, EtiquetteErreurTchat,
-    FormatConfigurationTchat, FormatConfigurationTchat, EtiquetteConfigurationTchat,
-    FormatMessageTchat, FormatMessageTchat, EtiquetteMessageTchat
+class ServeurChat extends ServeurLiensWebSocket<
+    FormatErreurChat, FormatErreurChat, EtiquetteErreurChat,
+    FormatConfigurationChat, FormatConfigurationChat, EtiquetteConfigurationChat,
+    FormatMessageChat, FormatMessageChat, EtiquetteMessageChat
     > { }
 
-class LienTchat extends LienWebSocket<
-    FormatErreurTchat, FormatErreurTchat, EtiquetteErreurTchat,
-    FormatConfigurationTchat, FormatConfigurationTchat, EtiquetteConfigurationTchat,
-    FormatMessageTchat, FormatMessageTchat, EtiquetteMessageTchat
+class LienChat extends LienWebSocket<
+    FormatErreurChat, FormatErreurChat, EtiquetteErreurChat,
+    FormatConfigurationChat, FormatConfigurationChat, EtiquetteConfigurationChat,
+    FormatMessageChat, FormatMessageChat, EtiquetteMessageChat
     > { }
 
 
-const anneau: ReseauTchat = creerAnneauTchat(["titi", "toto", "coco", "sissi"]);
-const reseauConnecte: ReseauTchat = creerReseauVide();
-const connexions: TableIdentificationMutable<'sommet', LienTchat, LienTchat>
-    = creerTableIdentificationMutableVide<'sommet', LienTchat, LienTchat>('sommet', (x) => x);
+const anneau: ReseauChat = creerAnneauChat(["titi", "toto", "coco", "sissi"]);
+const reseauConnecte: ReseauChat = creerReseauVide();
+const connexions: TableIdentificationMutable<'sommet', LienChat, LienChat>
+    = creerTableIdentificationMutableVide<'sommet', LienChat, LienChat>('sommet', (x) => x);
 
 const repertoireHtml: string = shell.pwd() + "/build";
 
@@ -51,7 +52,7 @@ serveurAppli.specifierRepertoireScriptsEmbarques("build");
 
 {
     let racine = "/";
-    let ressource = "interfaceTchat.html";
+    let ressource = "interfaceChat.html";
 
     serveurAppli.enregistrerReponseARequeteGET(racine, (i: Interaction) => {
         console.log("* " + creerDateMaintenant().representationLog() + " - Service de " + ressource + " en " + racine);
@@ -61,9 +62,9 @@ serveurAppli.specifierRepertoireScriptsEmbarques("build");
 
 serveurAppli.demarrer();
 
-const serveurCanaux = new ServeurTchat(port2, hote);
+const serveurCanaux = new ServeurChat(port2, hote);
 
-serveurCanaux.enregistrerTraitementConnexion((l: LienTchat) => {
+serveurCanaux.enregistrerTraitementConnexion((l: LienChat) => {
     let ID_sommet: Identifiant<'sommet'>;
     try {
         ID_sommet = anneau.selectionNoeud();
@@ -71,8 +72,8 @@ serveurCanaux.enregistrerTraitementConnexion((l: LienTchat) => {
         let d = creerDateMaintenant();
         console.log("* " + d.representationLog() + " - " + (<Error>e).message);
         console.log("* " + d.representationLog() + " - Connexion impossible d'un client : le réseau est complet.");
-        l.envoyerMessageErreur(composerErreurTchat(
-            "Tchat - Réseau complet ! Il est impossible de se connecter : le réseau est complet.",
+        l.envoyerMessageErreur(composerErreurChat(
+            "Chat - Réseau complet ! Il est impossible de se connecter : le réseau est complet.",
             d.val()));
         return false;
     }
@@ -80,8 +81,8 @@ serveurCanaux.enregistrerTraitementConnexion((l: LienTchat) => {
     if (connexions.contient(ID_sommet) || reseauConnecte.possedeNoeud(ID_sommet)) {
         let d = creerDateMaintenant()
         console.log("* " + d.representationLog() + " - Connexion impossible d'un client : le réseau est corrompu.");
-        l.envoyerMessageErreur(composerErreurTchat(
-            "Tchat - Réseau corrompu ! Il est impossible de se connecter : le réseau est corrompu. Contacter l'administrateur.",
+        l.envoyerMessageErreur(composerErreurChat(
+            "Chat - Réseau corrompu ! Il est impossible de se connecter : le réseau est corrompu. Contacter l'administrateur.",
             d.val()));
         return false;
     }
@@ -93,7 +94,7 @@ serveurCanaux.enregistrerTraitementConnexion((l: LienTchat) => {
     connexions.ajouter(ID_sommet, l);
 
     let n = anneau.noeud(ID_sommet);
-    let config = composerConfigurationTchat(n, d.val());
+    let config = composerConfigurationChat(n, d.val());
     console.log("- envoi au client d'adresse " + l.adresseClient());
     console.log("  - de la configuration brute " + config.brut());
     console.log("  - de la configuration nette " + config.representation());
@@ -103,13 +104,13 @@ serveurCanaux.enregistrerTraitementConnexion((l: LienTchat) => {
     return true;
 });
 
-serveurCanaux.enregistrerTraitementMessages((l: LienTchat, m: FormatMessageTchat) => {
-    let msg: MessageTchat = new MessageTchat(m);
+serveurCanaux.enregistrerTraitementMessages((l: LienChat, m: FormatMessageChat) => {
+    let msg: MessageChat = new MessageChat(m);
     console.log("* Traitement d'un message");
     console.log("- brut : " + msg.brut());
     console.log("- net : " + msg.representation());
     switch (m.type) {
-        case TypeMessageTchat.COM:
+        case TypeMessageChat.COM:
             let ID_emetteurUrl = l.configuration().val().centre.ID;
             let ID_emetteurMsg = m.ID_emetteur;
             let ID_destinataireMsg = m.ID_destinataire;
@@ -119,20 +120,20 @@ serveurCanaux.enregistrerTraitementMessages((l: LienTchat, m: FormatMessageTchat
                     + l.adresseClient()
                     + " devrait signer ses messages " + ID_emetteurUrl + " et non " + ID_emetteurMsg + ".";
                 console.log("- " + msgErreur);
-                l.envoyerAuClientDestinataire(creerMessageRetourErreur(msg, TypeMessageTchat.ERREUR_EMET, msgErreur));
+                l.envoyerAuClientDestinataire(creerMessageRetourErreur(msg, TypeMessageChat.ERREUR_EMET, msgErreur));
                 break;
             }
             if (connexions.valeur(ID_emetteurMsg) === undefined) {
                 let msgErreur = "Problème de Web socket : la connexion n'est plus active. Fermer l'onglet et se reconnecter.";
                 console.log("- " + msgErreur);
-                l.envoyerAuClientDestinataire(creerMessageRetourErreur(msg, TypeMessageTchat.ERREUR_EMET, msgErreur));
+                l.envoyerAuClientDestinataire(creerMessageRetourErreur(msg, TypeMessageChat.ERREUR_EMET, msgErreur));
                 break;
             }
             if (connexions.valeur(ID_destinataireMsg) === undefined) {
                 let msgErreur = "Destinataire inconnu ou non connecté. Attendre sa connexion ou essayer un autre destinataire.";
                 console.log("- " + msgErreur);
                 msgErreur = msgErreur + "\n- Message original : \n" + m.contenu;
-                l.envoyerAuClientDestinataire(creerMessageRetourErreur(msg, TypeMessageTchat.ERREUR_DEST, msgErreur));
+                l.envoyerAuClientDestinataire(creerMessageRetourErreur(msg, TypeMessageChat.ERREUR_DEST, msgErreur));
                 break;
             }
             // Contrôle des communications 
@@ -141,11 +142,11 @@ serveurCanaux.enregistrerTraitementMessages((l: LienTchat, m: FormatMessageTchat
                     + ID_emetteurMsg.val
                     + " n'est pas vosin du noeud destinataire " + ID_destinataireMsg.val + ".";
                 console.log("- " + msgErreur);
-                l.envoyerAuClientDestinataire(creerMessageRetourErreur(msg, TypeMessageTchat.INTERDICTION, msgErreur));
+                l.envoyerAuClientDestinataire(creerMessageRetourErreur(msg, TypeMessageChat.INTERDICTION, msgErreur));
             }
             // Fonctionnement normal
-            let lienDestinaire: LienTchat = connexions.valeur(ID_destinataireMsg);
-            let lienEmetteur: LienTchat = connexions.valeur(ID_emetteurMsg);
+            let lienDestinaire: LienChat = connexions.valeur(ID_destinataireMsg);
+            let lienEmetteur: LienChat = connexions.valeur(ID_emetteurMsg);
             let msgTransit = msg.transit();
             console.log("- Envoi en transit au client utilisant l'adresse " + lienDestinaire.adresseClient());
             console.log("  - du message brut : " + msgTransit.brut());
@@ -158,14 +159,14 @@ serveurCanaux.enregistrerTraitementMessages((l: LienTchat, m: FormatMessageTchat
             lienEmetteur.envoyerAuClientDestinataire(msgAR);
             break;
         default:
-            let msgErreur = "Type de message non reconnu : le type doit être " + TypeMessageTchat.COM.toString() + " et non " + m.type + ".";
+            let msgErreur = "Type de message non reconnu : le type doit être " + TypeMessageChat.COM.toString() + " et non " + m.type + ".";
             console.log("- " + msgErreur);
-            l.envoyerAuClientDestinataire(creerMessageRetourErreur(msg, TypeMessageTchat.ERREUR_TYPE, msgErreur));
+            l.envoyerAuClientDestinataire(creerMessageRetourErreur(msg, TypeMessageChat.ERREUR_TYPE, msgErreur));
             break;
     }
 });
 
-serveurCanaux.enregistrerTraitementFermeture((l: LienTchat, r: number, desc: string) => {
+serveurCanaux.enregistrerTraitementFermeture((l: LienChat, r: number, desc: string) => {
     let ID_centre = l.configuration().val().centre.ID;
     if ((connexions.valeur(ID_centre) === undefined) || (!reseauConnecte.possedeNoeud(ID_centre))) {
         console.log("* Impossibilité de fermer la connexion par Web socket : " + ID_centre.val + " est déjà déconnecté.");

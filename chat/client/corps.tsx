@@ -24,23 +24,33 @@ import {
 import { CanalClient, creerCanalClient } from "../../bibliotheque/client";
 
 import {
-  hote, port2,
-  NoeudTchatImmutable, creerNoeudTchatImmutable,
-  SommetTchat, creerSommetTchat,
+  hote, port2
+} from '../commun/reseauChat';
+import {
+  SommetChat, creerSommetChat,
+} from '../commun/sommetChat';
+import {
+  NoeudChatImmutable, creerNoeudChatImmutable,
+} from '../commun/noeudChat';
+import {
   creerMessageCommunication,
-  TypeMessageTchat, FormatMessageTchat, EtiquetteMessageTchat, MessageTchat,
-  FormatConfigurationTchat, EtiquetteConfigurationTchat,
-  ConfigurationTchat, creerConfigurationTchat,
-  FormatErreurTchat, EtiquetteErreurTchat,
-  ErreurTchat, creerErreurTchat,
+  TypeMessageChat, FormatMessageChat, EtiquetteMessageChat, MessageChat,
+} from '../commun/messageChat';
+import {
+  FormatErreurChat, EtiquetteErreurChat,
+  ErreurChat, creerErreurChat,
+} from '../commun/erreurChat';
+import {
+  FormatConfigurationChat, EtiquetteConfigurationChat,
+  ConfigurationChat, creerConfigurationChat,
   decomposerConfiguration
-} from '../commun/tchat';
+} from '../commun/configurationChat';
 
-type CanalTchat
+type CanalChat
   = CanalClient<
-  FormatErreurTchat,
-  FormatConfigurationTchat,
-  FormatMessageTchat, FormatMessageTchat, EtiquetteMessageTchat>;
+  FormatErreurChat,
+  FormatConfigurationChat,
+  FormatMessageChat, FormatMessageChat, EtiquetteMessageChat>;
 
 const ApresAdmin = styled.div`
     background: ${CADRE};
@@ -71,7 +81,7 @@ interface ProprietesCorps {
   className?: string;
 }
 
-enum EtatInterfaceTchat {
+enum EtatInterfaceChat {
   INITIAL,
   NORMAL,
   ERRONE
@@ -86,7 +96,7 @@ enum EtatInterfaceTchat {
 interface EtatCorps {
   selection: Individu;
   messages: Message[];
-  etatInterface: EtatInterfaceTchat;
+  etatInterface: EtatInterfaceChat;
 }
 
 const ID_TOUS: string = "TOUS";
@@ -99,8 +109,8 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
 
   private generateur: Identification<'message'>;
   private adresseServeur: string;
-  private canal: CanalTchat;
-  private noeud: NoeudTchatImmutable;
+  private canal: CanalChat;
+  private noeud: NoeudChatImmutable;
 
   private messageErreur: string;
 
@@ -133,7 +143,7 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
     this.state = {
       selection: this.toutIndividu,
       messages: [],
-      etatInterface: EtatInterfaceTchat.INITIAL,
+      etatInterface: EtatInterfaceChat.INITIAL,
     };
 
     this.envoyerMessage = this.envoyerMessage.bind(this);
@@ -184,14 +194,14 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
     if (m.destinataire.ID.val === ID_TOUS) {
       console.log("* Diffusion du message")
       this.individusObjets.iterer((c, v) => {
-        let msg: MessageTchat = creerMessageCommunication(m.ID, m.emetteur.ID, v.ID, m.contenu, d.val());
+        let msg: MessageChat = creerMessageCommunication(m.ID, m.emetteur.ID, v.ID, m.contenu, d.val());
         console.log("- brut : " + msg.brut());
         console.log("- net : " + msg.representation());
         this.canal.envoyerMessage(msg);
       });
       return;
     }
-    let msg: MessageTchat = creerMessageCommunication(m.ID, m.emetteur.ID, m.destinataire.ID, m.contenu, d.val());
+    let msg: MessageChat = creerMessageCommunication(m.ID, m.emetteur.ID, m.destinataire.ID, m.contenu, d.val());
     console.log("* Envoi du message");
     console.log("- brut : " + msg.brut());
     console.log("- net : " + msg.representation());
@@ -200,7 +210,7 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
 
   render(): JSX.Element {
     switch (this.state.etatInterface) {
-      case EtatInterfaceTchat.NORMAL:
+      case EtatInterfaceChat.NORMAL:
         return (
           <div className={this.props.className}>
             <Admin sujet={this.individuSujet} objets={this.individusObjets.image()} tous={this.toutIndividu}
@@ -211,11 +221,11 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
             <ApresAction />
           </div>
         );
-      case EtatInterfaceTchat.INITIAL:
+      case EtatInterfaceChat.INITIAL:
         return (
           <h1>Connexion au serveur pour l'initialisation</h1>
         );
-      case EtatInterfaceTchat.ERRONE:
+      case EtatInterfaceChat.ERRONE:
         return (
           <div>
             <h1>Fin de l'application après l'erreur suivante : </h1>
@@ -234,8 +244,8 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
     this.canal = creerCanalClient(this.adresseServeur);
 
     console.log("- du traitement des messages");
-    this.canal.enregistrerTraitementMessageRecu((m: FormatMessageTchat) => {
-      let msg = new MessageTchat(m);
+    this.canal.enregistrerTraitementMessageRecu((m: FormatMessageChat) => {
+      let msg = new MessageChat(m);
       console.log("* Réception");
       console.log("- du message brut : " + msg.brut());
       console.log("- du message net : " + msg.representation());
@@ -243,7 +253,7 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
       let contenu: string = m.contenu;
 
       /* Message en transit */
-      if (m.type === TypeMessageTchat.TRANSIT) {
+      if (m.type === TypeMessageChat.TRANSIT) {
         if (!this.individusObjets.contient(m.ID_emetteur)) {
           console.log("- message incohéent");
           return;
@@ -266,7 +276,7 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
       }
 
       /* Message accusant réception */
-      if (m.type === TypeMessageTchat.AR) {
+      if (m.type === TypeMessageChat.AR) {
         if (!this.individusObjets.contient(m.ID_destinataire)) {
           console.log("- message incohéent");
           return;
@@ -295,13 +305,13 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
     });
 
     console.log("- du traitement de la configuration");
-    this.canal.enregistrerTraitementConfigurationRecue((c: FormatConfigurationTchat) => {
-      let config = creerConfigurationTchat(c);
+    this.canal.enregistrerTraitementConfigurationRecue((c: FormatConfigurationChat) => {
+      let config = creerConfigurationChat(c);
       console.log("* Réception");
       console.log("- de la configuration brute : " + config.brut());
       console.log("- de la configuration nette : " + config.representation());
       console.log("* Initialisation du noeud du réseau");
-      this.noeud = creerNoeudTchatImmutable(decomposerConfiguration(config));
+      this.noeud = creerNoeudChatImmutable(decomposerConfiguration(config));
       this.individuSujet = {
         ID: this.noeud.val().centre.ID,
         nom: this.noeud.val().centre.pseudo,
@@ -322,21 +332,21 @@ class CorpsBrut extends React.Component<ProprietesCorps, EtatCorps> {
             };
           }).val());
       this.setState({
-        etatInterface: EtatInterfaceTchat.NORMAL
+        etatInterface: EtatInterfaceChat.NORMAL
       });
 
     });
 
     console.log("- du traitement d'une erreur rédhibitoire");
-    this.canal.enregistrerTraitementErreurRecue((err: FormatErreurTchat) => {
-      let erreur = creerErreurTchat(err);
+    this.canal.enregistrerTraitementErreurRecue((err: FormatErreurChat) => {
+      let erreur = creerErreurChat(err);
       console.log("* Réception");
       console.log("- de l'erreur rédhibitoire brute : " + erreur.brut());
       console.log("- de l'erreur rédhibitoire nette : " + erreur.representation());
       console.log("* Affichage de l'erreur");
       this.messageErreur = erreur.representation();
       this.setState({
-        etatInterface: EtatInterfaceTchat.ERRONE,
+        etatInterface: EtatInterfaceChat.ERRONE,
       });
     });
 
