@@ -1,4 +1,4 @@
-import {FormatConfigurationInitiale,} from "../../bibliotheque/communication/communication";
+import {FormatConfigurationInitiale, Configuration} from "../../bibliotheque/communication/communication";
 
 import {
     Unite, FormatDateFr, creerDateEnveloppe,
