@@ -7,10 +7,10 @@ import {  } from "../../../bibliotheque/communication";
 import {
     creerMessageErreurConnexion, creerMessageRetourErreur,
     TypeMessageChat, FormatMessageChat, MessageChat
-} from '../../../tchat/commun/messageChat';
+} from '../../../chat/commun/messageChat';
 import {
     creerAnneauChat, ReseauChat
-} from '../../../tchat/commun/reseauChat';
+} from '../../../chat/commun/reseauChat';
 
 
 

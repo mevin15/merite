@@ -31,7 +31,7 @@ bower_components
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
-build/tchat
+build/chat
 build/test
 build/bibliotheque
 build/tchatReact.client.js
