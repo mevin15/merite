@@ -1,9 +1,6 @@
 import * as React from "react";
-
 import styled from "styled-components";
-
 import Scrollbars from "react-custom-scrollbars";
-
 import { ContainerAdmin } from "./containerAdmin";
 import {Individu} from "./typesInterface";
 

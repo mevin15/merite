@@ -1,13 +1,8 @@
 import * as React from "react";
-
 import styled from "styled-components";
-
 import { Identification, creerIdentificationParCompteur, DateImmutable, creerDateMaintenant } from "../../bibliotheque/types"
-
 import { Individu, Message } from "./typesInterface";
-
 import { Couleur, COUPLE_FOND_ENCRE_SUJET, FOND_TEXTE, TEXTE, FOND_TEXTE_INV, TEXTE_INV, TEXTE_PALE, TEXTE_ERREUR } from "./couleur";
-
 import TextareaAutosize from 'react-textarea-autosize';
 
 interface ProprietesMessage {

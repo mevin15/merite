@@ -1,9 +1,6 @@
 import * as React from "react";
-
 import styled from "styled-components";
-
 import { Couleur, FOND, CADRE, SELECTION, TEXTE_INV } from "./couleur";
-
 import { Individu } from "./typesInterface";
 
 interface ProprietesAdmin {

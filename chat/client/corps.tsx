@@ -18,9 +18,6 @@ import {
   FormatDateFr, creerDateEnveloppe, DateImmutable
 } from "../../bibliotheque/types";
 
-import {
-} from "../../bibliotheque/communication";
-
 import { CanalClient, creerCanalClient } from "../../bibliotheque/client";
 
 import {

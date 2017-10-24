@@ -1,17 +1,10 @@
 import * as React from "react";
-
 import styled from "styled-components";
-
 import Scrollbars from "react-custom-scrollbars";
-
 import { DateImmutable } from "../../bibliotheque/types"
-
 import { ContainerAction } from "./containerAction";
-
 import { Individu, Message } from "./typesInterface";
-
 import { Couleur, FOND } from "./couleur";
-
 
 interface ProprietesAction {
   // see https://github.com/Microsoft/TypeScript/issues/8588
@@ -45,4 +38,3 @@ export const Action = styled(ContenuAction)`
     top: 0;
     right: 1vw;
 `;
-

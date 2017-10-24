@@ -1,16 +1,9 @@
 import * as React from "react";
-
 import styled from "styled-components";
-
 import TextareaAutosize from 'react-textarea-autosize';
-
 import { DateImmutable } from "../../bibliotheque/types"
-
-
 import { Couleur, FOND} from "./couleur";
-
 import { Individu, Message } from "./typesInterface";
-
 import { ContainerMessageEmis, ContainerMessageRecu, EntreeMessage } from "./containersMessages";
 
 interface ProprietesAction {
