@@ -221,6 +221,7 @@ class EntreeMessageBrut extends React.Component<ProprietesEntreeMessage, EtatEnt
     reinitialiserEntree() : void {
         this.setState({ texte: ""});
     }
+    
     render() {
         return (
             <div className={this.props.className}>
