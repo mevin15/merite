@@ -1,3 +1,5 @@
+import { creerTableImmutable } from "../../bibliotheque/types/table";
+
 import {Sommet} from "../../bibliotheque/communication/communication";
 
 import {
@@ -6,8 +8,6 @@ import {
 
 import {creerCentreSansVoisins,} from "../../bibliotheque/communication/creerReseau";
 
-
-import { creerTableImmutable } from "../../bibliotheque/types";
 import { jamais } from "../../bibliotheque/outils";
 import {FormatSommetChat, creerSommetChat} from './sommetChat';
 

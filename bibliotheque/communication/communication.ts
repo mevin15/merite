@@ -13,11 +13,14 @@
 - réseau ::= noeud*
 */
 import {
-    Unite,
-    FormatIdentifiableImmutable, Identifiant,
-    Enveloppe,
-
-} from "../types"
+    Unite
+} from "../types/mutable"
+import {
+    Enveloppe
+} from "../types/enveloppe"
+import {
+    FormatIdentifiableImmutable, Identifiant
+} from "../types/identifiant"
 
 // Cette interface pourrait être complétée à l'avenir.
 export interface FormatConfigurationInitiale {

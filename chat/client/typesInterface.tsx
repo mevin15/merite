@@ -1,5 +1,5 @@
 import { Couleur } from "./couleur";
-import { Identifiant } from "../../bibliotheque/types";
+import { Identifiant } from "../../bibliotheque/types/identifiant";
 export interface Individu {
   readonly ID: Identifiant<'sommet'>;
   readonly nom: string;

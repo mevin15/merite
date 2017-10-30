@@ -1,5 +1,6 @@
+import { FormatDateFr, creerDateEnveloppe, creerDateMaintenant } from "../../bibliotheque/types/date";
+import { Identifiant } from "../../bibliotheque/types/identifiant";
 import { FormatMessage, Message} from "../../bibliotheque/communication/communication";
-import { FormatDateFr, creerDateEnveloppe, creerDateMaintenant, Identifiant } from "../../bibliotheque/types";
 import { jamais } from "../../bibliotheque/outils";
 
 // differents types de message Chat 

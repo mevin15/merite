@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import * as mocha from 'mocha';
 
-import { TableIdentificationMutable, creerTableIdentificationMutableVide } from "../../bibliotheque/types";
+import { TableIdentificationMutable, creerTableIdentificationMutableVide } from "../../bibliotheque/types/tableIdentification";
 
 
 interface IN {

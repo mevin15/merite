@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import * as mocha from 'mocha';
 
-import { DateImmutable, creerDateEnveloppe, creerDateMaintenant } from "../../bibliotheque/types";
+import { DateImmutable, creerDateEnveloppe, creerDateMaintenant } from "../../bibliotheque/types/date";
 
 describe('creerDate', () => {
     let r = creerDateMaintenant();

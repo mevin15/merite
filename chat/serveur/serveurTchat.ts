@@ -1,11 +1,9 @@
 import * as url from 'url';
 import * as shell from "shelljs";
 
-import {
-    TableMutable,
-    Identifiant,
-    TableIdentificationMutable, creerTableIdentificationMutableVide
-} from "../../bibliotheque/types";
+import { TableMutable } from "../../bibliotheque/types/table";
+import { Identifiant } from "../../bibliotheque/types/identifiant";
+import { TableIdentificationMutable, creerTableIdentificationMutableVide } from "../../bibliotheque/types/tableIdentification";
 
 
 
@@ -31,7 +29,7 @@ import {
 import { ServeurLiensWebSocket, LienWebSocket } from "../../bibliotheque/serveurConnexions";
 import { ServeurApplications, Interaction } from "../../bibliotheque/serveurApplications";
 
-import { creerDateMaintenant } from "../../bibliotheque/types"
+import { creerDateMaintenant } from "../../bibliotheque/types/date"
 
 class ServeurChat extends ServeurLiensWebSocket<
     FormatErreurChat, FormatErreurChat, EtiquetteErreurChat,

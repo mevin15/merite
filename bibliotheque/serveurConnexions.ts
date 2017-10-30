@@ -8,7 +8,7 @@ import * as http from 'http';
 import * as websocket from 'websocket';
 import * as url from 'url';
 
-import { creerDateMaintenant } from "./types";
+import { creerDateMaintenant } from "./types/date";
 import {
     FormatMessage, Message,
     FormatConfigurationInitiale, Configuration,

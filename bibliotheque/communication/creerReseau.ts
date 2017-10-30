@@ -1,9 +1,13 @@
 import {
-    FormatIdentifiableMutable, FormatIdentifiableImmutable, Identifiant,
-    FABRIQUE_TABLE,
+    FormatIdentifiableMutable, FormatIdentifiableImmutable, Identifiant
+} from "../types/identifiant"
+import {
+    FABRIQUE_TABLE
+} from "../types/table"
+import {
     TableIdentificationMutable, creerTableIdentificationMutable,
     creerTableIdentificationImmutable,
-} from "../types"
+} from "../types/tableIdentification"
 
 import{
     FormatNoeudImmutable, FormatNoeudMutable

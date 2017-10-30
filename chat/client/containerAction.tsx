@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import TextareaAutosize from 'react-textarea-autosize';
 
-import { DateImmutable } from "../../bibliotheque/types"
+import { DateImmutable } from "../../bibliotheque/types/date"
 
 
 import { Couleur, FOND} from "./couleur";

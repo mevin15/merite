@@ -1,11 +1,17 @@
 import {
     FormatIdentifiableMutable, FormatIdentifiableImmutable, Identifiant,
-    Enveloppe,
+} from "../types/identifiant"
+import {
+    Enveloppe
+} from "../types/enveloppe"
+import {
     TableIdentificationMutable, creerTableIdentificationMutable, creerTableIdentificationMutableEnveloppe,
+    TableIdentificationImmutable, creerTableIdentificationImmutable,
+} from "../types/tableIdentification"
+import {
     FormatTableMutable,
     FormatTableImmutable, conversionFormatTable,
-    TableIdentificationImmutable, creerTableIdentificationImmutable,
-} from "../types"
+} from "../types/table"
 
 
 // Hypothèse : un noeud ne modifie pas les sommets.

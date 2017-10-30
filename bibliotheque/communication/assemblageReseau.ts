@@ -1,8 +1,12 @@
 import {
     FormatIdentifiableMutable, FormatIdentifiableImmutable, Identifiant,
-    TableauMutable,
+} from "../types/identifiant"
+import {
+    TableauMutable
+} from "../types/tableau"
+import {
     TableIdentificationMutable, creerTableIdentificationMutable,
-} from "../types"
+} from "../types/tableIdentification"
 
 import{
      NoeudMutable

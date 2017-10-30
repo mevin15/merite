@@ -1,9 +1,8 @@
-import {FormatConfigurationInitiale, Configuration} from "../../bibliotheque/communication/communication";
 
-import {
-    Unite, FormatDateFr, creerDateEnveloppe,
-    creerTableImmutable, FormatTableImmutable
-} from "../../bibliotheque/types";
+import { FormatDateFr, creerDateEnveloppe } from "../../bibliotheque/types/date";
+import { Unite } from "../../bibliotheque/types/mutable";
+import { creerTableImmutable, FormatTableImmutable } from "../../bibliotheque/types/table";
+import {FormatConfigurationInitiale, Configuration} from "../../bibliotheque/communication/communication";
 import { jamais } from "../../bibliotheque/outils";
 import {FormatSommetChat, creerSommetChat} from "./sommetChat";
 import {FormatNoeudChatImmutable} from "./noeudChat"
