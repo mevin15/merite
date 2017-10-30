@@ -1,7 +1,7 @@
 import {
     Sommet, ReseauMutable, AssemblageReseau,
     creerAssemblageReseauEnAnneau} from "../../bibliotheque/communication";
-import {Identification, creerIdentificationParCompteur} from "../../bibliotheque/types";
+import {Identification, creerIdentificationParCompteur} from "../../bibliotheque/types/identifiant";
 import { jamais } from "../../bibliotheque/outils";
 import {FormatSommetChat} from "./sommetChat";
 import {creerNoeudSansVoisinsChatMutable} from "./noeudChat";

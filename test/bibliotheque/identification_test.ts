@@ -1,8 +1,8 @@
 import * as chai from 'chai';
 import * as mocha from 'mocha';
 
-import { Unite, Identification, FormatIdentifiableMutable, creerIdentificationParCompteur } from "../../bibliotheque/types";
-
+import { Identification, FormatIdentifiableMutable, creerIdentificationParCompteur } from "../../bibliotheque/types/identifiant";
+import { Unite } from "../../bibliotheque/types/mutable";
 
 describe('classe IdentificationParCompteur', () => {
     let identification: Identification<'test'>

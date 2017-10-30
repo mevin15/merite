@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import * as mocha from 'mocha';
 
-import { Identifiant } from "../../../bibliotheque/types";
+import { Identifiant } from "../../../bibliotheque/types/identifiant";
 
 import {  } from "../../../bibliotheque/communication";
 import {

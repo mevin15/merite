@@ -1,5 +1,5 @@
 import { FormatNoeudMutable, NoeudMutable, NoeudEnveloppeMutable, creerCentreSansVoisins, EtiquetteNoeud, FormatNoeudImmutable, NoeudImmutable, NoeudEnveloppeImmutable } from "../../bibliotheque/communication";
-import { creerTableImmutable } from "../../bibliotheque/types";
+import { creerTableImmutable } from "../../bibliotheque/types/table";
 import { jamais } from "../../bibliotheque/outils";
 import {FormatSommetChat, creerSommetChat} from './sommetChat';
 

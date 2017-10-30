@@ -3,7 +3,7 @@ import * as sysFichier from 'fs';
 
 import {
     creerDateMaintenant
-} from "./types"
+} from "./types/date"
 
 /*
 Serveur utilisant Express

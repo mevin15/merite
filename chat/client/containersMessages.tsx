@@ -2,7 +2,9 @@ import * as React from "react";
 
 import styled from "styled-components";
 
-import { Identification, creerIdentificationParCompteur, DateImmutable, creerDateMaintenant } from "../../bibliotheque/types"
+import { Identification, creerIdentificationParCompteur } from "../../bibliotheque/types/identifiant"
+
+import { DateImmutable, creerDateMaintenant } from "../../bibliotheque/types/date"
 
 import { Individu, Message } from "./typesInterface";
 

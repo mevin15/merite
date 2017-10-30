@@ -11,12 +11,12 @@ import {
   SuiteCouplesFondEncre, FOND, CADRE, SEPARATION_CADRE, TEXTE_ERREUR
 } from "./couleur";
 
-import {
-  Identification, creerIdentificationParCompteur,
-  TableIdentificationImmutable, creerTableIdentificationImmutable,
-  creerTableImmutable, Identifiant, creerIdentifiant,
-  FormatDateFr, creerDateEnveloppe, DateImmutable
-} from "../../bibliotheque/types";
+import { Identification, creerIdentificationParCompteur } from "../../bibliotheque/types/identifiant";
+import { TableIdentificationImmutable, creerTableIdentificationImmutable } from "../../bibliotheque/types/tableIdentification";
+import { creerTableImmutable } from "../../bibliotheque/types/table";
+import { Identifiant, creerIdentifiant } from "../../bibliotheque/types/identifiant";
+import { FormatDateFr, creerDateEnveloppe, DateImmutable } from "../../bibliotheque/types/date";
+
 
 import {
 } from "../../bibliotheque/communication";

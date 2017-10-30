@@ -1,16 +1,9 @@
-import {
-    Unite,
-    FormatIdentifiableMutable, FormatIdentifiableImmutable, Identifiant,
-    Enveloppe,
-    TableauMutable, creerTableauMutableVide,
-    FABRIQUE_TABLE,
-    TableIdentificationMutable, creerTableIdentificationMutable, creerTableIdentificationMutableEnveloppe,
-    FormatTableMutable,
-    FormatTableImmutable, conversionFormatTable,
-    TableIdentificationImmutable, creerTableIdentificationImmutable
-} from "./types"
-
-
+import { Enveloppe } from "./types/enveloppe";
+import { FormatIdentifiableMutable, FormatIdentifiableImmutable, Identifiant } from "./types/identifiant";
+import { Unite } from "./types/mutable"
+import { FABRIQUE_TABLE, FormatTableMutable, FormatTableImmutable, conversionFormatTable } from "./types/table"
+import { TableauMutable, creerTableauMutableVide } from "./types/tableau"
+import { TableIdentificationMutable, creerTableIdentificationMutable, creerTableIdentificationMutableEnveloppe,TableIdentificationImmutable, creerTableIdentificationImmutable } from "./types/tableIdentification"
 
 // Cette interface pourrait être complétée à l'avenir.
 export interface FormatConfigurationInitiale {

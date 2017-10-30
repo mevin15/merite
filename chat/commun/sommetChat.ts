@@ -1,5 +1,5 @@
 import {Sommet} from "../../bibliotheque/communication";
-import { FormatIdentifiableImmutable } from "../../bibliotheque/types";
+import { FormatIdentifiableImmutable } from "../../bibliotheque/types/identifiant";
 import { jamais } from "../../bibliotheque/outils";
 
 export interface FormatSommetChat extends FormatIdentifiableImmutable<'sommet'> {
