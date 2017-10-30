@@ -5,7 +5,8 @@ import { TableMutable } from "../../bibliotheque/types/table";
 import { Identifiant } from "../../bibliotheque/types/identifiant";
 import { TableIdentificationMutable, creerTableIdentificationMutableVide } from "../../bibliotheque/types/tableIdentification";
 
-import { creerReseauVide } from "../../bibliotheque/communication";
+
+
 import {hote, port1, port2, ReseauChat, creerAnneauChat} from '../commun/reseauChat';
 import {SommetChat} from '../commun/sommetChat';
 import {FormatNoeudChatImmutable} from '../commun/noeudChat';
@@ -13,11 +14,17 @@ import {composerConfigurationChat, FormatConfigurationChat, EtiquetteConfigurati
 import {
     composerErreurChat, FormatErreurChat, EtiquetteErreurChat
 } from '../commun/erreurChat';
+
+import { creerReseauVide } from "../../bibliotheque/communication/creerReseau";
+
 import {
     creerMessageErreurConnexion, creerMessageRetourErreur,
+
     TypeMessageChat, FormatMessageChat, EtiquetteMessageChat,
     MessageChat
 } from '../commun/messageChat';
+
+
 
 import { ServeurLiensWebSocket, LienWebSocket } from "../../bibliotheque/serveurConnexions";
 import { ServeurApplications, Interaction } from "../../bibliotheque/serveurApplications";
@@ -37,10 +44,12 @@ class LienChat extends LienWebSocket<
     > { }
 
 
-const anneau: ReseauChat = creerAnneauChat(["titi", "toto", "coco", "sissi"]);
+
+const anneau: ReseauChat = creerAnneauChat(["Morgane", "Elisa", "Loïc", "Jules"]);
 const reseauConnecte: ReseauChat = creerReseauVide();
 const connexions: TableIdentificationMutable<'sommet', LienChat, LienChat>
     = creerTableIdentificationMutableVide<'sommet', LienChat, LienChat>('sommet', (x) => x);
+
 
 const repertoireHtml: string = shell.pwd() + "/build";
 
@@ -58,27 +67,35 @@ serveurAppli.specifierRepertoireScriptsEmbarques("build");
     });
 }
 
+//Demarrage du serveur
 serveurAppli.demarrer();
 
 const serveurCanaux = new ServeurChat(port2, hote);
 
+//Traitement de la connexion
 serveurCanaux.enregistrerTraitementConnexion((l: LienChat) => {
+
     let ID_sommet: Identifiant<'sommet'>;
+    //Recuperation de l'identification à un sommet (identification d'un noeud)
     try {
         ID_sommet = anneau.selectionNoeud();
     } catch (e) {
         let d = creerDateMaintenant();
         console.log("* " + d.representationLog() + " - " + (<Error>e).message);
         console.log("* " + d.representationLog() + " - Connexion impossible d'un client : le réseau est complet.");
+
         l.envoyerMessageErreur(composerErreurChat(
+
             "Chat - Réseau complet ! Il est impossible de se connecter : le réseau est complet.",
             d.val()));
         return false;
     }
 
+    // Message erreur si un individu déjà dans le réseau tente se de connecter
     if (connexions.contient(ID_sommet) || reseauConnecte.possedeNoeud(ID_sommet)) {
         let d = creerDateMaintenant()
         console.log("* " + d.representationLog() + " - Connexion impossible d'un client : le réseau est corrompu.");
+
         l.envoyerMessageErreur(composerErreurChat(
             "Chat - Réseau corrompu ! Il est impossible de se connecter : le réseau est corrompu. Contacter l'administrateur.",
             d.val()));
@@ -89,6 +106,7 @@ serveurCanaux.enregistrerTraitementConnexion((l: LienChat) => {
     let d = creerDateMaintenant()
     console.log("* " + d.representationLog() + " - Connexion de " + ID_sommet.val + " par Web socket.");
 
+        //ajout du sommet à la liste de connexions
     connexions.ajouter(ID_sommet, l);
 
     let n = anneau.noeud(ID_sommet);
@@ -102,8 +120,10 @@ serveurCanaux.enregistrerTraitementConnexion((l: LienChat) => {
     return true;
 });
 
+//Traitement des messages (suivant le type de message)
 serveurCanaux.enregistrerTraitementMessages((l: LienChat, m: FormatMessageChat) => {
     let msg: MessageChat = new MessageChat(m);
+
     console.log("* Traitement d'un message");
     console.log("- brut : " + msg.brut());
     console.log("- net : " + msg.representation());
@@ -164,7 +184,10 @@ serveurCanaux.enregistrerTraitementMessages((l: LienChat, m: FormatMessageChat) 
     }
 });
 
+
+//Deconnexion des individus
 serveurCanaux.enregistrerTraitementFermeture((l: LienChat, r: number, desc: string) => {
+
     let ID_centre = l.configuration().val().centre.ID;
     if ((connexions.valeur(ID_centre) === undefined) || (!reseauConnecte.possedeNoeud(ID_centre))) {
         console.log("* Impossibilité de fermer la connexion par Web socket : " + ID_centre.val + " est déjà déconnecté.");

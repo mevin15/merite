@@ -1,6 +1,7 @@
-import {FormatErreurRedhibitoire, ErreurRedhibitoire} from "../../bibliotheque/communication";
+
 import {FormatDateFr, creerDateEnveloppe} from "../../bibliotheque/types/date";
 import {Unite} from "../../bibliotheque/types/mutable";
+import {FormatErreurRedhibitoire, ErreurRedhibitoire} from "../../bibliotheque/communication/communication";
 import { jamais } from "../../bibliotheque/outils";
 
 // creation d'un format pour une erreur au niveau de chat 

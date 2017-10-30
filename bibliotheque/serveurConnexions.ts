@@ -13,7 +13,7 @@ import {
     FormatMessage, Message,
     FormatConfigurationInitiale, Configuration,
     FormatErreurRedhibitoire, ErreurRedhibitoire,
-} from "./communication";
+} from "./communication/communication";
 
 
 export class LienWebSocket<

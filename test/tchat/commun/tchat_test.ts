@@ -14,7 +14,7 @@ import {
 
 
 
-const anneau: ReseauChat= creerAnneauChat(["titi", "toto", "coco", "sissi"]);
+const anneau: ReseauChat= creerAnneauChat(["Morgane", "Elisa", "Loïc", "Jules"]);
 
 let IDs_noeuds = anneau.identifiantsNoeuds();
 
